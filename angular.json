@@ -16,10 +16,27 @@
                         },
                         "index": "src/index.html",
                         "tsConfig": "src/tsconfig.json",
-                        "polyfills": ["src/polyfills.ts"],
+                        "polyfills": [
+                            "src/polyfills.ts"
+                        ],
                         "assets": [
                             "src/assets",
                             "src/favicon.ico",
+                            {
+                                "glob": "abp.signalr.js",
+                                "input": "node_modules/abp-web-resources/Abp/Framework/scripts/libs",
+                                "output": "/assets/abp"
+                            },
+                            {
+                                "glob": "abp.signalr-client.js",
+                                "input": "node_modules/abp-web-resources/Abp/Framework/scripts/libs",
+                                "output": "/assets/abp"
+                            },
+                            {
+                                "glob": "mockServiceWorker.js",
+                                "input": "public",
+                                "output": "/"
+                            },
                             {
                                 "glob": "abp.signalr.js",
                                 "input": "node_modules/abp-web-resources/Abp/Framework/scripts/libs",
@@ -37,7 +54,8 @@
                             "src/assets/freeze-ui/freeze-ui.css",
                             "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
                             "node_modules/admin-lte-css-only/css/adminlte.min.css",
-                            "src/shared/core.less"
+                            "src/shared/core.less",
+                            "src/styles.scss"
                         ],
                         "scripts": [
                             "node_modules/moment/min/moment.min.js",

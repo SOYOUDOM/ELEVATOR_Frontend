@@ -5,11 +5,12 @@ import {
     APP_INITIALIZER,
     LOCALE_ID,
     importProvidersFrom,
+    isDevMode,
 } from '@angular/core';
 import { environment } from './environments/environment';
 import { getCurrentLanguage } from './root.module';
 
-import 'moment/min/locales.min';
+// import 'moment/min/locales.min';
 import 'moment-timezone';
 import { provideClientHydration, BrowserModule, bootstrapApplication } from '@angular/platform-browser';
 import { HTTP_INTERCEPTORS, withInterceptorsFromDi, provideHttpClient } from '@angular/common/http';
@@ -27,7 +28,8 @@ import { ServiceProxyModule } from '@shared/service-proxies/service-proxy.module
 import { RootRoutingModule } from './root-routing.module';
 import { RootComponent } from './root.component';
 import { providePrimeNG } from 'primeng/config';
-import Lara from '@primeng/themes/lara';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import Aura from '@primeng/themes/aura';
 
 if (environment.production) {
     enableProdMode();
@@ -63,19 +65,38 @@ const bootstrap = () => {
                 provide: LOCALE_ID,
                 useFactory: getCurrentLanguage,
             },
-            provideAnimations(),
             provideHttpClient(withInterceptorsFromDi()),
+            provideAnimationsAsync(),
             providePrimeNG({
-                theme: {
-                    preset: Lara,
-                },
+            theme: {
+                preset: Aura,
+                options: { cssLayer: { name: 'primeng', order: 'tailwind, primeng' } }
+            }
             }),
+            {
+                provide: API_BASE_URL,
+                useFactory: () =>
+                    environment.useMocks ? '' : AppConsts.remoteServiceBaseUrl,
+            },
         ],
     });
 };
+
+async function enableMocking() {
+  if (!environment.useMocks) return;   // <-- only mock when flag is on
+  const { worker } = await import('./mocks/browser');
+  await worker.start({ onUnhandledRequest: 'bypass' });
+  if (!navigator.serviceWorker.controller) {
+    await new Promise<void>((resolve) => {
+      navigator.serviceWorker.addEventListener('controllerchange', () => resolve(), { once: true });
+    });
+  }
+}
+
+enableMocking().then(() => bootstrap());
 
 /* "Hot Module Replacement" is enabled as described on
  * https://medium.com/@beeman/tutorial-enable-hrm-in-angular-cli-apps-1b0d13b80130#.sa87zkloh
  */
 
-bootstrap(); // Regular bootstrap
+// bootstrap(); // Regular bootstrap

@@ -6,4 +6,5 @@
 export const environment = {
     production: false,
     appConfig: 'appconfig.json',
+    useMocks: true, // <-- set this to true to enable mock API responses
 };
