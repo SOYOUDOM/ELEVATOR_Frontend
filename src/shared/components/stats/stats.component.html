@@ -1,0 +1,21 @@
+<p-panel styleClass="!border-[rgba(150,180,210,0.12)] !bg-[#0a0e15]">
+  <!-- <ng-template pTemplate="header">
+    <span class="text-xs tracking-[0.34em] text-[#aab4c2] uppercase font-mono">KEY METRICS</span>
+  </ng-template> -->
+
+  <div class="flex flex-wrap gap-0 divide-x divide-white/10">
+
+    <div class="flex-1 min-w-[160px] text-center py-7 px-5" *ngFor="let s of stats">
+      
+      <div class="text-4xl md:text-5xl font-display font-bold tracking-wide 
+                  text-(--p-elevator-accent) [text-shadow:0_0_16px_rgba(91,255,166,0.4),0_0_36px_rgba(91,255,166,0.4)]">
+        {{ s.value }}
+      </div>    
+
+      <div class="text-[11px] tracking-[0.24em] text-[#6b7585] uppercase font-mono mt-1.5">
+        {{ s.label }}
+      </div>
+
+    </div>
+  </div>
+</p-panel>

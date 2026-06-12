@@ -14,12 +14,14 @@ export class MenuItem {
         route: string,
         icon: string,
         permissionName: string = null,
-        children: MenuItem[] = null
+        children: MenuItem[] = null,
+        isActive: boolean = false,
     ) {
         this.label = label;
         this.route = route;
         this.icon = icon;
         this.permissionName = permissionName;
         this.children = children;
+        this.isActive = isActive;
     }
 }

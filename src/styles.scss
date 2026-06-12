@@ -1,0 +1,370 @@
+@use "./reveals.scss";
+@import "tailwindcss";
+
+body {
+  overflow-x: hidden;
+    user-select: none;
+
+}
+@plugin "tailwindcss-primeui";
+@layer tailwind, primeng;
+
+@font-face {
+    font-family: 'Varino';
+    src: url('./assets/fonts/Varino\ -\ Normal.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+
+
+// .group{
+//     color: var(--p-elevator-ink );
+//     text-decoration: none;
+//     transition: color .2s ease;
+// }
+
+a, a:hover, a:focus {
+  color: var(--p-elevator-ink) !important;
+  text-decoration: none !important;
+}
+
+.scene {
+    background:
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0)),
+        linear-gradient(to bottom, #020202 0%, #090909 48%, #030303 100%);
+}
+
+.brand-name {
+    font-family: 'Varino', sans-serif;
+    font-size: 1.5rem;
+
+    .lead {
+        color: var(--p-elevator-accent);
+        text-shadow: 0 0 18px var(--p-elevator-accent-glow);
+    }
+}
+.brand-name {
+    font-family: 'Varino', sans-serif;
+    font-size: 1.5rem;
+}
+
+.mobile-brand {
+    font-family: 'Varino', sans-serif;
+    font-size: 2.5rem;
+    line-height: 1;
+    padding: 0;
+    color: var(--p-elevator-accent);
+    text-shadow: 0 0 18px var(--accent-glow);
+    transition: transform .2s ease;
+}
+
+.mobile-brand:hover {
+    transform: scale(1.08);
+}
+
+.Varino{
+    font-family: 
+        'Varino', sans-serif;
+}
+
+/* =====================================================
+   NAVBAR LINKS
+===================================================== */
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-decoration: none !important;
+  color: var(--p-elevator-ink2) !important;
+  transition: color .3s ease;
+
+  /* underline — shared by all states */
+  &::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: -3px;
+    height: 1px;
+    background: var(--p-elevator-accent);
+    box-shadow: 0 0 8px var(--p-elevator-accent-glow);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .35s cubic-bezier(.16, 1, .3, 1);
+  }
+
+  &:hover {
+    color: var(--p-elevator-ink) !important;
+
+    &::after { transform: scaleX(1); }
+  }
+
+  /* current route stays lit */
+  &--active {
+    color: var(--p-elevator-accent) !important;
+
+    &::after { transform: scaleX(1); }
+  }
+
+  /* CTA — the breathing glow (Create CV) */
+  &--cta {
+    color: var(--p-elevator-ink) !important;
+    text-shadow: 0 0 6px var(--p-elevator-accent-glow);
+    animation: navBreathe 2.8s ease-in-out infinite;
+    transition: text-shadow .3s ease, transform .3s ease, color .3s ease;
+
+    &:hover {
+      text-shadow: 0 0 16px var(--p-elevator-accent-glow),
+                   0 0 30px var(--p-elevator-accent-soft);
+      transform: translateY(-1px);
+      animation-play-state: paused;
+    }
+  }
+}
+
+@keyframes navBreathe {
+  0%, 100% {
+    text-shadow: 0 0 5px var(--p-elevator-accent-glow);
+  }
+  50% {
+    text-shadow: 0 0 14px var(--p-elevator-accent-glow),
+                 0 0 24px var(--p-elevator-accent-soft);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-link--cta { animation: none; }
+}
+
+/* ============================================================
+   ELEVATOR — boot intro v2 (slower, more dramatic doors).
+   REPLACES the existing "//intro" block in your styles.scss
+   (everything from "boot overlay: elevator doors" down to the
+   last @keyframes navLink — delete that block, paste this).
+
+   What changed vs v1:
+     • Seam ignites longer (.55s) with an extended stuttering label.
+     • Doors do a tense inward JOLT, then part with heavy easing
+       over 1.15s (starts at 1.25s).
+     • A green light burst (.boot-flash) flares as they part —
+       add <div class="boot-flash"></div> to the overlay markup.
+     • --bd (content start) moves 0.75s → 1.45s.
+     • app.component.ts: BOOT_MS 2400 → 3600.
+
+   Brand/nav selectors are matched to YOUR markup:
+     header-left-navbar wordmark  → .lead / .brand-l / .brand-sub
+     header links                 → app-header a.nav-link
+   ============================================================ */
+
+:root {
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-fast: cubic-bezier(0.6, 0.1, 0.3, 0.9);
+  --accent-glow: var(--p-elevator-accent-glow, rgba(91, 255, 166, 0.45));
+}
+
+/* ---------- boot overlay: elevator doors ---------- */
+.boot {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  pointer-events: none;
+
+  .boot-door {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50.5%;
+    background:
+      repeating-linear-gradient(90deg, rgba(150, 180, 210, 0.03) 0 1px, transparent 1px 90px),
+      linear-gradient(180deg, #070a10, #04060a);
+
+    &.l { left: 0; }
+    &.r { right: 0; }
+
+    &.l::after,
+    &.r::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: color-mix(in oklch, var(--p-elevator-accent, #5bffa6) 55%, transparent);
+      box-shadow: 0 0 18px var(--accent-glow);
+    }
+    &.l::after { right: 0; }
+    &.r::after { left: 0; }
+  }
+
+  /* vertical light burst behind the parting doors */
+  .boot-flash {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 30vw;
+    transform: translateX(-50%);
+    background: radial-gradient(ellipse 50% 60% at 50% 50%, var(--accent-glow), transparent 70%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* center seam that ignites first */
+  .boot-seam {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    margin-left: -1px;
+    background: linear-gradient(180deg, transparent, var(--p-elevator-accent, #5bffa6) 18%, #fff 50%, var(--p-elevator-accent, #5bffa6) 82%, transparent);
+    box-shadow: 0 0 24px var(--accent-glow), 0 0 60px var(--accent-glow);
+    transform: scaleY(0);
+  }
+
+  .boot-label {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono, "Share Tech Mono", monospace);
+    font-size: 10px;
+    letter-spacing: 0.5em;
+    text-indent: 0.5em;
+    color: var(--p-elevator-accent, #5bffa6);
+    text-shadow: 0 0 14px var(--accent-glow);
+    opacity: 0;
+
+    .bl-tick {
+      width: 26px;
+      height: 1px;
+      background: var(--p-elevator-accent, #5bffa6);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html[data-boot="run"] {
+    .boot-seam {
+      animation:
+        bootSeam 0.55s var(--ease-fast) 0.1s both,
+        bootSeamOut 0.35s ease 1.5s forwards;
+    }
+    .boot-label  { animation: bootLabel 1.5s steps(3, end) 0.18s both; }
+    .boot-door.l { animation: bootDoorL 1.15s cubic-bezier(0.83, 0, 0.17, 1) 1.25s both; }
+    .boot-door.r { animation: bootDoorR 1.15s cubic-bezier(0.83, 0, 0.17, 1) 1.25s both; }
+    .boot-flash  { animation: bootFlash 0.9s ease 1.3s both; }
+  }
+}
+
+/* when not booting (or reduced motion), overlay is gone */
+html:not([data-boot="run"]) .boot { display: none; }
+@media (prefers-reduced-motion: reduce) { .boot { display: none; } }
+
+@keyframes bootSeam    { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes bootSeamOut { to { opacity: 0; } }
+@keyframes bootLabel   { 0% { opacity: 0; } 18% { opacity: 1; } 30% { opacity: 0.3; } 42%, 86% { opacity: 1; } 100% { opacity: 0; } }
+/* doors: tense pre-jolt inward, then heavy slide open */
+@keyframes bootDoorL   { 0% { transform: translateX(0); } 14% { transform: translateX(1.2%); } 100% { transform: translateX(-103%); } }
+@keyframes bootDoorR   { 0% { transform: translateX(0); } 14% { transform: translateX(-1.2%); } 100% { transform: translateX(103%); } }
+@keyframes bootFlash   { 0% { opacity: 0; } 18% { opacity: 0.85; } 100% { opacity: 0; } }
+
+/* ============================================================
+   POWER-ON CHOREOGRAPHY
+   --bd (boot delay): 1.45s on first load so the stage clears the
+   doors first; 0s on later remounts / route returns.
+   ============================================================ */
+:root { --bd: 0s; }
+html[data-boot="run"] { --bd: 1.45s; }
+
+@media (prefers-reduced-motion: no-preference) {
+
+  /* background layers fade up (scene layers from your theme) */
+  html[data-boot] .layer-stars    { animation: bgUp 1.6s ease var(--bd) both; }
+  html[data-boot] .grid-overlay   { animation: bgUp 2s ease calc(var(--bd) + 0.15s) both; }
+  html[data-boot] .particle-field { animation: bgUp 1.4s ease var(--bd) both; }
+  html[data-boot] .layer-earth,
+  html[data-boot] .layer-flare    { animation: bgUp 1.8s ease calc(var(--bd) + 0.2s) both; }
+
+  /* ---- header bar: drop + materialise (your fixed top bar) ---- */
+  html[data-boot] app-header > div {
+    animation: navDrop 0.65s var(--ease) calc(var(--bd) + 0.05s) both;
+  }
+
+  /* saber sweep along the header's bottom edge, once
+     (requires <span class="nav-saber"></span> inside the bar) */
+  html[data-boot] app-header .nav-saber {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent 0%, var(--p-elevator-accent, #5bffa6) 46%, #fff 50%, var(--p-elevator-accent, #5bffa6) 54%, transparent 100%);
+    background-size: 60% 100%;
+    background-repeat: no-repeat;
+    animation: navSaber 1.1s var(--ease-fast) calc(var(--bd) + 0.45s) both;
+  }
+
+  /* ---- brand: E ignites, letters cascade, sub wipes in ----
+     (requires the letter-span markup in header-left-navbar) */
+  html[data-boot] header-left-navbar .lead {
+    animation: leadIgnite 0.8s steps(5, end) calc(var(--bd) + 0.3s) both;
+  }
+  html[data-boot] header-left-navbar .brand-l {
+    display: inline-block;
+    animation: brandL 0.5s var(--ease) calc(var(--bd) + 0.42s + var(--i, 0) * 0.055s) both;
+  }
+  html[data-boot] header-left-navbar .brand-sub {
+    animation: subWipe 0.7s var(--ease) calc(var(--bd) + 0.85s) both;
+  }
+
+  /* ---- nav links: staggered drop ---- */
+  html[data-boot] app-header a.nav-link { animation: navLink 0.5s var(--ease) both; }
+  html[data-boot] app-header a.nav-link:nth-child(1) { animation-delay: calc(var(--bd) + 0.55s); }
+  html[data-boot] app-header a.nav-link:nth-child(2) { animation-delay: calc(var(--bd) + 0.64s); }
+  html[data-boot] app-header a.nav-link:nth-child(3) { animation-delay: calc(var(--bd) + 0.73s); }
+  html[data-boot] app-header a.nav-link:nth-child(4) { animation-delay: calc(var(--bd) + 0.82s); }
+  html[data-boot] app-header a.nav-link:nth-child(n+5) { animation-delay: calc(var(--bd) + 0.9s); }
+
+  /* ---- main content + footer ---- */
+  .route-shell { animation: routeIn 0.6s var(--ease) var(--bd) both; }
+  html[data-boot] app-footer .footer,
+  html[data-boot] .footer { animation: footUp 0.8s var(--ease) calc(var(--bd) + 0.35s) both; }
+
+  /* hero load reveals wait behind the doors on first load */
+  html[data-boot="run"] .elv-reveal { animation-delay: var(--bd); }
+
+  /* scanlines flicker on like a CRT (if your theme has them) */
+  html[data-boot] .scanlines { animation: crtOn 1.2s steps(4, end) calc(var(--bd) + 0.2s) both; }
+}
+
+@keyframes bgUp    { from { opacity: 0; } to { opacity: 1; } }
+@keyframes navDrop { from { opacity: 0; transform: translateY(-22px); } to { opacity: 1; transform: none; } }
+@keyframes navSaber {
+  0% { background-position: -60% 0; opacity: 1; }
+  85% { opacity: 1; }
+  100% { background-position: 160% 0; opacity: 0; }
+}
+@keyframes leadIgnite {
+  0% { opacity: 0; text-shadow: none; }
+  25% { opacity: 1; text-shadow: 0 0 30px var(--accent-glow), 0 0 70px var(--accent-glow); }
+  40% { opacity: 0.25; text-shadow: none; }
+  55%, 100% { opacity: 1; text-shadow: 0 0 18px var(--accent-glow); }
+}
+@keyframes brandL  { from { opacity: 0; transform: translateY(9px); filter: blur(4px); } to { opacity: 1; transform: none; filter: blur(0); } }
+@keyframes subWipe { from { opacity: 0; clip-path: inset(0 100% 0 0); letter-spacing: 0.6em; } to { opacity: 1; clip-path: inset(0 -2% 0 0); letter-spacing: 0.42em; } }
+@keyframes navLink { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
+@keyframes routeIn { from { opacity: 0; transform: translateY(16px); filter: blur(6px); } to { opacity: 1; transform: none; filter: blur(0); } }
+@keyframes footUp  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes crtOn   { 0% { opacity: 0; } 30% { opacity: 1; } 45% { opacity: 0.2; } 65%, 100% { opacity: 1; } }

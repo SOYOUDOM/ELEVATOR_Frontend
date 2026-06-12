@@ -5,11 +5,10 @@ import {
     APP_INITIALIZER,
     LOCALE_ID,
     importProvidersFrom,
-} from '@angular/core';
+    isDevMode} from '@angular/core';
 import { environment } from './environments/environment';
 import { getCurrentLanguage } from './root.module';
 
-import 'moment/min/locales.min';
 import 'moment-timezone';
 import { provideClientHydration, BrowserModule, bootstrapApplication } from '@angular/platform-browser';
 import { HTTP_INTERCEPTORS, withInterceptorsFromDi, provideHttpClient } from '@angular/common/http';
@@ -18,6 +17,7 @@ import { AppInitializer } from './app-initializer';
 import { API_BASE_URL } from '@shared/service-proxies/service-proxies';
 import { AppConsts } from '@shared/AppConsts';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { SharedModule } from '@shared/shared.module';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
@@ -27,7 +27,8 @@ import { ServiceProxyModule } from '@shared/service-proxies/service-proxy.module
 import { RootRoutingModule } from './root-routing.module';
 import { RootComponent } from './root.component';
 import { providePrimeNG } from 'primeng/config';
-import Lara from '@primeng/themes/lara';
+import { ElevatorPreset } from './app/theme/my-preset';
+import { CommonModule } from '@angular/common';
 
 if (environment.production) {
     enableProdMode();
@@ -47,7 +48,7 @@ const bootstrap = () => {
                 RootRoutingModule
             ),
             provideExperimentalZonelessChangeDetection(),
-            provideClientHydration(),
+            (environment.useMocks ? [] : [provideClientHydration()]),
             { provide: HTTP_INTERCEPTORS, useClass: AbpHttpInterceptor, multi: true },
             {
                 provide: APP_INITIALIZER,
@@ -57,7 +58,7 @@ const bootstrap = () => {
             },
             {
                 provide: API_BASE_URL,
-                useFactory: () => AppConsts.remoteServiceBaseUrl,
+                useFactory: () => environment.useMocks ? '' : AppConsts.remoteServiceBaseUrl,
             },
             {
                 provide: LOCALE_ID,
@@ -67,9 +68,16 @@ const bootstrap = () => {
             provideHttpClient(withInterceptorsFromDi()),
             providePrimeNG({
                 theme: {
-                    preset: Lara,
-                },
-            }),
+                    preset: ElevatorPreset,
+                    options: {
+                    darkModeSelector: '.app-dark',   // see dark mode below
+                    cssLayer: {                       // see CSS override below
+                        name: 'primeng',
+                        order: 'theme, base, primeng',
+                    },
+                    },
+                }}),
+                provideAnimationsAsync(),
         ],
     });
 };
@@ -77,5 +85,9 @@ const bootstrap = () => {
 /* "Hot Module Replacement" is enabled as described on
  * https://medium.com/@beeman/tutorial-enable-hrm-in-angular-cli-apps-1b0d13b80130#.sa87zkloh
  */
-
-bootstrap(); // Regular bootstrap
+async function enableMocking() {
+  if (!environment.useMocks) return;
+  const { worker } = await import('./mocks/browser');
+  await worker.start({ onUnhandledRequest: 'bypass' });
+}
+enableMocking().then(() => bootstrap());   // ONLY one bootstrap call — no stray bootstrap() below

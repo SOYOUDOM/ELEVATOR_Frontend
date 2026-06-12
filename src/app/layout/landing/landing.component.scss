@@ -1,0 +1,701 @@
+// ================================================================
+//  ELEVATOR — Landing Component Styles
+//  Scoped with `elv-` prefix to avoid AdminLTE collisions.
+//  Uses CSS custom props so PrimeNG theme vars don't fight us.
+// ================================================================
+
+// ── Design tokens (scoped) ──────────────────────────────────────
+
+
+// ── Google fonts (Orbitron as display fallback) ─────────────────
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Chakra+Petch:wght@300;400;600&display=swap');
+
+// ── Font helpers ───────────────────────────────────────────────
+.font-display {
+  font-family: 'Varino','Orbitron', 'Chakra Petch', sans-serif !important;
+}
+
+// ── Page wrapper ───────────────────────────────────────────────
+.elv-page {
+  background: var(--p-elevator-bg0);
+  color: var(--p-elevator-ink);
+  font-family: 'Chakra Petch', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  position: relative;
+
+  // starfield dots via radial gradients (no canvas needed)
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 15%  20%, rgba(255,255,255,.55) 0, transparent 0),
+      radial-gradient(1px 1px at 72%  8%,  rgba(255,255,255,.45) 0, transparent 0),
+      radial-gradient(1.5px 1.5px at 40% 60%, rgba(255,255,255,.35) 0, transparent 0),
+      radial-gradient(1px 1px at 88%  45%, rgba(255,255,255,.5)  0, transparent 0),
+      radial-gradient(1px 1px at 5%   80%, rgba(255,255,255,.4)  0, transparent 0),
+      radial-gradient(2px 2px at 60%  90%, rgba(91,255,166,.22)  0, transparent 0),
+      radial-gradient(1px 1px at 30%  35%, rgba(255,255,255,.3)  0, transparent 0),
+      radial-gradient(1px 1px at 92%  75%, rgba(255,255,255,.35) 0, transparent 0),
+      radial-gradient(1px 1px at 52%  15%, rgba(255,255,255,.4)  0, transparent 0),
+      radial-gradient(1px 1px at 78%  55%, rgba(255,255,255,.25) 0, transparent 0);
+  }
+
+  // scan-line overlay
+  &::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,.013) 0 1px,
+      transparent 1px 3px
+    );
+    mix-blend-mode: overlay;
+    opacity: .6;
+  }
+
+  // top accent glow
+  .elv-hero-glow {
+    position: absolute;
+    left: 50%; top: 0;
+    transform: translateX(-50%);
+    width: 900px; height: 400px;
+    background: radial-gradient(ellipse 70% 55% at 50% 0%,
+      color-mix(in oklch, var(--p-elevator-accent) 7%, transparent), transparent 72%);
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+// ── Layout helpers ─────────────────────────────────────────────
+.elv-container {
+  width: min(var(--p-elevator-maxw), 92vw);
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.elv-section {
+  padding: clamp(60px, 8vw, 120px) 0;
+  position: relative;
+}
+
+.elv-row {
+  display: flex;
+  align-items: center;
+}
+
+.elv-gap-12 { gap: 12px; }
+.elv-center { text-align: center; }
+.elv-muted  { color: var(--p-elevator-ink2); }
+
+// ── Typography ─────────────────────────────────────────────────
+.elv-mono {
+  font-family: 'Share Tech Mono', ui-monospace, monospace !important;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+
+.elv-eyebrow {
+  font-family: 'Share Tech Mono', ui-monospace, monospace;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: var(--elv-ink-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+
+  &::before {
+    content: '';
+    width: 28px; height: 2px;
+    flex: none;
+    background: linear-gradient(90deg, transparent, var(--p-elevator-accent));
+    box-shadow: 0 0 10px var(--p-elevator-accent-glow);
+  }
+}
+
+.elv-center .elv-eyebrow {
+  justify-content: center;
+}
+
+.elv-glow-text {
+  color: color-mix(in oklch, var(--p-elevator-accent) 88%, #fff);
+  text-shadow:
+    0 0 16px var(--p-elevator-accent-glow),
+    0 0 36px var(--p-elevator-accent-glow);
+}
+
+// ── Section head ──────────────────────────────────────────────
+.elv-section-head {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 48px;
+
+  h2 {
+    font-family: 'Orbitron', 'Chakra Petch', sans-serif;
+    font-weight: 400;
+    font-size: clamp(28px, 4vw, 56px);
+    line-height: 1.05;
+    margin: 0;
+    letter-spacing: .01em;
+    text-transform: uppercase;
+    color: var(--p-elevator-ink);
+  }
+
+  .elv-lede {
+    color: var(--p-elevator-ink2);
+    max-width: 560px;
+    line-height: 1.6;
+    font-size: 16px;
+    margin: 0;
+  }
+}
+
+// ── Notched box system ─────────────────────────────────────────
+//  Structure: .elv-notch-box > .elv-notch-edge + .elv-notch-face + .elv-notch-content
+.elv-notch-box {
+  position: relative;
+
+  .elv-notch-edge {
+    position: absolute; inset: 0;
+    background: var(--p-elevator-edgecolor, var(--p-elevator-line));
+    clip-path: polygon(
+      var(--p-elevator-corner) 0, 100% 0,
+      100% calc(100% - var(--p-elevator-corner)), calc(100% - var(--p-elevator-corner)) 100%,
+      0 100%, 0 var(--p-elevator-corner));
+    pointer-events: none;
+  }
+
+  .elv-notch-face {
+    position: absolute; inset: 1px;
+    background: var(--p-elevator-panel);
+    clip-path: polygon(
+      var(--p-elevator-corner) 0, 100% 0,
+      100% calc(100% - var(--p-elevator-corner)), calc(100% - var(--p-elevator-corner)) 100%,
+      0 100%, 0 var(--p-elevator-corner));
+    pointer-events: none;
+  }
+
+  .elv-notch-content {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// Corner tick decorations
+.elv-tick-tl,
+.elv-tick-br {
+  position: absolute;
+  width: 7px; height: 7px;
+  pointer-events: none;
+  border-color: var(--p-elevator-accent);
+  opacity: .85;
+  z-index: 2;
+}
+
+.elv-tick-tl {
+  top: 5px; left: 5px;
+  border-top: 1.5px solid;
+  border-left: 1.5px solid;
+}
+
+.elv-tick-br {
+  bottom: 5px; right: 5px;
+  border-bottom: 1.5px solid;
+  border-right: 1.5px solid;
+}
+
+// ── Lightsaber hover ──────────────────────────────────────────
+.elv-saber-hover {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 2px;
+    z-index: 3;
+    background: linear-gradient(90deg, transparent, var(--p-elevator-accent), transparent);
+    box-shadow: 0 0 14px var(--p-elevator-accent-glow);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .55s cubic-bezier(.2,.7,.2,1);
+    pointer-events: none;
+  }
+
+  &:hover::after { transform: scaleX(1); }
+}
+
+// ── Reveal animation ──────────────────────────────────────────
+.elv-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  animation: elv-reveal .7s cubic-bezier(.2,.7,.2,1) forwards;
+}
+
+@keyframes elv-reveal {
+  to { opacity: 1; transform: none; }
+}
+
+// ── Status pill ───────────────────────────────────────────────
+.elv-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--p-elevator-ink2);
+  border: 1px solid var(--p-elevator-line-strong);
+  background: rgba(91,255,166,.04);
+  padding: 8px 18px;
+  clip-path: polygon(
+    8px 0, 100% 0,
+    100% calc(100% - 8px), calc(100% - 8px) 100%,
+    0 100%, 0 8px);
+}
+
+.elv-status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--p-elevator-accent);
+  box-shadow: 0 0 8px var(--p-elevator-accent-glow);
+  animation: elv-pulse 2s ease-in-out infinite;
+  flex: none;
+}
+
+@keyframes elv-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .6; transform: scale(0.75); }
+}
+
+// ── Buttons ───────────────────────────────────────────────────
+.elv-btn {
+  position: relative;
+  cursor: pointer;
+  border: 0;
+  background: none;
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  font-size: 13px;
+  color: var(--p-elevator-ink);
+  padding: 0;
+  user-select: none;
+  transition: transform .25s cubic-bezier(.2,.7,.2,1);
+
+  &:active { transform: translateY(1px) scale(.992); }
+
+  .elv-notch-edge {
+    position: absolute; inset: 0;
+    clip-path: polygon(
+      10px 0, 100% 0,
+      100% calc(100% - 10px), calc(100% - 10px) 100%,
+      0 100%, 0 10px);
+  }
+
+  .elv-notch-face {
+    position: absolute; inset: 1px;
+    clip-path: polygon(
+      10px 0, 100% 0,
+      100% calc(100% - 10px), calc(100% - 10px) 100%,
+      0 100%, 0 10px);
+    transition: background .3s ease;
+  }
+
+  .elv-btn-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 13px 28px;
+
+    i { font-size: .9rem; }
+  }
+
+  // Primary variant
+  &.elv-btn-primary {
+    .elv-notch-edge { background: var(--p-elevator-accent); }
+    .elv-notch-face { background: var(--p-elevator-accent-dim); }
+
+    color: #000;
+
+    &:hover .elv-notch-face { background: var(--p-elevator-accent); }
+  }
+
+  // Ghost variant
+  &.elv-btn-ghost {
+    .elv-notch-edge { background: var(--p-elevator-line-strong); }
+    .elv-notch-face { background: var(--p-elevator-panel); }
+
+    color: var(--p-elevator-ink);
+
+    &:hover {
+      .elv-notch-edge { background: var(--p-elevator-accent); }
+      color: var(--p-elevator-accent);
+    }
+  }
+}
+
+// ── Chips ─────────────────────────────────────────────────────
+.elv-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--p-elevator-ink2);
+  border: 1px solid var(--p-elevator-line);
+  background: rgba(255,255,255,.03);
+  padding: 7px 14px;
+  transition: border-color .25s, color .25s;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+
+  i { font-size: .75rem; }
+
+  &:hover {
+    border-color: var(--p-elevator-accent-soft);
+    color: var(--p-elevator-accent);
+  }
+}
+
+// ── Hero ─────────────────────────────────────────────────────
+.elv-hero {
+  position: relative;
+  text-align: center;
+  padding: clamp(36px, 6vw, 76px) 0 70px;
+  overflow: visible;
+
+  h1 {
+    font-family: 'Varino', 'Orbitron', 'Chakra Petch', sans-serif;
+    font-weight: 400;
+    font-size: clamp(36px, 6.5vw, 96px);
+    line-height: .96;
+    margin: 26px auto 0;
+    letter-spacing: .01em;
+    text-transform: uppercase;
+    max-width: 16ch;
+    text-wrap: balance;
+    color: var(--p-elevator-ink);
+  }
+}
+
+.elv-lede {
+  max-width: 600px;
+  margin: 30px auto 0;
+  color: var(--p-elevator-ink2);
+  font-size: clamp(15px, 1.4vw, 18px);
+  line-height: 1.65;
+}
+
+// Typewriter word
+.elv-typeword {
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.elv-typeword-sizer {
+  visibility: hidden;
+  white-space: nowrap;
+}
+
+.elv-typeword-live {
+  position: absolute;
+  left: 0; top: 0;
+  white-space: nowrap;
+  color: var(--p-elevator-accent);
+}
+
+.elv-cursor {
+  display: inline-block;
+  width: 3px; height: .82em;
+  background: var(--p-elevator-accent);
+  box-shadow: 0 0 14px var(--p-elevator-accent-glow);
+  vertical-align: -.06em;
+  margin-left: 2px;
+  animation: elv-blink 1.05s steps(1) infinite;
+}
+
+@keyframes elv-blink { 50% { opacity: 0; } }
+
+.elv-hero-cta {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 40px;
+}
+
+.elv-hero-chips {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+
+
+// ── Feature cards ────────────────────────────────────────────
+.elv-feat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.elv-feature {
+  transition: transform .35s cubic-bezier(.2,.7,.2,1);
+
+  &:hover {
+    transform: translateY(-5px);
+    --elv-edge-color: var(--p-elevator-accent);
+  }
+}
+
+.elv-feature-inner {
+  padding: 30px 28px;
+  position: relative;
+}
+
+.elv-feat-num {
+  position: absolute;
+  top: 16px; right: 18px;
+  font-size: 11px;
+  color: var(--p-elevator-ink4);
+  letter-spacing: .2em;
+}
+
+.elv-feat-ico {
+  width: 46px; height: 46px;
+  margin-bottom: 22px;
+  color: var(--p-elevator-accent);
+  display: grid;
+  place-items: center;
+
+  i { font-size: 1.6rem; }
+}
+
+.elv-feature-inner h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 400;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  font-size: 18px;
+  margin: 0 0 10px;
+  color: var(--p-elevator-ink);
+}
+
+.elv-feature-inner p {
+  color: var(--p-elevator-ink2);
+  line-height: 1.6;
+  margin: 0;
+  font-size: 14.5px;
+}
+
+// ── Spotlight ────────────────────────────────────────────────
+.elv-spotlight { }
+
+.elv-spotlight-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+  padding: clamp(28px, 4vw, 56px);
+
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+.elv-spotlight-h2 {
+  font-family: 'Orbitron', sans-serif !important;
+  font-size: clamp(28px, 3.5vw, 50px) !important;
+  text-transform: uppercase;
+  margin: 14px 0 0 !important;
+  line-height: 1 !important;
+  color: var(--p-elevator-ink);
+}
+
+.elv-spotlight-desc {
+  max-width: 460px;
+  line-height: 1.65;
+  margin-top: 18px;
+  font-size: 15px;
+}
+
+// Before/after card
+.elv-ba-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: center;
+}
+
+.elv-ba-ph {
+  flex: 1;
+}
+
+.elv-ph-placeholder {
+  aspect-ratio: 3/4;
+  max-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  position: relative;
+  clip-path: polygon(
+    12px 0, 100% 0,
+    100% calc(100% - 12px), calc(100% - 12px) 100%,
+    0 100%, 0 12px);
+
+  &.elv-ph-before {
+    background: var(--elv-panel-hi);
+    border: 1px solid var(--elv-line);
+  }
+
+  &.elv-ph-after {
+    background: color-mix(in oklch, var(--p-elevator-accent) 6%, var(--p-elevator-panel));
+    border: 1px solid var(--p-elevator-accent-soft);
+    box-shadow: 0 0 28px color-mix(in oklch, var(--p-elevator-accent) 12%, transparent) inset;
+  }
+}
+
+.elv-ph-label {
+  font-size: 10px;
+  letter-spacing: .22em;
+  color: var(--p-elevator-ink-3);
+}
+
+.elv-ba-arrow {
+  color: var(--p-elevator-accent);
+  font-size: 1.4rem;
+  flex: none;
+  text-shadow: 0 0 14px var(--p-elevator-accent-glow);
+}
+
+.elv-ba-badge {
+  position: absolute;
+  top: 10px; right: 10px;
+  font-size: 9px;
+  letter-spacing: .2em;
+  background: var(--p-elevator-accent);
+  color: #000;
+  padding: 3px 8px;
+}
+
+// ── Steps ────────────────────────────────────────────────────
+.elv-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 24px;
+}
+
+.elv-step {
+  padding: 28px 24px;
+  background: var(--p-elevator-panel);
+  border: 1px solid var(--p-elevator-line);
+  clip-path: polygon(
+    10px 0, 100% 0,
+    100% calc(100% - 10px), calc(100% - 10px) 100%,
+    0 100%, 0 10px);
+  transition: border-color .3s, box-shadow .3s;
+
+  &:hover {
+    border-color: var(--p-elevator-accent-soft);
+    box-shadow: 0 0 24px color-mix(in oklch, var(--p-elevator-accent) 8%, transparent);
+  }
+}
+
+.elv-step-n {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: .04em;
+}
+
+.elv-step-line {
+  height: 1px;
+  background: var(--p-elevator-line);
+  margin: 16px 0;
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -50%; width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, var(--p-elevator-accent), transparent);
+    animation: elv-step-sweep 3s linear infinite;
+  }
+}
+
+@keyframes elv-step-sweep {
+  to { left: 150%; }
+}
+
+.elv-step-title {
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  font-size: 16px;
+  font-weight: 400;
+  margin: 0 0 8px;
+  color: var(--p-elevator-ink);
+}
+
+.elv-step-desc {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+// ── CTA band ─────────────────────────────────────────────────
+.elv-cta-band { }
+
+.elv-cta-inner {
+  padding: clamp(30px, 5vw, 64px) 20px;
+}
+
+.elv-cta-h2 {
+  font-family: 'Orbitron', sans-serif !important;
+  font-size: clamp(28px, 5vw, 64px) !important;
+  text-transform: uppercase;
+  margin: 16px 0 0 !important;
+  line-height: 1 !important;
+}
+
+// ── Responsive guards ─────────────────────────────────────────
+@media (max-width: 600px) {
+  .elv-feat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .elv-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .elv-ba-card {
+    flex-direction: column;
+
+    .elv-ba-arrow i {
+      transform: rotate(90deg);
+      display: block;
+    }
+  }
+}

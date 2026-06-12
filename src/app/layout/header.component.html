@@ -1,7 +1,32 @@
-<nav class="main-header navbar navbar-expand navbar-white navbar-light">
+<!-- ============================================================
+     header.component.html — UPDATED for boot intro.
+     Changes vs yours:
+       • <span class="nav-saber"> added as last child of the bar
+         (the one-shot light sweep along the bottom edge).
+     The bar is position:fixed, so the absolutely-positioned saber
+     anchors to it directly — no extra wrapper needed.
+     ============================================================ -->
+<div class="fixed top-0 inset-x-0 z-50 flex items-center justify-between
+            h-[88px] px-6 sm:px-12
+            border-b border-[var(--p-elevator-line-soft)]
+            bg-[var(--p-elevator-bg0)]/30 backdrop-blur-md">
+
+  <!-- LEFT -->
+  <div class="flex items-center shrink-0">
     <header-left-navbar></header-left-navbar>
-    <ul class="navbar-nav ml-auto">
-        <header-language-menu></header-language-menu>
-        <header-user-menu></header-user-menu>
-    </ul>
-</nav>
+  </div>
+
+  <div class="flex items-center gap-8 shrink-0 max-[914px]:hidden">
+    @for (item of menuItems; track item.route) {
+      <a [routerLink]="[item.route]"
+         routerLinkActive="nav-link--active"
+         [class.nav-link--cta]="item.isActive"
+         class="nav-link">
+        {{ item.label | localize }}
+      </a>
+    }
+  </div>
+
+  <!-- boot: one-shot saber sweep along the bottom edge -->
+  <span class="nav-saber" aria-hidden="true"></span>
+</div>

@@ -1,9 +1,62 @@
+<!-- ============================================================
+     BOOT OVERLAY — must be a direct child of the app root so it
+     covers everything. Removed from the DOM after boot completes
+     (see app.component.ts), so it costs nothing afterwards.
+     ============================================================ -->
+  <div class="boot" *ngIf="booting" aria-hidden="true">
+    <div class="boot-door l"></div>
+    <div class="boot-door r"></div>
+    <div class="boot-flash"></div>   <!-- NEW -->
+    <div class="boot-seam"></div>
+    <div class="boot-label">…</div>
+  </div>
+ 
 <div class="wrapper">
-    <app-header></app-header>
+  <app-header></app-header>
+ 
+  <aside
+    class="fixed top-0 left-0 h-screen w-64 z-40 bg-white dark:bg-surface-900
+           transform transition-transform duration-300 ease-in-out
+           lg:hidden"
+    [class.-translate-x-full]="!sidebarExpanded"
+    [class.translate-x-0]="sidebarExpanded">
     <sidebar></sidebar>
-    <div class="content-wrapper">
-        <router-outlet></router-outlet>
-    </div>
-    <app-footer></app-footer>
-    <div id="sidebar-overlay" (click)="toggleSidebar()"></div>
+  </aside>
+ 
+  <!-- Backdrop -->
+  <div
+    *ngIf="sidebarExpanded"
+    (click)="toggleSidebar()"
+    class="fixed inset-0 bg-black/45 z-30 lg:hidden">
+  </div>
+ 
+  <!-- route-shell gets the rise+deblur on boot and on every route
+       change (the key re-creates the div so the CSS animation replays) -->
+  <div class="route-shell" *ngIf="routeKey">
+
+<div class="wrapper">
+  <app-header></app-header>
+  <aside
+    class="fixed top-0 left-0 h-screen w-64 z-40 bg-white dark:bg-surface-900
+           transform transition-transform duration-300 ease-in-out
+           lg:hidden"
+    [class.-translate-x-full]="!sidebarExpanded"
+    [class.translate-x-0]="sidebarExpanded">
+    <sidebar></sidebar>
+  </aside>
+
+  <!-- Backdrop -->
+  <div
+    *ngIf="sidebarExpanded"
+    (click)="toggleSidebar()"
+    class="fixed inset-0 bg-black/45 z-30 lg:hidden">
+  </div>
+
+  <app-landing CustomClass="pt-10"></app-landing>
+
+  <!-- <div class="content-wrapper">
+    <router-outlet></router-outlet>
+  </div> -->
+</div>
+  </div>
 </div>

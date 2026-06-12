@@ -1,0 +1,38 @@
+<ul class="navbar-nav flex items-center gap-5 sm:gap-8">
+
+  <div class="group flex flex-col leading-none select-none Varino"
+     [attr.data-open]="sidebarExpanded ? 'true' : 'false'">
+
+  <!-- Wordmark -->
+  <span class="flex items-baseline gap-[1px] text-[1.7rem] tracking-[0.12em] uppercase">
+
+    <!-- "E" = green ≡ bars. Inert branding ≥577px, toggle below it -->
+    <span (click)="toggleSidebar()"
+          role="button"
+          tabindex="0"
+          aria-label="Toggle menu"
+          aria-controls="app-sidebar"
+          [attr.aria-expanded]="sidebarExpanded"
+          class="relative text-[var(--p-elevator-accent)]
+                 drop-shadow-[0_0_8px_var(--p-elevator-accent-glow)]
+                 transition-[filter,transform] duration-300
+                 min-[577px]:pointer-events-none
+                 max-[576px]:cursor-pointer
+                 max-[576px]:hover:drop-shadow-[0_0_14px_var(--p-elevator-accent-glow)]
+                 max-[576px]:active:scale-90
+                 group-data-[open=true]:drop-shadow-[0_0_18px_var(--p-elevator-accent-glow)]">
+      E
+    </span>
+
+    <span class="text-[var(--p-elevator-ink)]">LEVATOR</span>
+  </span>
+
+  <!-- Subtitle — becomes a live menu hint on mobile -->
+  <span class="mt-[6px] text-[0.6rem] tracking-[0.42em] uppercase
+               text-[var(--p-elevator-ink3)] transition-colors duration-300
+               group-data-[open=true]:text-[var(--p-elevator-accent)]">
+    <span class="hidden sm:inline">Powered by AI</span>
+    <span class="sm:hidden">{{ sidebarExpanded ? 'Close · Menu' : 'Tap E · Menu' }}</span>
+  </span>
+</div>
+</ul>
