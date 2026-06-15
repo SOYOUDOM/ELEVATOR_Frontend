@@ -61,15 +61,20 @@
   }
 
   /* ---------- flip — 3D card turn from top ---------- */
-  .rv-flip {
-    opacity: 0;
-    transform: perspective(900px) rotateX(-46deg) translateY(18px);
-    transform-origin: top center;
-    transition:
-      opacity 0.7s var(--rv-ease) var(--rvd, 0s),
-      transform 0.85s cubic-bezier(0.18, 0.9, 0.3, 1.2) var(--rvd, 0s);
-    &.seen { opacity: 1; transform: perspective(900px) rotateX(0) translateY(0); }
+.rv-flip {
+  opacity: 0;
+  transform-origin: top center;
+
+  &.seen {
+    animation: rvFlipIn 0.85s cubic-bezier(0.18, 0.9, 0.3, 1.2) var(--rvd, 0s) both;
   }
+}
+
+@keyframes rvFlipIn {
+  from { opacity: 0; transform: perspective(900px) rotateX(-46deg) translateY(18px); }
+  55%  { opacity: 1; }
+  to   { opacity: 1; transform: perspective(900px) rotateX(0) translateY(0); }
+}
 
   /* ---------- doors — clip parts from a flashing center seam ---------- */
   .rv-doors {
@@ -97,30 +102,30 @@
   }
 
   /* ---------- scan — materialise behind a scanline ---------- */
-  .rv-scan {
-      opacity: 0;
+.rv-scan {
+  opacity: 0;                       /* hidden until .seen */
   clip-path: inset(0 0 100% 0);
   position: relative;
-  overflow: hidden;
 
-  transition:
-    opacity 0.8s ease var(--rvd, 0s),
-    clip-path 0.8s var(--rv-ease) var(--rvd, 0s);
-    &::before {
-      content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px;
-      background: var(--rv-accent);
-      box-shadow: 0 0 16px var(--rv-glow), 0 0 40px var(--rv-glow);
-      opacity: 0; pointer-events: none; z-index: 3;
-    }
-    &.seen {
-    opacity: 1;
-    clip-path: inset(0 0 -2% 0);
+  &::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px;
+    background: var(--rv-accent);
+    box-shadow: 0 0 16px var(--rv-glow), 0 0 40px var(--rv-glow);
+    opacity: 0; pointer-events: none; z-index: 3;
   }
 
+  &.seen {
+    animation: rvScanReveal 0.8s var(--rv-ease) var(--rvd, 0s) both;
+  }
   &.seen::before {
     animation: rvScanline 0.8s var(--rv-ease) var(--rvd, 0s) both;
   }
-  }
+}
+
+@keyframes rvScanReveal {
+  from { opacity: 1; clip-path: inset(0 0 100% 0); }
+  to   { opacity: 1; clip-path: inset(0 0 -2% 0); }
+}
 
   /* ---------- wipe — clip from the left + slide settle ---------- */
   .rv-wipe {

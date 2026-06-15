@@ -1,0 +1,41 @@
+// ── Chips ─────────────────────────────────────────────────────
+.elv-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--p-elevator-ink2);
+  border: 1px solid var(--p-elevator-line);
+  background: rgba(255,255,255,.03);
+  padding: 7px 14px;
+  transition: border-color .25s, color .25s;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+
+  i { font-size: .75rem; }
+
+  &:hover {
+    border-color: var(--p-elevator-accent-soft);
+    color: var(--p-elevator-accent);
+  }
+}
+
+:host { display: inline-flex; }   // behave like the old inline span inside flex rows
+
+// variant — ghost is the base look; primary tints with the accent
+.elv-chip--primary {
+  color: var(--p-elevator-accent);
+  border-color: var(--p-elevator-accent-soft);
+  background: color-mix(in oklch, var(--p-elevator-accent) 6%, transparent);
+}
+
+// size
+.elv-chip--small  { font-size: 10px; padding: 5px 10px; }
+.elv-chip--medium { font-size: 11px; padding: 7px 14px; }   // current default
+.elv-chip--large  { font-size: 13px; padding: 9px 18px; }
+
+// corner — 'notch' keeps the base clip-path; the others override it
+.elv-chip--round { clip-path: none; border-radius: 999px; }
+.elv-chip--sharp { clip-path: none; border-radius: 0; }

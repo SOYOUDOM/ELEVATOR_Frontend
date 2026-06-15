@@ -7,6 +7,11 @@ import { BadgeModule } from 'primeng/badge';
 import { RippleModule } from 'primeng/ripple';
 import { Stat, StatsComponent } from '@shared/components/stats/stats.component';
 import { RevealDirective } from '@shared/directives/reveal.directive';
+import { ElvButtonComponent } from '@shared/components/elv-button/elv-button.component';
+import { ElvChipComponent } from '@shared/components/elv-chip/elv-chip.component';
+import {ElvCardComponent} from '@shared/components/elv-card/elv-card.component'
+
+
 
 interface Feature {
   icon: string;
@@ -26,7 +31,7 @@ interface Step {
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, ButtonModule, ChipModule, BadgeModule, RippleModule, StatsComponent,RevealDirective],
+  imports: [CommonModule, ButtonModule, ChipModule, BadgeModule, RippleModule, StatsComponent, RevealDirective, ElvButtonComponent, ElvChipComponent,ElvCardComponent],
   templateUrl: './landing.component.html',
   styleUrls: ['./landing.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -65,6 +70,14 @@ export class LandingComponent {
     { num: '03', piIcon: 'pi-shield',    title: 'Run the ATS check',           desc: 'Paste a job link to see your match score and the exact keywords to add.' },
     { num: '04', piIcon: 'pi-download',  title: 'Export, ad-funded',           desc: 'Watch one short clip and download a perfect PDF. Genuinely free.' },
   ];
+
+
+  chips = [] =[
+    {icon: 'pi pi-shield', text: 'ATS READY'},
+    {icon: 'pi pi-sparkles', text: 'AI REWRITE'},
+    {icon: 'pi pi-camera', text: 'STUDIO HEADSHOT'},
+    {icon: 'pi pi-download', text: '1-CLICK EXPORT'},
+  ]
  
   constructor(private router: Router, private cdr: ChangeDetectorRef) {}
  

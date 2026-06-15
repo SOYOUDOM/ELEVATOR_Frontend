@@ -1,0 +1,6 @@
+<span [class]="classes + ['inline-flex', 'items-center', 'gap-2']"
+      [attr.aria-label]="(icon && !title) ? (ariaLabel || null) : null">
+  @if (icon) { <i class="pi {{ icon }} p-2" aria-hidden="true"></i> }
+  @if (title) { <span class="elv-chip-title pr-2">{{ title }}</span> }
+  <ng-content></ng-content>
+</span>

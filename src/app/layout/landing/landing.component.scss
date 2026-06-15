@@ -17,12 +17,13 @@
 
 // ── Page wrapper ───────────────────────────────────────────────
 .elv-page {
-  background: var(--p-elevator-bg0);
+    background: var(--p-elevator-bg0);
   color: var(--p-elevator-ink);
   font-family: 'Chakra Petch', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   position: relative;
+  overflow-x: clip;   /* ← add this line */
 
   // starfield dots via radial gradients (no canvas needed)
   &::before {
@@ -61,11 +62,11 @@
   }
 
   // top accent glow
-  .elv-hero-glow {
-    position: absolute;
-    left: 50%; top: 0;
-    transform: translateX(-50%);
-    width: 900px; height: 400px;
+.elv-hero-glow {
+  position: absolute;
+  left: 50%; top: 0;
+  transform: translateX(-50%);
+  width: min(900px, 100vw); height: 400px;   /* ← was: width: 900px */
     background: radial-gradient(ellipse 70% 55% at 50% 0%,
       color-mix(in oklch, var(--p-elevator-accent) 7%, transparent), transparent 72%);
     pointer-events: none;
@@ -279,98 +280,9 @@
   50%       { opacity: .6; transform: scale(0.75); }
 }
 
-// ── Buttons ───────────────────────────────────────────────────
-.elv-btn {
-  position: relative;
-  cursor: pointer;
-  border: 0;
-  background: none;
-  font-family: 'Share Tech Mono', monospace;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  font-size: 13px;
-  color: var(--p-elevator-ink);
-  padding: 0;
-  user-select: none;
-  transition: transform .25s cubic-bezier(.2,.7,.2,1);
 
-  &:active { transform: translateY(1px) scale(.992); }
 
-  .elv-notch-edge {
-    position: absolute; inset: 0;
-    clip-path: polygon(
-      10px 0, 100% 0,
-      100% calc(100% - 10px), calc(100% - 10px) 100%,
-      0 100%, 0 10px);
-  }
 
-  .elv-notch-face {
-    position: absolute; inset: 1px;
-    clip-path: polygon(
-      10px 0, 100% 0,
-      100% calc(100% - 10px), calc(100% - 10px) 100%,
-      0 100%, 0 10px);
-    transition: background .3s ease;
-  }
-
-  .elv-btn-inner {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 13px 28px;
-
-    i { font-size: .9rem; }
-  }
-
-  // Primary variant
-  &.elv-btn-primary {
-    .elv-notch-edge { background: var(--p-elevator-accent); }
-    .elv-notch-face { background: var(--p-elevator-accent-dim); }
-
-    color: #000;
-
-    &:hover .elv-notch-face { background: var(--p-elevator-accent); }
-  }
-
-  // Ghost variant
-  &.elv-btn-ghost {
-    .elv-notch-edge { background: var(--p-elevator-line-strong); }
-    .elv-notch-face { background: var(--p-elevator-panel); }
-
-    color: var(--p-elevator-ink);
-
-    &:hover {
-      .elv-notch-edge { background: var(--p-elevator-accent); }
-      color: var(--p-elevator-accent);
-    }
-  }
-}
-
-// ── Chips ─────────────────────────────────────────────────────
-.elv-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  letter-spacing: .2em;
-  text-transform: uppercase;
-  color: var(--p-elevator-ink2);
-  border: 1px solid var(--p-elevator-line);
-  background: rgba(255,255,255,.03);
-  padding: 7px 14px;
-  transition: border-color .25s, color .25s;
-  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
-
-  i { font-size: .75rem; }
-
-  &:hover {
-    border-color: var(--p-elevator-accent-soft);
-    color: var(--p-elevator-accent);
-  }
-}
 
 // ── Hero ─────────────────────────────────────────────────────
 .elv-hero {
@@ -449,66 +361,7 @@
 }
 
 
-
-// ── Feature cards ────────────────────────────────────────────
-.elv-feat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 18px;
-}
-
-.elv-feature {
-  transition: transform .35s cubic-bezier(.2,.7,.2,1);
-
-  &:hover {
-    transform: translateY(-5px);
-    --elv-edge-color: var(--p-elevator-accent);
-  }
-}
-
-.elv-feature-inner {
-  padding: 30px 28px;
-  position: relative;
-}
-
-.elv-feat-num {
-  position: absolute;
-  top: 16px; right: 18px;
-  font-size: 11px;
-  color: var(--p-elevator-ink4);
-  letter-spacing: .2em;
-}
-
-.elv-feat-ico {
-  width: 46px; height: 46px;
-  margin-bottom: 22px;
-  color: var(--p-elevator-accent);
-  display: grid;
-  place-items: center;
-
-  i { font-size: 1.6rem; }
-}
-
-.elv-feature-inner h3 {
-  font-family: 'Orbitron', sans-serif;
-  font-weight: 400;
-  letter-spacing: .03em;
-  text-transform: uppercase;
-  font-size: 18px;
-  margin: 0 0 10px;
-  color: var(--p-elevator-ink);
-}
-
-.elv-feature-inner p {
-  color: var(--p-elevator-ink2);
-  line-height: 1.6;
-  margin: 0;
-  font-size: 14.5px;
-}
-
 // ── Spotlight ────────────────────────────────────────────────
-.elv-spotlight { }
-
 .elv-spotlight-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -546,10 +399,6 @@
   justify-content: center;
 }
 
-.elv-ba-ph {
-  flex: 1;
-}
-
 .elv-ph-placeholder {
   aspect-ratio: 3/4;
   max-height: 220px;
@@ -563,16 +412,17 @@
     12px 0, 100% 0,
     100% calc(100% - 12px), calc(100% - 12px) 100%,
     0 100%, 0 12px);
-
+  border: 1px solid var(--p-elevator-accent);
+  box-shadow: 0 0 28px color-mix(in oklch, var(--p-elevator-accent) 12%, transparent) inset;
+      background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
   &.elv-ph-before {
-    background: var(--elv-panel-hi);
-    border: 1px solid var(--elv-line);
+    background-image: url(../../../assets/img/sample-before.jpg);
   }
 
   &.elv-ph-after {
-    background: color-mix(in oklch, var(--p-elevator-accent) 6%, var(--p-elevator-panel));
-    border: 1px solid var(--p-elevator-accent-soft);
-    box-shadow: 0 0 28px color-mix(in oklch, var(--p-elevator-accent) 12%, transparent) inset;
+  background-image: url(../../../assets/img/sample-after.jpg);
   }
 }
 
@@ -599,75 +449,7 @@
   padding: 3px 8px;
 }
 
-// ── Steps ────────────────────────────────────────────────────
-.elv-steps {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 24px;
-}
-
-.elv-step {
-  padding: 28px 24px;
-  background: var(--p-elevator-panel);
-  border: 1px solid var(--p-elevator-line);
-  clip-path: polygon(
-    10px 0, 100% 0,
-    100% calc(100% - 10px), calc(100% - 10px) 100%,
-    0 100%, 0 10px);
-  transition: border-color .3s, box-shadow .3s;
-
-  &:hover {
-    border-color: var(--p-elevator-accent-soft);
-    box-shadow: 0 0 24px color-mix(in oklch, var(--p-elevator-accent) 8%, transparent);
-  }
-}
-
-.elv-step-n {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 2rem;
-  line-height: 1;
-  letter-spacing: .04em;
-}
-
-.elv-step-line {
-  height: 1px;
-  background: var(--p-elevator-line);
-  margin: 16px 0;
-  position: relative;
-  overflow: hidden;
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0; left: -50%; width: 50%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, var(--p-elevator-accent), transparent);
-    animation: elv-step-sweep 3s linear infinite;
-  }
-}
-
-@keyframes elv-step-sweep {
-  to { left: 150%; }
-}
-
-.elv-step-title {
-  font-family: 'Orbitron', sans-serif;
-  text-transform: uppercase;
-  font-size: 16px;
-  font-weight: 400;
-  margin: 0 0 8px;
-  color: var(--p-elevator-ink);
-}
-
-.elv-step-desc {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
 // ── CTA band ─────────────────────────────────────────────────
-.elv-cta-band { }
-
 .elv-cta-inner {
   padding: clamp(30px, 5vw, 64px) 20px;
 }

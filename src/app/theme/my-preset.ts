@@ -74,7 +74,8 @@ export const ElevatorPreset = definePreset(Aura, {
     },
     elevator: {
       // accent: '#5bffa6',
-      accent: '#ffffff',
+      // accent: '#ffffff',
+      accent: '#ffd35b',
       bg0: '#04060a',
       bg1: '#070a10',
       panel: '#0a0e15',

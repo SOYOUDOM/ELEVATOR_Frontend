@@ -11,7 +11,7 @@
 
      Component .ts: add RevealDirective to `imports`.
      ============================================================ -->
-<div class="elv-page scene {{ CustomClass }}" >
+<div class="elv-page scene {{ CustomClass }}">
 
   <!-- ── HERO (unchanged — boot choreography owns it) ─────────── -->
   <section class="elv-hero elv-container">
@@ -33,7 +33,7 @@
     </div>
 
     <!-- headline -->
-    <h1 class="elv-reveal Varino w-4xl text-center" style="animation-delay:.25s">
+    <h1 class="elv-reveal Varino max-w-4xl text-center" style="animation-delay:.25s">
       Bring out the rising of your<br />
       <span class="elv-typeword font-display elv-glow-text ">
         <span class="elv-typeword-sizer">CAREER.</span>
@@ -49,36 +49,26 @@
 
     <!-- CTA buttons -->
     <div class="elv-hero-cta elv-reveal" style="animation-delay:.5s" elvReveal="zoom" [revealOnce]="true">
-      <button class="elv-btn elv-btn-primary" pRipple (click)="goCreate()">
-        <span class="elv-notch-edge"></span>
-        <span class="elv-notch-face"></span>
-        <span class="elv-btn-inner">
-          <i class="pi pi-bolt"></i> GET STARTED
-        </span>
-      </button>
-      <button class="elv-btn elv-btn-ghost" pRipple (click)="goTemplates()">
-        <span class="elv-notch-edge"></span>
-        <span class="elv-notch-face"></span>
-        <span class="elv-btn-inner">
-          <i class="pi pi-th-large"></i> EXPLORE TEMPLATES
-        </span>
-      </button>
+      <app-elv-button [size]="'large'" customClass="elv-btn--scan" [corner]="'notch'" [icon]="'pi-bolt'" [title]="'GET STARTED'">
+      </app-elv-button>
+      <app-elv-button [size]="'large'" [corner]="'notch'" [icon]="'pi-th-large'" [title]="'EXPLORE TEMPLATES'">
+      </app-elv-button>
     </div>
 
     <!-- chip badges -->
-    <div class="elv-hero-chips elv-reveal" style="animation-delay:.6s">
-      <span class="elv-chip"><i class="pi pi-shield"></i> ATS READY</span>
-      <span class="elv-chip"><i class="pi pi-sparkles"></i> AI REWRITE</span>
-      <span class="elv-chip"><i class="pi pi-camera"></i> STUDIO HEADSHOT</span>
-      <span class="elv-chip"><i class="pi pi-download"></i> 1-CLICK EXPORT</span>
+    <div class="elv-hero-chips elv-reveal flex flex-row">
+      <app-elv-chip *ngFor="let chip of chips, let i = index" [icon]="chip.icon" [title]="chip.text"
+        [revealDelay]="i * 0.4" variant="primary" size="medium" corner="notch" customClass="elv-reveal"
+        elvReveal="scan" />
     </div>
   </section>
 
   <!-- ── STATS — doors: clips open from a flashing seam ─────────── -->
-  <div class="px-12" elvReveal="doors">
-    <app-stats [stats]="stats"></app-stats>
+     <section class="elv-section elv-container">
+  <div elvReveal="doors">
+    <app-stats [stats]="stats" [corner]="'notch'"></app-stats>
   </div>
-
+  </section>
   <!-- ── FEATURES ───────────────────────────────────────────────── -->
   <section class="elv-section elv-container">
     <!-- section head — wipe from the left -->
@@ -92,11 +82,8 @@
     </div>
 
     <!-- feature cards — scanline materialise, staggered -->
-    <div class="elv-feat-grid">
-      <div
-        class="elv-notch-box elv-feature elv-saber-hover"
-        *ngFor="let f of features; let i = index"
-        elvReveal="scan"
+    <!-- <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"> -->
+      <!-- <div class="elv-notch-box elv-feature elv-saber-hover" *ngFor="let f of features; let i = index" elvReveal="scan"
         [revealDelay]="i * 0.08">
         <span class="elv-notch-edge"></span>
         <span class="elv-notch-face"></span>
@@ -111,7 +98,15 @@
           <p>{{ f.desc }}</p>
         </div>
       </div>
-    </div>
+    </div> -->
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  <app-elv-card *ngFor="let f of features; let i = index"
+                variant="feature" [icon]="f.piIcon" [num]="f.icon"
+                [title]="f.title" [text]="f.desc" elvReveal="scan" [revealDelay]="i * 0.08"/>
+</div>
+
+
   </section>
 
   <!-- ── PHOTO TOOL SPOTLIGHT — doors (echoes the boot) ─────────── -->
@@ -136,32 +131,25 @@
             recruiters see first, fixed in seconds.
           </p>
           <div class="elv-row elv-gap-12" style="margin-top:26px; flex-wrap:wrap">
-            <button class="elv-btn elv-btn-primary" pRipple (click)="goPhoto()">
-              <span class="elv-notch-edge"></span>
-              <span class="elv-notch-face"></span>
-              <span class="elv-btn-inner">
-                <i class="pi pi-camera"></i> TRY THE PHOTO STUDIO
-              </span>
-            </button>
-            <span class="elv-chip">FREE · WATCH 1 AD TO SAVE</span>
+            <app-elv-button icon="pi-camera" title="TRY THE PHOTO STUDIO" (clicked)="goPhoto()"
+              corner="sharp" elvReveal="glitch" [revealDelay]=".7"></app-elv-button>
+            <app-elv-chip title="FREE · WATCH 1 AD TO SAVE"></app-elv-chip>
           </div>
         </div>
 
         <!-- before/after visual -->
         <div class="elv-ba-card">
-          <div class="elv-ba-ph">
-            <div class="elv-ph-placeholder elv-ph-before">
-              <i class="pi pi-user" style="font-size:3rem; opacity:0.25"></i>
-              <span class="elv-mono elv-ph-label">YOUR SELFIE</span>
+          <div>
+            <span class="elv-mono elv-ph-label">YOUR SELFIE</span>
+            <div class="elv-ph-placeholder elv-ph-before w-[200px]">
             </div>
           </div>
           <div class="elv-ba-arrow">
             <i class="pi pi-arrow-right"></i>
           </div>
-          <div class="elv-ba-ph">
-            <div class="elv-ph-placeholder elv-ph-after">
-              <i class="pi pi-user" style="font-size:3rem; opacity:0.5; color:var(--elv-accent)"></i>
-              <span class="elv-mono elv-ph-label" style="color:var(--elv-accent)">STUDIO SHOT</span>
+          <div elvReveal="scan" [revealDelay]="1">
+            <span class="elv-mono elv-ph-label" style="color:var(--elv-accent)">STUDIO SHOT</span>
+            <div class="elv-ph-placeholder elv-ph-after  w-[200px]">
               <span class="elv-ba-badge elv-mono">AI</span>
             </div>
           </div>
@@ -174,17 +162,13 @@
   <!-- ── HOW IT WORKS ───────────────────────────────────────────── -->
   <section class="elv-section elv-container">
     <div class="elv-section-head elv-center" elvReveal="doors" [revealOnce]="true">
-      <div class="elv-eyebrow" >FOUR STEPS</div>
+      <div class="elv-eyebrow">FOUR STEPS</div>
       <h2>Upload. Polish. Score. Export.</h2>
     </div>
 
     <!-- step cards — 3D flip up from flat, staggered -->
-    <div class="elv-steps justify-content:space-between">
-      <div
-        class="elv-step"
-        *ngFor="let s of steps; let i = index"
-        elvReveal="flip"
-        [revealDelay]="i * 1">
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-6">
+      <!-- <div class="elv-step" *ngFor="let s of steps; let i = index" elvReveal="flip" [revealDelay]="i * 1">
         <div class="elv-row elv-gap-12" style="align-items:center; justify-content:space-between">
           <div class="elv-step-n font-display elv-glow-text">{{ s.num }}</div>
           <i [class]="'pi ' + s.piIcon" style="color:var(--elv-accent); font-size:1.1rem"></i>
@@ -192,7 +176,10 @@
         <div class="elv-step-line"></div>
         <h3 class="font-display elv-step-title">{{ s.title }}</h3>
         <p class="elv-muted elv-step-desc">{{ s.desc }}</p>
-      </div>
+      </div> -->
+
+      <app-elv-card *ngFor="let s of steps" variant="step" hover="saber" skin="gradient"
+              [num]="s.num" [icon]="s.piIcon" [title]="s.title" [text]="s.desc" />
     </div>
   </section>
 
@@ -209,13 +196,7 @@
           Your next role is<br /><span class="elv-glow-text">one upload away.</span>
         </h2>
         <div class="elv-hero-cta">
-          <button class="elv-btn elv-btn-primary" pRipple (click)="goCreate()">
-            <span class="elv-notch-edge"></span>
-            <span class="elv-notch-face"></span>
-            <span class="elv-btn-inner">
-              <i class="pi pi-bolt"></i> BUILD MY CV — FREE
-            </span>
-          </button>
+          <app-elv-button corner="notch" icon="pi-bolt" title="LET'S BUILD YOUR PILLAR" elvReveal="wipe" [revealDelay]=".5"></app-elv-button>
         </div>
       </div>
     </div>

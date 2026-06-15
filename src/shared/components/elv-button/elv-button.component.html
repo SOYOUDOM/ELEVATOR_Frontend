@@ -1,0 +1,27 @@
+
+<ng-template #inner>
+  <span class="elv-notch-edge"></span>
+  <span class="elv-notch-face"></span>
+  <span class="elv-btn-inner">
+    @if (icon) { <i class="pi {{ icon }}" aria-hidden="true"></i> }
+    @if (title) { <span>{{ title }}</span> }
+    <ng-content></ng-content>
+  </span>
+</ng-template>
+
+@if (url && isExternal) {
+  <a [ngClass]="classes" [href]="url" target="_blank" rel="noopener noreferrer"
+     pRipple [attr.aria-label]="ariaLabel || title || null" (click)="onClick($event)">
+    <ng-container *ngTemplateOutlet="inner"></ng-container>
+  </a>
+} @else if (url) {
+  <a [ngClass]="classes" [routerLink]="url"
+     pRipple [attr.aria-label]="ariaLabel || title || null" (click)="onClick($event)">
+    <ng-container *ngTemplateOutlet="inner"></ng-container>
+  </a>
+} @else {
+  <button [ngClass]="classes" [type]="type" [disabled]="disabled"
+          pRipple [attr.aria-label]="ariaLabel || title || null" (click)="onClick($event)">
+    <ng-container *ngTemplateOutlet="inner"></ng-container>
+  </button>
+}

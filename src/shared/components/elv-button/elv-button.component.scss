@@ -1,0 +1,83 @@
+// ── Buttons ───────────────────────────────────────────────────
+.elv-btn {
+  position: relative;
+  cursor: pointer;
+  border: 0;
+  background: none;
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  font-size: 13px;
+  color: var(--p-elevator-ink);
+  padding: 0;
+  user-select: none;
+  transition: transform .25s cubic-bezier(.2,.7,.2,1);
+
+  &:active { transform: translateY(1px) scale(.992); }
+
+  .elv-notch-edge {
+    position: absolute; inset: 0;
+    clip-path: polygon(
+      10px 0, 100% 0,
+      100% calc(100% - 10px), calc(100% - 10px) 100%,
+      0 100%, 0 10px);
+  }
+
+  .elv-notch-face {
+    position: absolute; inset: 1px;
+    clip-path: polygon(
+      10px 0, 100% 0,
+      100% calc(100% - 10px), calc(100% - 10px) 100%,
+      0 100%, 0 10px);
+    transition: background .3s ease;
+  }
+
+  .elv-btn-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 13px 28px;
+
+    i { font-size: .9rem; }
+  }
+
+  // Primary variant
+  &.elv-btn-primary {
+    .elv-notch-edge { background: var(--p-elevator-accent); }
+    .elv-notch-face { background: var(--p-elevator-accent-dim); }
+
+    color: #000;
+
+    &:hover .elv-notch-face { background: var(--p-elevator-accent); }
+  }
+
+  // Ghost variant
+  &.elv-btn-ghost {
+    .elv-notch-edge { background: var(--p-elevator-line-strong); }
+    .elv-notch-face { background: var(--p-elevator-panel); }
+
+    color: var(--p-elevator-ink);
+
+    &:hover {
+      .elv-notch-edge { background: var(--p-elevator-accent); }
+      color: var(--p-elevator-accent);
+    }
+  }
+}
+
+
+:host { display: inline-block; }
+
+.elv-btn--small  .elv-btn-inner { padding: 9px 18px;  font-size: 11px; }
+.elv-btn--medium .elv-btn-inner { padding: 13px 28px; font-size: 13px; } // current default
+.elv-btn--large  .elv-btn-inner { padding: 16px 36px; font-size: 15px; }
+
+.elv-btn--round .elv-notch-edge,
+.elv-btn--round .elv-notch-face { clip-path: none; border-radius: 8px; }
+
+.elv-btn--sharp .elv-notch-edge,
+.elv-btn--sharp .elv-notch-face { clip-path: none; }
+
+.elv-btn--disabled { opacity: .45; pointer-events: none; cursor: not-allowed; }

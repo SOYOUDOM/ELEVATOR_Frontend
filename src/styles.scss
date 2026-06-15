@@ -1,13 +1,18 @@
 @use "./reveals.scss";
 @import "tailwindcss";
 
-body {
-  overflow-x: hidden;
-    user-select: none;
 
+@theme {
+  --breakpoint-mobile: 900px;
+  --breakpoint-tablet: 1120px;
+  --breakpoint-desktop: 1024px;
 }
-@plugin "tailwindcss-primeui";
-@layer tailwind, primeng;
+
+// _breakpoints.scss (or at top of your global styles)
+$bp-mobile: 900px;
+$bp-tablet: 1120px;
+$bp-desktop: 1024px;
+
 
 @font-face {
     font-family: 'Varino';
@@ -17,6 +22,82 @@ body {
 }
 
 
+
+html {
+  background: #020202;
+}
+
+body {
+  overflow-x: hidden;
+  user-select: none;
+}
+
+
+/* ============================================================
+   header-left-navbar — toggle on the logo "E".
+   ≥577px: the real Varino "E" (logo untouched), toggle inert.
+   ≤576px: wordmark hides; the "E" becomes a notched hamburger
+           button whose bars morph to an X when the drawer opens.
+   ============================================================ */
+header-left-navbar {
+  --le-h: 1.45rem;      /* mobile hamburger size — tune */
+  --le-bar: 2.5px;      /* bar thickness */
+
+  /* desktop default: show the authentic Varino "E", hide the bars */
+  .brand-lead__bar { display: none; }
+
+  @media (max-width: $bp-mobile) {
+    .brand-levator { display: none; }   /* hide LEVATOR letters */
+    .brand-lead__e { display: none; }    /* hide the Varino "E" */
+
+    .brand-lead {
+      --le-corner: 6px;
+      display: inline-flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-self: center;
+      width: var(--le-h);                 /* square */
+      height: var(--le-h);
+      box-sizing: content-box;
+      padding: 12px;                      /* ≥44px tap target via content-box */
+      background: var(--p-elevator-panel, #0a0e15);
+      border: 1px solid var(--p-elevator-line-strong, rgba(150, 180, 210, 0.22));
+      clip-path: polygon(
+        var(--le-corner) 0, 100% 0,
+        100% calc(100% - var(--le-corner)), calc(100% - var(--le-corner)) 100%,
+        0 100%, 0 var(--le-corner));
+    }
+    .brand-lead:hover { border-color: var(--p-elevator-accent-soft); }
+
+    .brand-lead__bar {
+      display: block;
+      width: 100%;
+      height: var(--le-bar);
+      border-radius: 1px;
+      background: currentColor;           /* = --p-elevator-accent */
+      transform-origin: center;
+      transition: transform 300ms var(--ease), opacity 200ms var(--ease);
+    }
+
+    .group[data-open="true"] .brand-lead {
+      border-color: var(--p-elevator-accent-soft);
+      background: color-mix(in oklch, var(--p-elevator-accent) 6%, var(--p-elevator-panel, #0a0e15));
+
+      /* outer bars meet at the box centre = (height − bar) / 2 */
+      .brand-lead__bar:nth-child(1) {
+        transform: translateY(calc((var(--le-h) - var(--le-bar)) / 2)) rotate(45deg);
+      }
+      .brand-lead__bar:nth-child(2) { opacity: 0; transform: scaleX(0.4); }
+      .brand-lead__bar:nth-child(3) {
+        transform: translateY(calc((var(--le-bar) - var(--le-h)) / 2)) rotate(-45deg);
+      }
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  header-left-navbar .brand-lead__bar { transition: none !important; }
+}
 
 
 // .group{
@@ -318,9 +399,9 @@ html[data-boot="run"] { --bd: 1.45s; }
 
   /* ---- brand: E ignites, letters cascade, sub wipes in ----
      (requires the letter-span markup in header-left-navbar) */
-  html[data-boot] header-left-navbar .lead {
-    animation: leadIgnite 0.8s steps(5, end) calc(var(--bd) + 0.3s) both;
-  }
+html[data-boot] header-left-navbar .brand-lead {
+  animation: leadIgnite 0.8s steps(5, end) calc(var(--bd) + 0.3s) both;
+}
   html[data-boot] header-left-navbar .brand-l {
     display: inline-block;
     animation: brandL 0.5s var(--ease) calc(var(--bd) + 0.42s + var(--i, 0) * 0.055s) both;
@@ -357,10 +438,11 @@ html[data-boot="run"] { --bd: 1.45s; }
   100% { background-position: 160% 0; opacity: 0; }
 }
 @keyframes leadIgnite {
-  0% { opacity: 0; text-shadow: none; }
-  25% { opacity: 1; text-shadow: 0 0 30px var(--accent-glow), 0 0 70px var(--accent-glow); }
-  40% { opacity: 0.25; text-shadow: none; }
-  55%, 100% { opacity: 1; text-shadow: 0 0 18px var(--accent-glow); }
+  0%        { opacity: 0;    filter: drop-shadow(0 0 0 transparent); }
+  25%       { opacity: 1;    filter: drop-shadow(0 0 14px var(--accent-glow))
+                                     drop-shadow(0 0 28px var(--accent-glow)); }
+  40%       { opacity: 0.25; filter: drop-shadow(0 0 0 transparent); }
+  55%, 100% { opacity: 1;    filter: drop-shadow(0 0 8px var(--accent-glow)); }
 }
 @keyframes brandL  { from { opacity: 0; transform: translateY(9px); filter: blur(4px); } to { opacity: 1; transform: none; filter: blur(0); } }
 @keyframes subWipe { from { opacity: 0; clip-path: inset(0 100% 0 0); letter-spacing: 0.6em; } to { opacity: 1; clip-path: inset(0 -2% 0 0); letter-spacing: 0.42em; } }
