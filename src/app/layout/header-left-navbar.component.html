@@ -1,37 +1,33 @@
-<ul class="navbar-nav flex items-center gap-5 sm:gap-8">
+<div class="group flex items-center"
+     [attr.data-open]="sidebarExpanded ? 'true' : 'false'">
 
-  <div class="group flex flex-col leading-none select-none Varino"
-       [attr.data-open]="sidebarExpanded ? 'true' : 'false'">
+  <!-- Hamburger toggle — mobile/tablet only -->
+  <button type="button"
+          (click)="toggleSidebar()"
+          [attr.aria-label]="sidebarExpanded ? 'Close menu' : 'Open menu'"
+          [attr.aria-expanded]="sidebarExpanded"
+          [attr.data-open]="sidebarExpanded ? 'true' : 'false'"
+          aria-controls="app-sidebar"
+          class="hdr-burger min-mobile:hidden">
+    <span class="hdr-burger__bar" aria-hidden="true"></span>
+    <span class="hdr-burger__bar" aria-hidden="true"></span>
+    <span class="hdr-burger__bar" aria-hidden="true"></span>
+  </button>
 
-    <!-- Wordmark -->
-    <span class="flex items-baseline gap-[1px] text-[1.7rem] tracking-[0.12em] uppercase">
-
-      <!-- logo "E" / mobile menu toggle -->
-      <span (click)="toggleSidebar()"
-            role="button"
-            tabindex="0"
-            [attr.aria-label]="sidebarExpanded ? 'Close menu' : 'Open menu'"
-            aria-controls="app-sidebar"
-            [attr.aria-expanded]="sidebarExpanded"
-            class="brand-lead relative text-[var(--p-elevator-accent)]
-                   drop-shadow-[0_0_8px_var(--p-elevator-accent-glow)]
-                   transition-[filter,transform] duration-300
-                   min-mobile:pointer-events-none
-                   max-mobile:cursor-pointer
-                   max-mobile:hover:drop-shadow-[0_0_14px_var(--p-elevator-accent-glow)]
-                   max-mobile:active:scale-90
-                   group-data-[open=true]:drop-shadow-[0_0_18px_var(--p-elevator-accent-glow)]">
-        <span class="brand-lead__bar" aria-hidden="true"></span>
-        <span class="brand-lead__bar" aria-hidden="true"></span>
-        <span class="brand-lead__bar" aria-hidden="true"></span>
-        <span class="brand-lead__e" aria-hidden="true">E</span>
-      </span>
-
-      <span class="brand-levator text-[var(--p-elevator-ink)]" aria-label="LEVATOR">
-        @for (l of brandLetters; track $index) {
-          <span class="brand-l" aria-hidden="true" [style.--i]="$index">{{ l }}</span>
-        }
-      </span>
+  <!-- ELEVATOR wordmark — left on desktop, centered on mobile -->
+  <span aria-label="ELEVATOR"
+        class="flex items-baseline gap-[1px] leading-none select-none Varino whitespace-nowrap
+               text-[1.7rem] tracking-[0.12em] uppercase
+               max-mobile:absolute max-mobile:left-1/2 max-mobile:top-1/2
+               max-mobile:-translate-x-1/2 max-mobile:-translate-y-1/2
+               ">
+    <span class="brand-lead text-[var(--p-elevator-accent)]
+                 drop-shadow-[0_0_8px_var(--p-elevator-accent-glow)]"
+          aria-hidden="true">E</span>
+    <span class="text-[var(--p-elevator-ink)]" aria-hidden="true">
+      @for (l of brandLetters; track $index) {
+        <span class="brand-l" [style.--i]="$index">{{ l }}</span>
+      }
     </span>
-  </div>
-</ul>
+  </span>
+</div>

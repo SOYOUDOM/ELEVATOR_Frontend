@@ -39,66 +39,62 @@ body {
    ≤576px: wordmark hides; the "E" becomes a notched hamburger
            button whose bars morph to an X when the drawer opens.
    ============================================================ */
-header-left-navbar {
-  --le-h: 1.45rem;      /* mobile hamburger size — tune */
-  --le-bar: 2.5px;      /* bar thickness */
+/* header hamburger toggle (mobile/tablet) — bars ⇄ X */
+header-left-navbar .hdr-burger {
+  --hb: 44px; --hb-bar-w: 20px; --hb-bar: 2px; --hb-gap: 5px; --hb-corner: 7px;
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hb-gap);
+  width: var(--hb);
+  height: var(--hb);
+  cursor: pointer;
+  color: var(--p-elevator-accent);
+  background: var(--p-elevator-panel, #0a0e15);
+  border: 1px solid var(--p-elevator-line-strong, rgba(150, 180, 210, 0.22));
+  clip-path: polygon(
+    var(--hb-corner) 0, 100% 0,
+    100% calc(100% - var(--hb-corner)), calc(100% - var(--hb-corner)) 100%,
+    0 100%, 0 var(--hb-corner));
+  transition: border-color .25s var(--ease), background .25s var(--ease), transform .15s var(--ease);
+}
 
-  /* desktop default: show the authentic Varino "E", hide the bars */
-  .brand-lead__bar { display: none; }
+/* hidden on desktop — this selector outranks Tailwind's `lg:hidden`,
+   so the hide must be enforced here too */
+@media (min-width: $bp-mobile) {
+  header-left-navbar .hdr-burger { display: none; }
+}
 
-  @media (max-width: $bp-mobile) {
-    .brand-levator { display: none; }   /* hide LEVATOR letters */
-    .brand-lead__e { display: none; }    /* hide the Varino "E" */
+header-left-navbar .hdr-burger:hover  { border-color: var(--p-elevator-accent-soft); }
+header-left-navbar .hdr-burger:active { transform: scale(.94); }
 
-    .brand-lead {
-      --le-corner: 6px;
-      display: inline-flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-self: center;
-      width: var(--le-h);                 /* square */
-      height: var(--le-h);
-      box-sizing: content-box;
-      padding: 12px;                      /* ≥44px tap target via content-box */
-      background: var(--p-elevator-panel, #0a0e15);
-      border: 1px solid var(--p-elevator-line-strong, rgba(150, 180, 210, 0.22));
-      clip-path: polygon(
-        var(--le-corner) 0, 100% 0,
-        100% calc(100% - var(--le-corner)), calc(100% - var(--le-corner)) 100%,
-        0 100%, 0 var(--le-corner));
-    }
-    .brand-lead:hover { border-color: var(--p-elevator-accent-soft); }
+header-left-navbar .hdr-burger__bar {
+  display: block;
+  width: var(--hb-bar-w);
+  height: var(--hb-bar);
+  border-radius: 1px;
+  background: currentColor;
+  transition: transform .3s var(--ease), opacity .2s var(--ease);
+}
 
-    .brand-lead__bar {
-      display: block;
-      width: 100%;
-      height: var(--le-bar);
-      border-radius: 1px;
-      background: currentColor;           /* = --p-elevator-accent */
-      transform-origin: center;
-      transition: transform 300ms var(--ease), opacity 200ms var(--ease);
-    }
-
-    .group[data-open="true"] .brand-lead {
-      border-color: var(--p-elevator-accent-soft);
-      background: color-mix(in oklch, var(--p-elevator-accent) 6%, var(--p-elevator-panel, #0a0e15));
-
-      /* outer bars meet at the box centre = (height − bar) / 2 */
-      .brand-lead__bar:nth-child(1) {
-        transform: translateY(calc((var(--le-h) - var(--le-bar)) / 2)) rotate(45deg);
-      }
-      .brand-lead__bar:nth-child(2) { opacity: 0; transform: scaleX(0.4); }
-      .brand-lead__bar:nth-child(3) {
-        transform: translateY(calc((var(--le-bar) - var(--le-h)) / 2)) rotate(-45deg);
-      }
-    }
-  }
+header-left-navbar .hdr-burger[data-open="true"] {
+  border-color: var(--p-elevator-accent-soft);
+  background: color-mix(in oklch, var(--p-elevator-accent) 6%, var(--p-elevator-panel, #0a0e15));
+}
+header-left-navbar .hdr-burger[data-open="true"] .hdr-burger__bar:nth-child(1) {
+  transform: translateY(calc(var(--hb-gap) + var(--hb-bar))) rotate(45deg);
+}
+header-left-navbar .hdr-burger[data-open="true"] .hdr-burger__bar:nth-child(2) { opacity: 0; }
+header-left-navbar .hdr-burger[data-open="true"] .hdr-burger__bar:nth-child(3) {
+  transform: translateY(calc(-1 * (var(--hb-gap) + var(--hb-bar)))) rotate(-45deg);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  header-left-navbar .brand-lead__bar { transition: none !important; }
+  header-left-navbar .hdr-burger,
+  header-left-navbar .hdr-burger__bar { transition: none !important; }
 }
-
 
 // .group{
 //     color: var(--p-elevator-ink );

@@ -1,21 +1,14 @@
-<!-- ============================================================
-     header.component.html — UPDATED for boot intro.
-     Changes vs yours:
-       • <span class="nav-saber"> added as last child of the bar
-         (the one-shot light sweep along the bottom edge).
-     The bar is position:fixed, so the absolutely-positioned saber
-     anchors to it directly — no extra wrapper needed.
-     ============================================================ -->
 <div class="fixed top-0 inset-x-0 z-50 flex items-center justify-between
             h-[88px] px-6 sm:px-12
             border-b border-[var(--p-elevator-line-soft)]
             bg-[var(--p-elevator-bg0)]/30 backdrop-blur-md">
 
-  <!-- LEFT -->
+  <!-- LEFT: hamburger (mobile) + logo -->
   <div class="flex items-center shrink-0">
     <header-left-navbar></header-left-navbar>
   </div>
 
+  <!-- NAV: desktop only -->
   <div class="flex items-center gap-8 shrink-0 max-mobile:hidden">
     @for (item of menuItems; track item.route) {
       <a [routerLink]="[item.route]"
@@ -27,6 +20,5 @@
     }
   </div>
 
-  <!-- boot: one-shot saber sweep along the bottom edge -->
   <span class="nav-saber" aria-hidden="true"></span>
 </div>
