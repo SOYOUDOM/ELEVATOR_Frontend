@@ -10,6 +10,7 @@ import { RevealDirective } from '@shared/directives/reveal.directive';
 import { ElvButtonComponent } from '@shared/components/elv-button/elv-button.component';
 import { ElvChipComponent } from '@shared/components/elv-chip/elv-chip.component';
 import {ElvCardComponent} from '@shared/components/elv-card/elv-card.component'
+import {FooterComponent} from '../footer.component'
 
 
 
@@ -18,6 +19,7 @@ interface Feature {
   piIcon: string;
   title: string;
   desc: string;
+  image?: string;
 }
  
 
@@ -56,12 +58,12 @@ export class LandingComponent {
   ];
  
   features: Feature[] = [
-    { icon: '01', piIcon: 'pi-camera',      title: 'Photo → Studio Headshot',  desc: 'Drop any selfie. The AI puts you in a sharp suit on a clean studio backdrop — a passport-grade shot, free.' },
-    { icon: '02', piIcon: 'pi-sparkles',    title: 'AI Writes With You',        desc: 'Stuck on wording? Generate a summary, expand a bullet, or rewrite your whole CV from an old one in seconds.' },
-    { icon: '03', piIcon: 'pi-check-circle',title: 'Grammar & Tone Fixes',     desc: 'Live proofreading catches typos and weak phrasing, then suggests stronger, recruiter-ready language.' },
-    { icon: '04', piIcon: 'pi-shield',      title: 'ATS Score & Keywords',     desc: 'Scan against any job in real time. See your match score, missing keywords, and exactly what to fix.' },
-    { icon: '05', piIcon: 'pi-table',       title: 'Flexible, Modern Templates',desc: 'Canva-level design freedom that stays parseable. Switch layouts without losing a single word.' },
-    { icon: '06', piIcon: 'pi-download',    title: '1-Click Export',            desc: 'Pixel-perfect PDF, every time. Watch one short ad and the export is yours — no card, no paywall.' },
+    {icon: '01', piIcon: 'pi-camera',      title: 'Photo → Studio Headshot',  desc: 'Drop any selfie. The AI puts you in a sharp suit on a clean studio backdrop — a passport-grade shot, free.' },
+    {icon: '02', piIcon: 'pi-sparkles',    title: 'AI Writes With You',        desc: 'Stuck on wording? Generate a summary, expand a bullet, or rewrite your whole CV from an old one in seconds.' },
+    {icon: '03', piIcon: 'pi-check-circle',title: 'Grammar & Tone Fixes',     desc: 'Live proofreading catches typos and weak phrasing, then suggests stronger, recruiter-ready language.' },
+    {icon: '04', piIcon: 'pi-shield',      title: 'ATS Score & Keywords',     desc: 'Scan against any job in real time. See your match score, missing keywords, and exactly what to fix.' },
+    {icon: '05', piIcon: 'pi-table',       title: 'Flexible, Modern Templates',desc: 'Canva-level design freedom that stays parseable. Switch layouts without losing a single word.' },
+    {icon: '06', piIcon: 'pi-download',    title: '1-Click Export',            desc: 'Pixel-perfect PDF, every time. Watch one short ad and the export is yours — no card, no paywall.' },
   ];
  
   steps: Step[] = [
@@ -73,50 +75,51 @@ export class LandingComponent {
 
 
   chips = [] =[
-    {icon: 'pi pi-shield', text: 'ATS READY'},
-    {icon: 'pi pi-sparkles', text: 'AI REWRITE'},
-    {icon: 'pi pi-camera', text: 'STUDIO HEADSHOT'},
-    {icon: 'pi pi-download', text: '1-CLICK EXPORT'},
+    {icon: 'fa-sharp fa-light fa-microchip-ai', text: 'AI write for you', description: 'Smart & Accurate'},
+    {icon: 'fa-light fa-hammer-brush', text: 'ATS optimized', description: 'Score higher'},
+    {icon: 'fa-sharp-duotone fa-thin fa-lock-keyhole', text: '100% safe', description: 'Your data is safe'},
+    {icon: 'fa-sharp fa-regular fa-user-hair-long', text: 'STUDIO HEADSHOT',description: 'AI Generated'},
+    {icon: 'fa-sharp fa-cloud-arrow-down', text: '1-CLICK EXPORT',description: 'PDF •̀DOCX'},
   ]
  
   constructor(private router: Router, private cdr: ChangeDetectorRef) {}
  
   // ── Lifecycle ─────────────────────────────────────────────────
   ngOnInit(): void {
-    this.tickTypewriter();
+    // this.tickTypewriter();
   }
  
   ngOnDestroy(): void {
     if (this.twTimer) clearTimeout(this.twTimer);
   }
  
-  // ── Typewriter engine ─────────────────────────────────────────
-  private tickTypewriter(): void {
-    const full = this.typeWords[this.twIndex % this.typeWords.length];
+  // // ── Typewriter engine ─────────────────────────────────────────
+  // private tickTypewriter(): void {
+  //   const full = this.typeWords[this.twIndex % this.typeWords.length];
  
-    if (!this.twDeleting && this.displayWord === full) {
-      // Hold, then start deleting
-      this.twTimer = setTimeout(() => { this.twDeleting = true; this.tickTypewriter(); }, this.TWH);
-      return;
-    }
+  //   if (!this.twDeleting && this.displayWord === full) {
+  //     // Hold, then start deleting
+  //     this.twTimer = setTimeout(() => { this.twDeleting = true; this.tickTypewriter(); }, this.TWH);
+  //     return;
+  //   }
  
-    if (this.twDeleting && this.displayWord === '') {
-      // Move to next word
-      this.twDeleting = false;
-      this.twIndex++;
-      this.tickTypewriter();
-      return;
-    }
+  //   if (this.twDeleting && this.displayWord === '') {
+  //     // Move to next word
+  //     this.twDeleting = false;
+  //     this.twIndex++;
+  //     this.tickTypewriter();
+  //     return;
+  //   }
  
-    const delay = this.twDeleting ? this.TWS / 2 : this.TWS;
-    this.twTimer = setTimeout(() => {
-      this.displayWord = this.twDeleting
-        ? full.slice(0, this.displayWord.length - 1)
-        : full.slice(0, this.displayWord.length + 1);
-      this.cdr.markForCheck();
-      this.tickTypewriter();
-    }, delay);
-  }
+  //   const delay = this.twDeleting ? this.TWS / 2 : this.TWS;
+  //   this.twTimer = setTimeout(() => {
+  //     this.displayWord = this.twDeleting
+  //       ? full.slice(0, this.displayWord.length - 1)
+  //       : full.slice(0, this.displayWord.length + 1);
+  //     this.cdr.markForCheck();
+  //     this.tickTypewriter();
+  //   }, delay);
+  // }
  
   // ── Navigation ────────────────────────────────────────────────
   goCreate():    void { this.router.navigate(['/create']); }

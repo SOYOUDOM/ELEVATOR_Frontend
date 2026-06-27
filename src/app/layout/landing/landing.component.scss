@@ -9,7 +9,10 @@
 
 // ── Google fonts (Orbitron as display fallback) ─────────────────
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Chakra+Petch:wght@300;400;600&display=swap');
-
+// _breakpoints.scss (or at top of your global styles)
+$bp-mobile: 900px;
+$bp-tablet: 1120px;
+$bp-desktop: 1024px;
 // ── Font helpers ───────────────────────────────────────────────
 .font-display {
   font-family: 'Varino','Orbitron', 'Chakra Petch', sans-serif !important;
@@ -247,46 +250,11 @@
   to { opacity: 1; transform: none; }
 }
 
-// ── Status pill ───────────────────────────────────────────────
-.elv-status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  letter-spacing: .28em;
-  text-transform: uppercase;
-  color: var(--p-elevator-ink2);
-  border: 1px solid var(--p-elevator-line-strong);
-  background: rgba(91,255,166,.04);
-  padding: 8px 18px;
-  clip-path: polygon(
-    8px 0, 100% 0,
-    100% calc(100% - 8px), calc(100% - 8px) 100%,
-    0 100%, 0 8px);
-}
-
-.elv-status-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--p-elevator-accent);
-  box-shadow: 0 0 8px var(--p-elevator-accent-glow);
-  animation: elv-pulse 2s ease-in-out infinite;
-  flex: none;
-}
-
-@keyframes elv-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: .6; transform: scale(0.75); }
-}
-
-
-
-
 
 // ── Hero ─────────────────────────────────────────────────────
 .elv-hero {
   position: relative;
+  isolation: isolate;            // the ONE stacking context for the whole hero
   text-align: center;
   padding: clamp(36px, 6vw, 76px) 0 70px;
   overflow: visible;
@@ -294,7 +262,7 @@
   h1 {
     font-family: 'Varino', 'Orbitron', 'Chakra Petch', sans-serif;
     font-weight: 400;
-    font-size: clamp(36px, 6.5vw, 96px);
+    font-size: clamp(36px, 6.5vw, 80px);
     line-height: .96;
     margin: 26px auto 0;
     letter-spacing: .01em;
@@ -308,29 +276,15 @@
 .elv-lede {
   max-width: 600px;
   margin: 30px auto 0;
-  color: var(--p-elevator-ink2);
+  color: var(--p-elevator-ink);
   font-size: clamp(15px, 1.4vw, 18px);
   line-height: 1.65;
 }
 
 // Typewriter word
-.elv-typeword {
-  position: relative;
-  display: inline-block;
-  vertical-align: top;
-}
-
-.elv-typeword-sizer {
-  visibility: hidden;
-  white-space: nowrap;
-}
-
-.elv-typeword-live {
-  position: absolute;
-  left: 0; top: 0;
-  white-space: nowrap;
-  color: var(--p-elevator-accent);
-}
+.elv-typeword       { position: relative; display: inline-block; vertical-align: top; }
+.elv-typeword-sizer { visibility: hidden; white-space: nowrap; }
+.elv-typeword-live  { position: absolute; left: 0; top: 0; white-space: nowrap; color: var(--p-elevator-accent); }
 
 .elv-cursor {
   display: inline-block;
@@ -341,7 +295,6 @@
   margin-left: 2px;
   animation: elv-blink 1.05s steps(1) infinite;
 }
-
 @keyframes elv-blink { 50% { opacity: 0; } }
 
 .elv-hero-cta {
@@ -352,12 +305,90 @@
   margin-top: 40px;
 }
 
+.cta-section {
+  background-image: url('../../../assets/img/earth.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: bottom;
+  overflow: hidden;
+}
+
 .elv-hero-chips {
   display: flex;
   gap: 12px;
   justify-content: center;
   flex-wrap: wrap;
   margin-top: 28px;
+}
+
+// ── Headline ⇄ face weave ────────────────────────────────────
+// .headline ONLY gets position:relative — never a z-index, transform, filter,
+// opacity<1, or isolation, or it becomes a stacking context and traps .front again.
+.headline { position: relative; }
+
+.elv-hero-face {
+  position: absolute;
+  right: 0%;
+  top: 0;
+  transform: translateY(-50%);
+  height: min(1480px, 100vh);
+  width: auto;
+  z-index: 2;                    // above base headline text, below .front
+  pointer-events: none;
+  user-select: none;
+
+  // feathers the photo edges to transparent (no visible box).
+  // delete these two lines if face2.png is already a clean cut-out PNG.
+  -webkit-mask-image: radial-gradient(62% 72% at 55% 42%, #000 58%, transparent 85%);
+          mask-image: radial-gradient(62% 72% at 55% 42%, #000 58%, transparent 85%);
+}
+
+//  .hero-portrait {
+//    position: relative;
+//    display: inline-block;
+//    isolation: isolate;
+//  }
+ .hero-portrait {
+   display: block;
+   filter: grayscale(1) contrast(1.1) brightness(0.95);
+ }
+.hero-portrait::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 38% 42%, var(--p-elevator-accent) 0%, transparent 62%);
+  mix-blend-mode: soft-light;
+  opacity: 1.00;
+  pointer-events: none;
+}
+
+// the letters that cross IN FRONT of the face
+.elv-headline .front {
+  position: relative;
+  z-index: 3;                    // beats the face (2)
+}
+
+// keep the controls above the tall portrait so it never veils them
+.elv-lede,
+.elv-hero-cta,
+.elv-hero-chips {
+  position: relative;
+  z-index: 4;
+}
+
+@media (max-width: $bp-mobile) {
+  .elv-hero-face {
+    position: relative;
+    right: auto; top: auto;
+    transform: none;
+    height: auto;
+    width: min(460px, 80%);
+    margin: 24px auto 0;
+    -webkit-mask-image: none;
+            mask-image: none;
+            display: none;
+  }
+  .elv-headline .front { z-index: auto; }
 }
 
 
@@ -369,7 +400,7 @@
   align-items: center;
   padding: clamp(28px, 4vw, 56px);
 
-  @media (max-width: 760px) {
+  @media (max-width: $bp-mobile) {
     grid-template-columns: 1fr;
     gap: 32px;
   }

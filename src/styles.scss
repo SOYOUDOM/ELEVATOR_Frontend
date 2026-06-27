@@ -8,6 +8,12 @@
   --breakpoint-desktop: 1024px;
 }
 
+:root {
+  --fx-grain-opacity: 0.07;   /* stronger grain */
+  --fx-glow-radius:   900px;  /* wider glow spread */
+  --fx-glow-color:    rgba(91, 255, 166, 0.10);  /* brighter glow */
+}
+
 // _breakpoints.scss (or at top of your global styles)
 $bp-mobile: 900px;
 $bp-tablet: 1120px;
@@ -17,6 +23,20 @@ $bp-desktop: 1024px;
 @font-face {
     font-family: 'Varino';
     src: url('./assets/fonts/Varino\ -\ Normal.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Designer';
+    src: url('./assets/fonts/Designer.otf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Moon';
+    src: url('./assets/fonts/moon_get-Heavy.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
@@ -446,3 +466,76 @@ html[data-boot] header-left-navbar .brand-lead {
 @keyframes routeIn { from { opacity: 0; transform: translateY(16px); filter: blur(6px); } to { opacity: 1; transform: none; filter: blur(0); } }
 @keyframes footUp  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 @keyframes crtOn   { 0% { opacity: 0; } 30% { opacity: 1; } 45% { opacity: 0.2; } 65%, 100% { opacity: 1; } }
+.brand-lead{
+  overflow: visible !important;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   FX LAYER — film grain + mouse-reactive ambient glow
+   Toggle at runtime:
+     html.setAttribute('data-fx-grain', 'false')   → hides grain
+     html.setAttribute('data-fx-glow',  'false')   → hides glow
+   Or call appComponent.toggleGrain() / .toggleGlow()
+   ════════════════════════════════════════════════════════════ */
+
+:root {
+  --cx: 50%;
+  --cy: -200px; /* off-screen until mouse enters */
+}
+
+/* ── Film grain ───────────────────────────────────────────── */
+.fx-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  /* No mix-blend-mode — screen/overlay both wash out on near-black (#020202) */
+  opacity: var(--fx-grain-opacity, 0.08);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 300px 300px;
+  background-repeat: repeat;
+  animation: fxGrain 0.8s steps(8) infinite;
+  transition: opacity 0.4s ease;
+  will-change: background-position;
+}
+
+html[data-fx-grain="false"] .fx-grain {
+  opacity: 0;
+  animation-play-state: paused;
+}
+
+@keyframes fxGrain {
+  0%   { background-position:   0px    0px; }
+  12%  { background-position: -75px   50px; }
+  25%  { background-position:  50px  -75px; }
+  37%  { background-position: -50px   75px; }
+  50%  { background-position:  75px   25px; }
+  62%  { background-position: -25px  -50px; }
+  75%  { background-position:  50px  -50px; }
+  87%  { background-position: -50px   50px; }
+  100% { background-position:  25px  -25px; }
+}
+
+/* ── Mouse-reactive ambient glow ─────────────────────────── */
+.fx-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    var(--fx-glow-radius) circle at var(--cx) var(--cy),
+    var(--fx-glow-color),
+    transparent 40%
+  );
+  transition: opacity 0.4s ease;
+  will-change: background;
+}
+
+html[data-fx-glow="false"] .fx-glow {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-grain { animation-play-state: paused; }
+}

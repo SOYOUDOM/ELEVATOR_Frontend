@@ -23,51 +23,59 @@
     <div class="elv-eyebrow elv-reveal" style="animation-delay:.05s">
       FREE &nbsp;·&nbsp; AI-POWERED &nbsp;·&nbsp; SIMPLE
     </div>
+<!-- status pill -->
+<div class="elv-reveal" style="animation-delay:.15s; margin-top:22px">
+  <span class="elv-status-pill" elvReveal="wipe">
+    <span class="elv-status-dot"></span>
+    THE SUN IS RISING ON YOUR CAREER
+  </span>
+</div>
 
-    <!-- status pill -->
-    <div class="elv-reveal" style="animation-delay:.15s; margin-top:22px">
-      <span class="elv-status-pill" elvReveal="wipe">
-        <span class="elv-status-dot"></span>
-        THE SUN IS RISING ON YOUR CAREER
-      </span>
-    </div>
+<!-- headline -->
+<!-- NOTE: NO elv-reveal on the h1 — that class makes it its own paint layer,
+     which is exactly what was trapping .front and keeping OM behind the face -->
+<div class="headline">
+  <h1 class="Varino elv-headline text-center">
+    YOUR <span class="text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)]"><span class="front">STORY</span></span><br />
+    YOUR <span class="text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)]">FREED<span class="front">OM</span></span><br />
+    YOUR <span class="text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)]">FUTURE</span><br />
+  </h1>
+</div>
 
-    <!-- headline -->
-    <h1 class="elv-reveal Varino max-w-4xl text-center" style="animation-delay:.25s">
-      Bring out the rising of your<br />
-      <span class="elv-typeword font-display elv-glow-text ">
-        <span class="elv-typeword-sizer">CAREER.</span>
-        <span class="elv-typeword-live ">{{ displayWord }}<span class="elv-cursor"></span></span>
-      </span>
-    </h1>
+<!-- portrait: out of flow, doesn't affect layout -->
+<img src="../../../assets/img/face2.png" class="elv-hero-face elv-reveal elv-hero-face hero-portrait"
+     elvReveal="wipe" aria-hidden="true" alt="" />
 
-    <!-- lede -->
-    <p class="elv-lede elv-reveal" style="animation-delay:.4s">
-      Build a professional, ATS-ready CV in minutes with a clean AI-powered studio —
-      designed to help your future move upward. Every premium feature is free.
-    </p>
+<!-- lede -->
+<p class="elv-lede elv-reveal" style="animation-delay:.4s">
+  Build a professional, ATS-ready CV in minutes with a clean AI-powered studio —
+  designed to help your future move upward. Every premium feature is free.
+</p>
 
-    <!-- CTA buttons -->
-    <div class="elv-hero-cta elv-reveal" style="animation-delay:.5s" elvReveal="zoom" [revealOnce]="true">
-      <app-elv-button [size]="'large'" customClass="elv-btn--scan" [corner]="'notch'" [icon]="'pi-bolt'" [title]="'GET STARTED'">
-      </app-elv-button>
-      <app-elv-button [size]="'large'" [corner]="'notch'" [icon]="'pi-th-large'" [title]="'EXPLORE TEMPLATES'">
-      </app-elv-button>
-    </div>
+<!-- CTA buttons -->
+<div class="elv-hero-cta elv-reveal" style="animation-delay:.5s" elvReveal="zoom" [revealOnce]="true">
+  <app-elv-button [size]="'large'" customClass="elv-btn--scan text-black!" [corner]="'round'" [fillColor]="'white'" [icon]="'fa-utility fa-semibold fa-angle-right'"
+    [title]="'GET STARTED'">
+  </app-elv-button>
+  <app-elv-button [size]="'large'" [corner]="'notch'" [icon]="'pi-th-large'" [title]="'EXPLORE TEMPLATES'">
+  </app-elv-button>
+</div>
 
     <!-- chip badges -->
-    <div class="elv-hero-chips elv-reveal flex flex-row">
-      <app-elv-chip *ngFor="let chip of chips, let i = index" [icon]="chip.icon" [title]="chip.text"
-        [revealDelay]="i * 0.4" variant="primary" size="medium" corner="notch" customClass="elv-reveal"
-        elvReveal="scan" />
-    </div>
+<div class="elv-hero-chips elv-reveal flex flex-row gap-x-[5vw]!">
+  <app-elv-chip *ngFor="let chip of chips; let i = index"
+    [icon]="chip.icon" [title]="chip.text" [description]="chip.description"
+    variant="bare" size="medium"
+    [revealDelay]="i * 0.15" customClass="elv-reveal text-left!"
+    elvReveal="rise" />
+</div>
   </section>
 
   <!-- ── STATS — doors: clips open from a flashing seam ─────────── -->
-     <section class="elv-section elv-container">
-  <div elvReveal="doors">
-    <app-stats [stats]="stats" [corner]="'notch'"></app-stats>
-  </div>
+  <section class="elv-section elv-container">
+    <div elvReveal="doors">
+      <app-stats [stats]="stats" skin="ghost" accentColor="white" size="large" [valueGlow]="true" [corner]="'round'"></app-stats>
+    </div>
   </section>
   <!-- ── FEATURES ───────────────────────────────────────────────── -->
   <section class="elv-section elv-container">
@@ -83,7 +91,7 @@
 
     <!-- feature cards — scanline materialise, staggered -->
     <!-- <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"> -->
-      <!-- <div class="elv-notch-box elv-feature elv-saber-hover" *ngFor="let f of features; let i = index" elvReveal="scan"
+    <!-- <div class="elv-notch-box elv-feature elv-saber-hover" *ngFor="let f of features; let i = index" elvReveal="scan"
         [revealDelay]="i * 0.08">
         <span class="elv-notch-edge"></span>
         <span class="elv-notch-face"></span>
@@ -101,10 +109,9 @@
     </div> -->
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-  <app-elv-card *ngFor="let f of features; let i = index"
-                variant="feature" [icon]="f.piIcon" [num]="f.icon"
-                [title]="f.title" [text]="f.desc" elvReveal="scan" [revealDelay]="i * 0.08"/>
-</div>
+      <app-elv-card *ngFor="let f of features; let i = index" variant="feature" [icon]="f.piIcon" [num]="f.icon"
+        [title]="f.title" [titleGlow]="true" [text]="f.desc" elvReveal="scan" [revealDelay]="i * 0.08" />
+    </div>
 
 
   </section>
@@ -131,8 +138,8 @@
             recruiters see first, fixed in seconds.
           </p>
           <div class="elv-row elv-gap-12" style="margin-top:26px; flex-wrap:wrap">
-            <app-elv-button icon="pi-camera" title="TRY THE PHOTO STUDIO" (clicked)="goPhoto()"
-              corner="sharp" elvReveal="glitch" [revealDelay]=".7"></app-elv-button>
+            <app-elv-button icon="pi-camera" title="TRY THE PHOTO STUDIO" (clicked)="goPhoto()" corner="sharp"
+              elvReveal="glitch" [revealDelay]=".7"></app-elv-button>
             <app-elv-chip title="FREE · WATCH 1 AD TO SAVE"></app-elv-chip>
           </div>
         </div>
@@ -162,7 +169,7 @@
   <!-- ── HOW IT WORKS ───────────────────────────────────────────── -->
   <section class="elv-section elv-container">
     <div class="elv-section-head elv-center" elvReveal="doors" [revealOnce]="true">
-      <div class="elv-eyebrow">FOUR STEPS</div>
+      <div class="elv-eyebrow">FOUR STEPS</div> 
       <h2>Upload. Polish. Score. Export.</h2>
     </div>
 
@@ -178,14 +185,14 @@
         <p class="elv-muted elv-step-desc">{{ s.desc }}</p>
       </div> -->
 
-      <app-elv-card *ngFor="let s of steps" variant="step" hover="saber" skin="gradient"
-              [num]="s.num" [icon]="s.piIcon" [title]="s.title" [text]="s.desc" />
+      <app-elv-card *ngFor="let s of steps" variant="step" hover="saber" skin="gradient" [num]="s.num" [icon]="s.piIcon"
+        [title]="s.title" [text]="s.desc" />
     </div>
   </section>
 
   <!-- ── CTA BAND — zoom de-blur push-in ────────────────────────── -->
   <section class="elv-section elv-container" elvReveal="zoom" [revealOnce]="true">
-    <div class="elv-notch-box elv-cta-band elv-saber-hover">
+    <div class="elv-notch-box elv-cta-band elv-saber-hover cta-section">
       <span class="elv-notch-edge" style="--elv-edge-color: var(--elv-accent)"></span>
       <span class="elv-notch-face" style="background: rgba(91,255,166,0.04)"></span>
       <span class="elv-tick-tl"></span>
@@ -195,11 +202,13 @@
         <h2 class="font-display elv-cta-h2">
           Your next role is<br /><span class="elv-glow-text">one upload away.</span>
         </h2>
-        <div class="elv-hero-cta">
-          <app-elv-button corner="notch" icon="pi-bolt" title="LET'S BUILD YOUR PILLAR" elvReveal="wipe" [revealDelay]=".5"></app-elv-button>
+        <div class="elv-hero-cta items-center ">
+          <app-elv-button corner="notch" icon="fa-thumbprint fa-light fa-lightbulb" iconStyle="--fa-primary-color: rgb(255, 255, 255); --fa-secondary-color: var(--p-elevator-accent);" title="LET'S BUILD YOUR PILLAR" elvReveal="wipe"
+            [revealDelay]=".5"></app-elv-button>
         </div>
       </div>
     </div>
   </section>
-
 </div>
+
+

@@ -60,6 +60,7 @@ export class ElvCardComponent {
   @Input() hover?: ElvCardHover;
   @Input() ticks?: boolean;
   @Input() glow?: boolean;
+  @Input() titleGlow?: boolean;
 
   @Input() eyebrow = '';
   @Input() num: string | number | null = null;
@@ -105,6 +106,7 @@ export class ElvCardComponent {
       this.rGlow ? 'elv-card--glow' : '',
       this.interactive || this.href || this.routerLinkTo ? 'elv-card--interactive' : '',
       this.customClass,
+      this.titleGlow ? 'elv-card--glow-title' : '',
     ].filter(Boolean).join(' ');
   }
 

@@ -1,6 +1,21 @@
-<span [class]="classes + ['inline-flex', 'items-center', 'gap-2']"
-      [attr.aria-label]="(icon && !title) ? (ariaLabel || null) : null">
-  @if (icon) { <i class="pi {{ icon }} p-2" aria-hidden="true"></i> }
-  @if (title) { <span class="elv-chip-title pr-2">{{ title }}</span> }
+<span [class]="classes"
+      [style.--_accent]="accentColor || null"
+      [attr.role]="interactive ? 'button' : null"
+      [attr.tabindex]="interactive ? 0 : null"
+      [attr.aria-label]="resolvedAriaLabel"
+      (click)="onActivate($event)"
+      (keydown)="onKeydown($event)">
+
+  @if (icon) {
+    <span class="elv-chip__icon" aria-hidden="true"><i [class]="icon"></i></span>
+  }
+
+  @if (hasText) {
+    <span class="elv-chip__text">
+      @if (title)       { <span class="elv-chip__title">{{ title }}</span> }
+      @if (description) { <span class="elv-chip__desc">{{ description }}</span> }
+    </span>
+  }
+
   <ng-content></ng-content>
 </span>

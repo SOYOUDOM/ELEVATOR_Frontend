@@ -9,7 +9,7 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
     host: { class: 'flex items-center' },
-    imports: [RouterLink, LocalizePipe],
+    // imports: [RouterLink, LocalizePipe],
 })
 export class HeaderLeftNavbarComponent implements OnInit {
     sidebarExpanded: boolean = false;
