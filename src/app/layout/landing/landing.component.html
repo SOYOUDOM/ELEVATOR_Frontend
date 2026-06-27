@@ -14,7 +14,7 @@
 <div class="elv-page scene {{ CustomClass }}">
 
   <!-- ── HERO (unchanged — boot choreography owns it) ─────────── -->
-  <section class="elv-hero elv-container">
+  <section id="home" class="elv-hero elv-container scroll-mt-[110px]">
 
     <!-- ambient backdrop glow -->
     <div class="elv-hero-glow" aria-hidden="true"></div>
@@ -36,9 +36,9 @@
      which is exactly what was trapping .front and keeping OM behind the face -->
 <div class="headline">
   <h1 class="Varino elv-headline text-center">
-    YOUR <span class="text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)]"><span class="front">STORY</span></span><br />
-    YOUR <span class="text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)]">FREED<span class="front">OM</span></span><br />
-    YOUR <span class="text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)]">FUTURE</span><br />
+    YOUR <span class="text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)] relative max-mobile:z-20">STOR<span class="relative min-mobile:z-20">Y</span></span><br />
+    YOUR <span class="text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)] relative max-mobile:z-20">FREED<span class="relative min-mobile:z-20">OM</span></span><br />
+    YOUR <span class="text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)] front">FUTURE</span><br />
   </h1>
 </div>
 
@@ -78,7 +78,7 @@
     </div>
   </section>
   <!-- ── FEATURES ───────────────────────────────────────────────── -->
-  <section class="elv-section elv-container">
+  <section id="features" class="elv-section elv-container scroll-mt-[110px]">
     <!-- section head — wipe from the left -->
     <div class="elv-section-head" elvReveal="wipe">
       <div class="elv-eyebrow">THE TOOLKIT</div>
@@ -117,7 +117,7 @@
   </section>
 
   <!-- ── PHOTO TOOL SPOTLIGHT — doors (echoes the boot) ─────────── -->
-  <section class="elv-section elv-container">
+  <section id="studio-headshot" class="elv-section elv-container scroll-mt-[110px]">
     <div class="elv-notch-box elv-spotlight elv-saber-hover" elvReveal="doors">
       <span class="elv-notch-edge"></span>
       <span class="elv-notch-face"></span>
@@ -167,7 +167,7 @@
   </section>
 
   <!-- ── HOW IT WORKS ───────────────────────────────────────────── -->
-  <section class="elv-section elv-container">
+  <section id="how" class="elv-section elv-container scroll-mt-[110px]">
     <div class="elv-section-head elv-center" elvReveal="doors" [revealOnce]="true">
       <div class="elv-eyebrow">FOUR STEPS</div> 
       <h2>Upload. Polish. Score. Export.</h2>
@@ -191,7 +191,7 @@
   </section>
 
   <!-- ── CTA BAND — zoom de-blur push-in ────────────────────────── -->
-  <section class="elv-section elv-container" elvReveal="zoom" [revealOnce]="true">
+  <section id="cta" class="elv-section elv-container scroll-mt-[110px]" elvReveal="zoom" [revealOnce]="true">
     <div class="elv-notch-box elv-cta-band elv-saber-hover cta-section">
       <span class="elv-notch-edge" style="--elv-edge-color: var(--elv-accent)"></span>
       <span class="elv-notch-face" style="background: rgba(91,255,166,0.04)"></span>

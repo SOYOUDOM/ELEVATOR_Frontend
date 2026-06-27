@@ -1,0 +1,231 @@
+/* ============================================================
+   ELEVATOR — sidebar drawer (HUD / notched-chrome aesthetic)
+   ------------------------------------------------------------
+   Notched corners are cut with clip-path; the 1px "border" is a
+   second clipped layer (::before) inset by 1px. box-shadow does
+   NOT follow a clip-path, so the active glow uses drop-shadow().
+   Values here are tuned against the reference mockup.
+   ============================================================ */
+
+/* shared cut-corner shape (top-left + bottom-right) */
+@mixin notched($c: 15px) {
+    clip-path: polygon(
+        #{$c} 0,
+        100% 0,
+        100% calc(100% - #{$c}),
+        calc(100% - #{$c}) 100%,
+        0 100%,
+        0 #{$c}
+    );
+}
+
+/* ---- close (X) octagon button ---- */
+.elv-close {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    display: inline-grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+    background: var(--p-elevator-line-strong);
+    clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%);
+    transition: background 0.2s ease;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 1.5px;
+        background: var(--p-surface-900);
+        clip-path: inherit;
+    }
+
+    i {
+        position: relative;
+        z-index: 1;
+        font-size: 1.15rem;
+        color: var(--p-elevator-ink2);
+        transition: color 0.2s ease;
+    }
+
+    &:hover {
+        background: color-mix(in oklch, var(--p-elevator-accent) 55%, var(--p-elevator-line-strong));
+        i {
+            color: var(--p-elevator-accent);
+        }
+    }
+}
+
+/* ---- menu item card ---- */
+.elv-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px;
+    margin-bottom: 13px;
+    cursor: pointer;
+    font-size: 0.92rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none !important;
+    color: var(--p-elevator-ink);
+    /* metallic edge → acts as the 1px border behind ::before */
+    background: linear-gradient(150deg, rgba(150, 180, 210, 0.28), rgba(150, 180, 210, 0.06));
+    @include notched;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        filter 0.2s ease;
+
+    /* fill */
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 1px;
+        background: var(--p-surface-900);
+        clip-path: inherit;
+        z-index: 0;
+    }
+
+    /* decorative gold ticks (inactive only) */
+    &:not(.is-active)::after {
+        content: '';
+        position: absolute;
+        right: 14px;
+        bottom: 13px;
+        width: 11px;
+        height: 10px;
+        z-index: 1;
+        opacity: 0.65;
+        background: repeating-linear-gradient(
+            to bottom,
+            var(--p-elevator-accent) 0 1.5px,
+            transparent 1.5px 4px
+        );
+    }
+
+    i,
+    span {
+        position: relative;
+        z-index: 1;
+    }
+
+    i {
+        width: 24px;
+        text-align: center;
+        font-size: 1.15rem;
+        color: #cbd5e1;
+        transition: color 0.2s ease;
+    }
+
+    &:hover:not(.is-active) {
+        background: linear-gradient(
+            150deg,
+            color-mix(in oklch, var(--p-elevator-accent) 40%, rgba(150, 180, 210, 0.28)),
+            rgba(150, 180, 210, 0.1)
+        );
+        color: #fff;
+    }
+
+    /* active → glowing gold notched card */
+    &.is-active {
+        background: var(--p-elevator-accent);
+        color: var(--p-elevator-accent);
+        filter:
+            drop-shadow(0 0 5px var(--p-elevator-accent-glow))
+            drop-shadow(0 0 14px var(--p-elevator-accent-soft));
+
+        &::before {
+            inset: 1.6px;
+            background: color-mix(in oklch, var(--p-elevator-accent) 6%, var(--p-surface-900));
+        }
+        i {
+            color: var(--p-elevator-accent);
+        }
+    }
+
+    /* About / Login read flatter (no notch, no ticks) */
+    &--plain {
+        clip-path: none;
+        background: transparent;
+        margin-bottom: 4px;
+
+        &::before,
+        &::after {
+            display: none;
+        }
+        &:hover:not(.is-active) {
+            background: transparent;
+            color: #fff;
+        }
+    }
+}
+
+/* ---- 100% free-forever card ---- */
+.elv-free {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 16px;
+    padding: 18px 20px;
+    text-decoration: none !important;
+    background: color-mix(in oklch, var(--p-elevator-accent) 6%, var(--p-surface-900));
+    border: 1px solid color-mix(in oklch, var(--p-elevator-accent) 18%, transparent);
+
+    /* gold L-brackets at all four corners */
+    &::before {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        pointer-events: none;
+        --g: var(--p-elevator-accent);
+        --bt: 2px; /* bracket thickness */
+        --bl: 20px; /* bracket length    */
+        background:
+            linear-gradient(var(--g), var(--g)) 0 0 / var(--bl) var(--bt) no-repeat,
+            linear-gradient(var(--g), var(--g)) 0 0 / var(--bt) var(--bl) no-repeat,
+            linear-gradient(var(--g), var(--g)) 100% 0 / var(--bl) var(--bt) no-repeat,
+            linear-gradient(var(--g), var(--g)) 100% 0 / var(--bt) var(--bl) no-repeat,
+            linear-gradient(var(--g), var(--g)) 0 100% / var(--bl) var(--bt) no-repeat,
+            linear-gradient(var(--g), var(--g)) 0 100% / var(--bt) var(--bl) no-repeat,
+            linear-gradient(var(--g), var(--g)) 100% 100% / var(--bl) var(--bt) no-repeat,
+            linear-gradient(var(--g), var(--g)) 100% 100% / var(--bt) var(--bl) no-repeat;
+        filter: drop-shadow(0 0 4px var(--p-elevator-accent-glow));
+    }
+
+    .title {
+        color: var(--p-elevator-accent);
+        font-weight: 800;
+        font-size: 1.02rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .sub {
+        margin-top: 6px;
+        color: var(--p-elevator-ink2);
+        font-size: 0.85rem;
+        line-height: 1.5;
+    }
+
+    .globe {
+        flex: 0 0 auto;
+        width: 52px;
+        height: 52px;
+        display: grid;
+        place-items: center;
+        clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+        background: color-mix(in oklch, var(--p-elevator-accent) 14%, transparent);
+        color: var(--p-elevator-accent);
+        font-size: 1.3rem;
+    }
+
+    &:hover .globe {
+        background: color-mix(in oklch, var(--p-elevator-accent) 22%, transparent);
+    }
+}

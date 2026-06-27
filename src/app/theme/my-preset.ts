@@ -102,6 +102,7 @@ export const ElevatorPreset = definePreset(Aura, {
       maxw:   '1240px',
       edgecolor: '--p-elevator-line',
       minw: '937px',
+      navbarHeight: '88px'
     }
   },
 

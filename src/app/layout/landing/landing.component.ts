@@ -74,13 +74,13 @@ export class LandingComponent {
   ];
 
 
-  chips = [] =[
-    {icon: 'fa-sharp fa-light fa-microchip-ai', text: 'AI write for you', description: 'Smart & Accurate'},
-    {icon: 'fa-light fa-hammer-brush', text: 'ATS optimized', description: 'Score higher'},
-    {icon: 'fa-sharp-duotone fa-thin fa-lock-keyhole', text: '100% safe', description: 'Your data is safe'},
-    {icon: 'fa-sharp fa-regular fa-user-hair-long', text: 'STUDIO HEADSHOT',description: 'AI Generated'},
-    {icon: 'fa-sharp fa-cloud-arrow-down', text: '1-CLICK EXPORT',description: 'PDF •̀DOCX'},
-  ]
+chips = [
+    {icon: 'fa-sharp fa-light fa-microchip-ai', text: 'AI write for you',  description: 'Smart & Accurate'},
+    {icon: 'fa-light fa-hammer-brush', text: 'ATS optimized',  description: 'Score higher'},
+    {icon: 'fa-sharp-duotone fa-thin fa-lock-keyhole', text: '100% safe',  description: 'Your data is safe'},
+    {icon: 'fa-sharp fa-regular fa-user-hair-long', text: 'STUDIO HEADSHOT', description: 'AI Generated'},
+    {icon: 'fa-sharp fa-cloud-arrow-down', text: '1-CLICK EXPORT',  description: 'PDF •̀DOCX'},
+]
  
   constructor(private router: Router, private cdr: ChangeDetectorRef) {}
  

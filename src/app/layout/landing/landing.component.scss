@@ -365,7 +365,7 @@ $bp-desktop: 1024px;
 // the letters that cross IN FRONT of the face
 .elv-headline .front {
   position: relative;
-  z-index: 3;                    // beats the face (2)
+  z-index: 20;                    // beats the face (2)
 }
 
 // keep the controls above the tall portrait so it never veils them
@@ -378,18 +378,19 @@ $bp-desktop: 1024px;
 
 @media (max-width: $bp-mobile) {
   .elv-hero-face {
-    position: relative;
-    right: auto; top: auto;
+    position: absolute;
+    // right: auto; top: auto;
     transform: none;
     height: auto;
     width: min(460px, 80%);
     margin: 24px auto 0;
     -webkit-mask-image: none;
             mask-image: none;
-            display: none;
+            // display: none;
   }
-  .elv-headline .front { z-index: auto; }
+  // .elv-headline .front { z-index: auto; }
 }
+
 
 
 // ── Spotlight ────────────────────────────────────────────────

@@ -107,52 +107,32 @@
  
 <div class="wrapper">
   <app-header></app-header>
- 
+
   <aside
     id="app-sidebar"
-    class="fixed top-0 left-0 h-screen w-64 z-40 bg-white dark:bg-surface-900
+    class="fixed top-0 left-0 h-screen w-64 z-40
            transform transition-transform duration-300 ease-in-out
            lg:hidden"
     [class.-translate-x-full]="!sidebarExpanded"
     [class.translate-x-0]="sidebarExpanded">
     <sidebar></sidebar>
   </aside>
- 
+
   <!-- Backdrop -->
   <div
     *ngIf="sidebarExpanded"
     (click)="toggleSidebar()"
     class="fixed inset-0 bg-black/45 z-30 lg:hidden">
   </div>
- 
+
   <!-- route-shell gets the rise+deblur on boot and on every route
        change (the key re-creates the div so the CSS animation replays) -->
   <div class="route-shell" *ngIf="routeKey">
+    <app-landing CustomClass="pt-10"></app-landing>
 
-<div class="wrapper">
-  <app-header></app-header>
-  <aside
-    class="fixed top-0 left-0 h-screen w-64 z-40 bg-white dark:bg-surface-900
-           transform transition-transform duration-300 ease-in-out
-           lg:hidden"
-    [class.-translate-x-full]="!sidebarExpanded"
-    [class.translate-x-0]="sidebarExpanded">
-    <sidebar></sidebar>
-  </aside>
-
-  <!-- Backdrop -->
-  <div
-    *ngIf="sidebarExpanded"
-    (click)="toggleSidebar()"
-    class="fixed inset-0 bg-black/45 z-30 lg:hidden">
-  </div>
-
-  <app-landing CustomClass="pt-10"></app-landing>
-
-  <!-- <div class="content-wrapper">
-    <router-outlet></router-outlet>
-  </div> -->
-  <app-footer></app-footer>
-</div>
+    <!-- <div class="content-wrapper">
+      <router-outlet></router-outlet>
+    </div> -->
+    <app-footer></app-footer>
   </div>
 </div>
