@@ -26,18 +26,11 @@ export class SidebarComponent implements OnInit {
     activeLabel = 'Home';
 
     navItems: SidebarItem[] = [
-        { label: 'Home', icon: 'fas fa-house', target: 'home' },
-        { label: 'Templates', icon: 'fas fa-table-cells-large', target: 'features' },
-        { label: 'AI Write For You', icon: 'fas fa-microchip', target: 'features' },
-        { label: 'ATS Optimized', icon: 'fas fa-crosshairs', target: 'features' },
-        { label: '100% Safe', icon: 'fas fa-shield-halved', target: 'features' },
-        { label: 'Studio Headshot', icon: 'fas fa-image-portrait', target: 'studio-headshot' },
-        { label: '1-Click Export', icon: 'fas fa-file-export', target: 'features' },
-    ];
-
-    secondaryItems: SidebarItem[] = [
-        { label: 'About', icon: 'fas fa-circle-info', target: 'how' },
-        { label: 'Login', icon: 'fas fa-user', route: '/account/login' },
+        { label: 'Home', icon: 'fa-thin fa-house', target: 'home' },
+        { label: 'Get Started', icon: 'fa-thin fa-table-cells', target: 'features' },
+        { label: 'Templates', icon: 'fa-thin fa-table-cells', target: 'features' },
+        { label: 'About', icon: 'fa-thin fa-circle-info', target: 'how' },
+        { label: 'Login', icon: 'fa-thin fa-arrow-left-to-bracket', route: '/account/login' },
     ];
     constructor(
         private renderer: Renderer2,
@@ -90,9 +83,7 @@ export class SidebarComponent implements OnInit {
         if (item.target) {
             // let the drawer start closing first, then scroll
             setTimeout(() => {
-                document
-                    .getElementById(item.target!)
-                    ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                document.getElementById(item.target!)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 0);
         }
     }

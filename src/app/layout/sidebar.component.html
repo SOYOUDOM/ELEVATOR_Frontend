@@ -33,17 +33,10 @@
             <a class="elv-item" [class.is-active]="item.label === activeLabel" (click)="go(item)">
                 <i [class]="item.icon" aria-hidden="true"></i>
                 <span>{{ item.label }}</span>
+                <span class="elv-strip" aria-hidden="true"></span>
+                <span class="elv-strip-2" aria-hidden="true"></span>
             </a>
         }
-
-        <div class="mt-[10px]">
-            @for (item of secondaryItems; track item.label) {
-                <a class="elv-item elv-item--plain" [class.is-active]="item.label === activeLabel" (click)="go(item)">
-                    <i [class]="item.icon" aria-hidden="true"></i>
-                    <span>{{ item.label }}</span>
-                </a>
-            }
-        </div>
     </nav>
 
     <!-- ===== Free-forever card ===== -->

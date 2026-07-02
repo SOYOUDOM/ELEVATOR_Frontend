@@ -82,7 +82,7 @@
     <!-- section head — wipe from the left -->
     <div class="elv-section-head" elvReveal="wipe">
       <div class="elv-eyebrow">THE TOOLKIT</div>
-      <h2>Everything paid tools charge for.<br />Here it costs nothing.</h2>
+      <h2 >Everything paid tools charge for.<br />Here it costs nothing.</h2>
       <p class="elv-lede">
         Watch a short ad when you export — that's the whole business model.
         No subscriptions, no locked features, no surprise card form.
@@ -109,7 +109,7 @@
     </div> -->
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <app-elv-card *ngFor="let f of features; let i = index" variant="feature" [icon]="f.piIcon" [num]="f.icon"
+      <app-elv-card *ngFor="let f of features; let i = index" variant="feature" [corner]="'round'" [icon]="f.piIcon" [num]="f.icon"
         [title]="f.title" [titleGlow]="true" [text]="f.desc" elvReveal="scan" [revealDelay]="i * 0.08" />
     </div>
 
@@ -185,7 +185,7 @@
         <p class="elv-muted elv-step-desc">{{ s.desc }}</p>
       </div> -->
 
-      <app-elv-card *ngFor="let s of steps" variant="step" hover="saber" skin="gradient" [num]="s.num" [icon]="s.piIcon"
+      <app-elv-card *ngFor="let s of steps" variant="step" hover="saber" skin="ghost" [num]="s.num" [icon]="s.piIcon"
         [title]="s.title" [text]="s.desc" />
     </div>
   </section>
