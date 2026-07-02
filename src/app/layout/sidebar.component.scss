@@ -1,0 +1,316 @@
+/* ============================================================
+   ELEVATOR — sidebar drawer (HUD / notched-chrome aesthetic)
+   ------------------------------------------------------------
+   Notched corners are cut with clip-path; the 1px "border" is a
+   second clipped layer (::before) inset by 1px. box-shadow does
+   NOT follow a clip-path, so the active glow uses drop-shadow().
+   Values here are tuned against the reference mockup.
+   ============================================================ */
+
+/* shared cut-corner shape (top-left + bottom-right) */
+@mixin notched($c: 15px) {
+    clip-path: polygon(#{$c} 0, 100% 0, 100% calc(100% - #{$c}), calc(100% - #{$c}) 100%, 0 100%, 0 #{$c});
+}
+
+/* notched right side only with smooth left border-radius */
+@mixin notched-right($c: 15px, $radius: 10px) {
+    border-radius: #{$radius} 0 0 #{$radius}; /* smooth left side */
+    clip-path: polygon(0 0, calc(100% - #{$c}) 0, 100% #{$c}, 100% calc(100% - #{$c}), calc(100% - #{$c}) 100%, 0 100%);
+}
+
+/* ---- close (X) octagon button ---- */
+.elv-close {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    display: inline-grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+    background: var(--p-elevator-line-strong);
+    clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%);
+    transition: background 0.2s ease;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 1.5px;
+        background: var(--p-surface-900);
+        clip-path: inherit;
+    }
+
+    i {
+        position: relative;
+        z-index: 1;
+        font-size: 1.15rem;
+        color: var(--p-elevator-ink2);
+        transition: color 0.2s ease;
+    }
+
+    &:hover {
+        background: color-mix(in oklch, var(--p-elevator-accent) 55%, var(--p-elevator-line-strong));
+        i {
+            color: var(--p-elevator-accent);
+        }
+    }
+}
+
+/* ---- menu item card ---- */
+.elv-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px;
+    margin-bottom: 13px;
+    cursor: pointer;
+    font-size: 0.92rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none !important;
+    color: var(--p-elevator-ink);
+    /* metallic edge → acts as the 1px border behind ::before */
+    background: linear-gradient(150deg, rgba(150, 180, 210, 0.28), rgba(150, 180, 210, 0.06));
+    @include notched-right(7px, 15px);
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        filter 0.2s ease;
+
+    box-shadow: 0px 0px 5px var(--p-elevator-accent-glow);
+
+    /* fill + bottom-right corner glow */
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 1px;
+        background: var(--p-surface-900);
+        clip-path: inherit;
+        z-index: 0;
+        @include notched-right(7px, 15px);
+        transition: background 0.2s ease;
+    }
+
+    /* decorative gold ticks + glow (inactive only) */
+    &:not(.is-active)::after {
+        content: '';
+        position: absolute;
+        right: 14px;
+        bottom: 13px;
+        width: 11px;
+        height: 10px;
+        z-index: 1;
+        opacity: 0.85;
+
+        // background: repeating-linear-gradient(
+        //     to bottom,
+        //     var(--p-elevator-accent) 0 1.5px,
+        //     transparent 1.5px 4px
+        // );
+        filter: drop-shadow(0 0 4px var(--p-elevator-accent-glow));
+    }
+
+    i,
+    span {
+        position: relative;
+        z-index: 1;
+    }
+
+    i {
+        width: 24px;
+        text-align: center;
+        font-size: 1.15rem;
+        color: #cbd5e1;
+        transition: color 0.2s ease;
+    }
+
+    &:hover:not(.is-active) {
+        background: linear-gradient(
+            150deg,
+            color-mix(in oklch, var(--p-elevator-accent) 40%, rgba(150, 180, 210, 0.28)),
+            rgba(150, 180, 210, 0.1)
+        );
+        color: #fff;
+
+        &::before {
+            background:
+                radial-gradient(150px 110px at 100% 100%, var(--p-elevator-accent-glow) 0%, transparent 72%),
+                var(--p-surface-900);
+        }
+    }
+
+    /* active → glowing gold notched card */
+    &.is-active {
+        background: var(--p-elevator-accent);
+        color: var(--p-elevator-accent);
+        // filter:
+        //     drop-shadow(0 0 5px var(--p-elevator-accent-glow))
+        //     drop-shadow(0 0 14px var(--p-elevator-accent-soft));
+
+        &::before {
+            inset: 1.6px;
+            // background: color-mix(in oklch, var(--p-elevator-accent) 6%, var(--p-surface-900));
+        }
+        i {
+            color: var(--p-elevator-accent);
+        }
+    }
+
+    /* About / Login read flatter (no notch, no ticks) */
+    &--plain {
+        clip-path: none;
+        background: transparent;
+        margin-bottom: 4px;
+
+        &::before,
+        &::after {
+            display: none;
+        }
+        &:hover:not(.is-active) {
+            background: transparent;
+            color: #fff;
+        }
+    }
+}
+
+/* ---- 100% free-forever card ---- */
+.elv-free {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 16px;
+    padding: 18px 20px;
+    text-decoration: none !important;
+    background: color-mix(in oklch, var(--p-elevator-accent) 6%, var(--p-surface-900));
+    border: 1px solid color-mix(in oklch, var(--p-elevator-accent) 18%, transparent);
+
+    /* gold L-brackets at all four corners */
+    &::before {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        pointer-events: none;
+        --g: var(--p-elevator-accent);
+        --bt: 2px; /* bracket thickness */
+        --bl: 20px; /* bracket length    */
+        background:
+            linear-gradient(var(--g), var(--g)) 0 0 / var(--bl) var(--bt) no-repeat,
+            linear-gradient(var(--g), var(--g)) 0 0 / var(--bt) var(--bl) no-repeat,
+            linear-gradient(var(--g), var(--g)) 100% 0 / var(--bl) var(--bt) no-repeat,
+            linear-gradient(var(--g), var(--g)) 100% 0 / var(--bt) var(--bl) no-repeat,
+            linear-gradient(var(--g), var(--g)) 0 100% / var(--bl) var(--bt) no-repeat,
+            linear-gradient(var(--g), var(--g)) 0 100% / var(--bt) var(--bl) no-repeat,
+            linear-gradient(var(--g), var(--g)) 100% 100% / var(--bl) var(--bt) no-repeat,
+            linear-gradient(var(--g), var(--g)) 100% 100% / var(--bt) var(--bl) no-repeat;
+        filter: drop-shadow(0 0 4px var(--p-elevator-accent-glow));
+    }
+
+    .title {
+        color: var(--p-elevator-accent);
+        font-weight: 800;
+        font-size: 1.02rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .sub {
+        margin-top: 6px;
+        color: var(--p-elevator-ink2);
+        font-size: 0.85rem;
+        line-height: 1.5;
+    }
+
+    .globe {
+        flex: 0 0 auto;
+        width: 52px;
+        height: 52px;
+        display: grid;
+        place-items: center;
+        clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+        background: color-mix(in oklch, var(--p-elevator-accent) 14%, transparent);
+        color: var(--p-elevator-accent);
+        font-size: 1.3rem;
+    }
+
+    &:hover .globe {
+        background: color-mix(in oklch, var(--p-elevator-accent) 22%, transparent);
+    }
+}
+
+/* ── bent neon corner stripe — echoes a notched-right chamfer, sticks bottom-right ── */
+@mixin neon-corner-strip(
+    $right: 7px,
+    // MATCH the card's notch size
+    $bottom: 7px,
+    // MATCH the card's notch size
+    $thick: 2px,
+    $vlen: 14px,
+    // vertical arm
+    $dlen: 14px,
+    // diagonal arm
+    $color: var(--p-elevator-accent),
+    $glow: var(--p-elevator-accent-glow),
+    $rotate: -45deg,
+    $transform: right bottom
+) {
+    position: absolute;
+    right: #{$right}; // tied to the notch → no magic numbers
+    bottom: #{$bottom};
+    width: #{$dlen};
+    height: #{$vlen};
+    z-index: 1;
+    pointer-events: none;
+    filter: drop-shadow(0 0 10px #{$glow});
+
+    &::before,                                /* vertical arm — up the right edge   */
+    &::after {
+        /* diagonal arm — parallel to chamfer */
+        content: '';
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        background: #{$color};
+    }
+    &::before {
+        width: #{$thick};
+        height: #{$vlen};
+    }
+    &::after {
+        width: #{$dlen};
+        height: #{$thick};
+        transform-origin: #{$transform};
+        transform: rotate(#{$rotate});
+    }
+}
+
+/* (0,2,0) beats `.elv-item span` (0,1,1) → position: absolute now wins */
+.elv-item .elv-strip {
+    @include neon-corner-strip(
+        $right: 0px,
+        $bottom: 7px,
+        $thick: 2px
+    ); /* override AFTER the include so this filter wins */
+    filter: drop-shadow(0 0 3px var(--p-elevator-accent)) drop-shadow(0 0 5px var(--p-elevator-accent))
+        drop-shadow(0 0 8px var(--p-elevator-accent-glow));
+} /* 7px = same notch */
+
+.elv-item.is-active .elv-strip {display: none;}
+
+.elv-item .elv-strip-2 {
+    @include neon-corner-strip(
+        $right: 10px,
+        $bottom: 7px,
+        $thick: 2px,
+        $dlen: 2px,
+        $vlen: 2px
+    ); /* override AFTER the include so this filter wins */
+    filter: drop-shadow(0 0 3px var(--p-elevator-accent));
+} /* 7px = same notch */
+.elv-item.is-active .elv-strip { display: none; }
+.elv-item.is-active .elv-strip-2 { display: none; }
+
+

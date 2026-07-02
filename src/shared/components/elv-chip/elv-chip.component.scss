@@ -1,0 +1,213 @@
+// ── ELEVATOR Chip ──────────────────────────────────────────────
+// Behaves like the old inline span inside flex rows.
+:host {
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+.elv-chip {
+    // per-instance accent (overridable via [style.--_accent] / accentColor)
+    --_accent: var(--p-elevator-accent);
+
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65em;
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        Roboto,
+        Oxygen,
+        Ubuntu,
+        Cantarell,
+        'Open Sans',
+        'Helvetica Neue',
+        sans-serif;
+    font-size: 11px;
+    line-height: 1.15;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--p-elevator-ink2);
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 7px 14px;
+    transition:
+        color 0.25s,
+        border-color 0.25s,
+        background-color 0.25s;
+}
+
+// ── text block ─────────────────────────────────────────────────
+.elv-chip__text {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.25em;
+    min-width: 0;
+}
+.elv-chip__title {
+    white-space: nowrap;
+    font-weight: bold;
+    text-shadow: 0px 0px 3px var(--p-elevator-ink2);
+    margin-bottom: .2em;
+}
+.elv-chip__desc {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-transform: none;
+    letter-spacing: 0.08em;
+    font-size: 1em;
+    color: var(--p-elevator-ink3);
+}
+// with a description the title becomes the heading, so brighten it
+.elv-chip--has-desc .elv-chip__title {
+    color: var(--p-elevator-ink);
+}
+
+// ── icon ───────────────────────────────────────────────────────
+.elv-chip__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    i {
+        font-size: 1.3em;
+        line-height: 1;
+    }
+}
+// framed icon (circle / round / square): fixed box + hairline ring
+.elv-chip--frame-circle .elv-chip__icon,
+.elv-chip--frame-round .elv-chip__icon,
+.elv-chip--frame-square .elv-chip__icon {
+    width: 2.4em;
+    height: 2.4em;
+    border: 1px solid var(--p-elevator-line-strong);
+    i {
+        font-size: 1.05em;
+    }
+}
+.elv-chip--frame-circle .elv-chip__icon {
+    border-radius: 999px;
+}
+.elv-chip--frame-round .elv-chip__icon {
+    border-radius: 0.5em;
+}
+.elv-chip--frame-square .elv-chip__icon {
+    border-radius: 0;
+}
+
+// ── icon position ──────────────────────────────────────────────
+.elv-chip--icon-end {
+    flex-direction: row-reverse;
+}
+
+// ── alignment of the stacked text ──────────────────────────────
+.elv-chip--align-center {
+    text-align: center;
+}
+.elv-chip--align-center .elv-chip__text {
+    align-items: center;
+}
+.elv-chip--align-end {
+    text-align: right;
+}
+.elv-chip--align-end .elv-chip__text {
+    align-items: flex-end;
+}
+
+// ── skins ──────────────────────────────────────────────────────
+.elv-chip--soft {
+    border-color: var(--p-elevator-line);
+    background: rgba(255, 255, 255, 0.03);
+}
+.elv-chip--soft:hover {
+    color: var(--_accent);
+    border-color: var(--p-elevator-accent-soft);
+}
+
+.elv-chip--outline {
+    border-color: var(--p-elevator-line-strong);
+}
+.elv-chip--outline:hover {
+    color: var(--_accent);
+    border-color: var(--_accent);
+}
+
+.elv-chip--solid {
+    border-color: var(--p-elevator-line);
+    background: var(--p-elevator-panel-hi, #111824);
+    color: var(--p-elevator-ink);
+}
+.elv-chip--solid:hover {
+    border-color: var(--p-elevator-accent-soft);
+}
+
+.elv-chip--accent {
+    color: var(--_accent);
+    border-color: var(--p-elevator-accent-soft);
+    background: color-mix(in oklch, var(--_accent) 6%, transparent);
+}
+
+.elv-chip--glass {
+    border-color: var(--p-elevator-line);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+}
+
+// plain — no surface at all (picture 2): icon + text only
+.elv-chip--plain {
+    border-color: transparent;
+    background: transparent;
+    padding: 0;
+}
+.elv-chip--plain:hover {
+    color: var(--p-elevator-ink);
+}
+
+// ── corners (only meaningful when a surface is drawn) ───────────
+.elv-chip--notch {
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+.elv-chip--round {
+    border-radius: 12px;
+}
+.elv-chip--pill {
+    border-radius: 999px;
+}
+.elv-chip--sharp {
+    border-radius: 0;
+}
+
+// ── sizes ──────────────────────────────────────────────────────
+.elv-chip--small {
+    font-size: 10px;
+    padding: 5px 10px;
+}
+.elv-chip--medium {
+    font-size: 11px;
+    padding: 7px 14px;
+}
+.elv-chip--large {
+    font-size: 13px;
+    padding: 9px 18px;
+}
+// plain never carries box padding, whatever the size
+.elv-chip--plain.elv-chip--small,
+.elv-chip--plain.elv-chip--medium,
+.elv-chip--plain.elv-chip--large {
+    padding: 0;
+}
+
+// ── interactive ────────────────────────────────────────────────
+.elv-chip--interactive {
+    cursor: pointer;
+}
+.elv-chip--interactive:focus-visible {
+    outline: 2px solid var(--_accent);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .elv-chip {
+        transition: none;
+    }
+}

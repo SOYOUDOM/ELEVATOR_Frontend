@@ -1,17 +1,33 @@
-<ul class="navbar-nav">
-    <li class="nav-item">
-        <a class="nav-link" href="javascript:;" (click)="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </a>
-    </li>
-    <li class="nav-item d-none d-sm-inline-block">
-        <a class="nav-link" [routerLink]="['home']">
-            {{ 'HomePage' | localize }}
-        </a>
-    </li>
-    <li class="nav-item d-none d-sm-inline-block">
-        <a class="nav-link" [routerLink]="['about']">
-            {{ 'About' | localize }}
-        </a>
-    </li>
-</ul>
+<div class="group flex items-center"
+     [attr.data-open]="sidebarExpanded ? 'true' : 'false'">
+
+  <!-- Hamburger toggle — mobile/tablet only -->
+  <button type="button"
+          (click)="toggleSidebar()"
+          [attr.aria-label]="sidebarExpanded ? 'Close menu' : 'Open menu'"
+          [attr.aria-expanded]="sidebarExpanded"
+          [attr.data-open]="sidebarExpanded ? 'true' : 'false'"
+          aria-controls="app-sidebar"
+          class="hdr-burger min-mobile:hidden">
+    <span class="hdr-burger__bar" aria-hidden="true"></span>
+    <span class="hdr-burger__bar" aria-hidden="true"></span>
+    <span class="hdr-burger__bar" aria-hidden="true"></span>
+  </button>
+
+  <!-- ELEVATOR wordmark — left on desktop, centered on mobile -->
+  <span aria-label="ELEVATOR"
+        class="flex items-baseline gap-[1px] leading-none select-none Varino whitespace-nowrap
+               text-[1.7rem] tracking-[0.12em] uppercase
+               max-mobile:absolute max-mobile:left-1/2 max-mobile:top-1/2
+               max-mobile:-translate-x-1/2 max-mobile:-translate-y-1/2
+               ">
+    <span class="brand-lead text-[var(--p-elevator-accent)]
+                 drop-shadow-[0_0_8px_var(--p-elevator-accent-glow)]"
+          aria-hidden="true">E</span>
+    <span class="text-[var(--p-elevator-ink)]" aria-hidden="true">
+      @for (l of brandLetters; track $index) {
+        <span class="brand-l" [style.--i]="$index">{{ l }}</span>
+      }
+    </span>
+  </span>
+</div>

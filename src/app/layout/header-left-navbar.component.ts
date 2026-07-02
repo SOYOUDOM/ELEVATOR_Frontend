@@ -8,11 +8,12 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
     templateUrl: './header-left-navbar.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [RouterLink, LocalizePipe],
+    host: { class: 'flex items-center' },
+    // imports: [RouterLink, LocalizePipe],
 })
 export class HeaderLeftNavbarComponent implements OnInit {
-    sidebarExpanded: boolean;
-
+    sidebarExpanded: boolean = false;
+    brandLetters = 'LEVATOR'.split('');
     constructor(private _layoutStore: LayoutStoreService) {}
 
     ngOnInit(): void {

@@ -1,7 +1,52 @@
-<aside class="main-sidebar sidebar-dark-primary elevation-4">
-    <sidebar-logo></sidebar-logo>
-    <div class="sidebar">
-        <sidebar-user-panel></sidebar-user-panel>
-        <sidebar-menu></sidebar-menu>
+<aside class="main-sidebar z-20! bg-[var(--p-surface-900)] elevation-4 w-[400px]! flex! flex-col h-screen pt-[22px] px-[24px] pb-[22px]">
+
+    <!-- ===== Close ===== -->
+    <button type="button" class="elv-close" (click)="closeSidebar()" aria-label="Close menu">
+        <i class="fas fa-xmark" aria-hidden="true"></i>
+    </button>
+
+    <!-- ===== Brand ===== -->
+    <div class="top mt-[16px] mb-[24px] shrink-0">
+        <!-- ELEVATOR wordmark -->
+        <span aria-label="ELEVATOR"
+              class="flex items-center gap-[1px] leading-none select-none Varino whitespace-nowrap
+                     text-[2.1rem] tracking-[0.1em] uppercase">
+            <span class="brand-lead text-[var(--p-elevator-accent)]
+                         drop-shadow-[0_0_8px_var(--p-elevator-accent-glow)]" aria-hidden="true">E</span>
+            <span class="text-[var(--p-elevator-ink)]" aria-hidden="true">
+                @for (l of brandLetters; track $index) {
+                    <span class="brand-l" [style.--i]="$index">{{ l }}</span>
+                }
+            </span>
+        </span>
+
+        <!-- tagline -->
+        <span class="mt-[10px] flex items-center gap-[10px] text-[0.62rem]
+                     tracking-[0.3em] uppercase text-[var(--p-elevator-ink2)] select-none">
+            Free · AI-Powered · Simple
+        </span>
     </div>
+
+    <!-- ===== Navigation ===== -->
+    <nav class="flex-1 overflow-y-auto min-h-0 -mx-[2px] px-[2px]">
+        @for (item of navItems; track item.label) {
+            <a class="elv-item" [class.is-active]="item.label === activeLabel" (click)="go(item)">
+                <i [class]="item.icon" aria-hidden="true"></i>
+                <span>{{ item.label }}</span>
+                <span class="elv-strip" aria-hidden="true"></span>
+                <span class="elv-strip-2" aria-hidden="true"></span>
+            </a>
+        }
+    </nav>
+
+    <!-- ===== Free-forever card ===== -->
+    <a href="javascript:;" class="elv-free shrink-0">
+        <span class="flex flex-col">
+            <span class="title">100% Free Forever</span>
+            <span class="sub">No hidden fees.<br />No credit card.</span>
+        </span>
+        <span class="globe">
+            <i class="fas fa-globe" aria-hidden="true"></i>
+        </span>
+    </a>
 </aside>

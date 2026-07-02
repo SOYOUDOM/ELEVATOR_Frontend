@@ -1,0 +1,33 @@
+<span class="elv-card__glow" *ngIf="rGlow" aria-hidden="true"></span>
+
+<ng-container *ngIf="rTicks">
+    <span class="elv-card__tick elv-card__tick--tl" aria-hidden="true"></span>
+    <span class="elv-card__tick elv-card__tick--br" aria-hidden="true"></span>
+</ng-container>
+
+<div class="elv-card__media">
+    <img *ngIf="image" class="elv-card__img" [src]="image" [alt]="imageAlt" />
+    <ng-content select="[card-media]"></ng-content>
+</div>
+
+<div class="elv-card__content">
+    <div class="elv-card__head" *ngIf="showHeader">
+        <span class="elv-card__num" *ngIf="num !== null && num !== ''">{{ num }}</span>
+        <span class="elv-card__icon" *ngIf="icon"><i class="pi {{ icon }}" aria-hidden="true"></i></span>
+    </div>
+
+    <div class="elv-card__eyebrow" *ngIf="eyebrow">{{ eyebrow }}</div>
+    <div class="elv-card__divider" *ngIf="rLayout === 'step'" aria-hidden="true"></div>
+    <h3 class="elv-card__title" *ngIf="title">{{ title }}</h3>
+    <p class="elv-card__subtitle" *ngIf="subtitle">{{ subtitle }}</p>
+    <p class="elv-card__text" *ngIf="text">{{ text }}</p>
+
+    <ng-content></ng-content>
+
+    <div class="elv-card__footer"><ng-content select="[card-actions]"></ng-content></div>
+</div>
+
+<a *ngIf="href && isExternal" class="elv-card__link" [href]="href" target="_blank" rel="noopener noreferrer"
+    [attr.aria-label]="ariaLabel || title || null"></a>
+<a *ngIf="routerLinkTo && !href" class="elv-card__link" [routerLink]="routerLinkTo"
+    [attr.aria-label]="ariaLabel || title || null"></a>

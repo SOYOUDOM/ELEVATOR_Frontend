@@ -1,0 +1,174 @@
+/* ============================================================
+   ELEVATOR — scroll-reveal effect library (Angular edition).
+   Pairs with reveal.directive.ts (elvReveal).
+
+   Install: save as src/styles/_reveals.scss and add to styles.scss:
+     @use "styles/reveals";
+   (or paste the whole block into styles.scss — selectors are global.)
+
+   The directive adds:  .rv .rv-<fx>  and flips  .seen  in view.
+   Per-instance delay arrives as --rvd, rise distance as --rvy.
+   All hidden states are gated behind prefers-reduced-motion so
+   content is never invisible for reduced-motion users.
+   ============================================================ */
+
+/* Accent plumbing — resolves to your PrimeNG Elevator preset vars,
+   falls back to the raw brand values. */
+.rv {
+  --rv-accent: var(--p-elevator-accent, var(--elv-accent, #5bffa6));
+  --rv-glow: var(--p-elevator-accent-glow, rgba(91, 255, 166, 0.45));
+  --rv-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rv { will-change: opacity, transform; }
+
+  /* ---------- rise (default) ---------- */
+  .rv-rise {
+    opacity: 0; transform: translateY(var(--rvy, 26px)); filter: blur(6px);
+    transition:
+      opacity 0.85s var(--rv-ease) var(--rvd, 0s),
+      transform 0.9s var(--rv-ease) var(--rvd, 0s),
+      filter 0.9s ease var(--rvd, 0s);
+    &.seen { opacity: 1; transform: none; filter: blur(0); }
+  }
+
+  /* ---------- left / right slide ---------- */
+  .rv-left {
+    opacity: 0; transform: translateX(-34px); filter: blur(5px);
+    transition:
+      opacity 0.8s var(--rv-ease) var(--rvd, 0s),
+      transform 0.85s var(--rv-ease) var(--rvd, 0s),
+      filter 0.85s ease var(--rvd, 0s);
+    &.seen { opacity: 1; transform: none; filter: blur(0); }
+  }
+  .rv-right {
+    opacity: 0; transform: translateX(34px); filter: blur(5px);
+    transition:
+      opacity 0.8s var(--rv-ease) var(--rvd, 0s),
+      transform 0.85s var(--rv-ease) var(--rvd, 0s),
+      filter 0.85s ease var(--rvd, 0s);
+    &.seen { opacity: 1; transform: none; filter: blur(0); }
+  }
+
+  /* ---------- pop — scale with overshoot ---------- */
+  .rv-pop {
+    opacity: 0; transform: scale(0.88);
+    transition:
+      opacity 0.6s var(--rv-ease) var(--rvd, 0s),
+      transform 0.7s cubic-bezier(0.18, 0.9, 0.3, 1.35) var(--rvd, 0s);
+    &.seen { opacity: 1; transform: scale(1); }
+  }
+
+  /* ---------- flip — 3D card turn from top ---------- */
+.rv-flip {
+  opacity: 0;
+  transform-origin: top center;
+
+  &.seen {
+    animation: rvFlipIn 0.85s cubic-bezier(0.18, 0.9, 0.3, 1.2) var(--rvd, 0s) both;
+  }
+}
+
+@keyframes rvFlipIn {
+  from { opacity: 0; transform: perspective(900px) rotateX(-46deg) translateY(18px); }
+  55%  { opacity: 1; }
+  to   { opacity: 1; transform: perspective(900px) rotateX(0) translateY(0); }
+}
+
+  /* ---------- doors — clip parts from a flashing center seam ---------- */
+  .rv-doors {
+    opacity: 0; clip-path: inset(0 50% 0 50%); position: relative;
+    transition:
+      opacity 0.5s ease var(--rvd, 0s),
+      clip-path 0.95s cubic-bezier(0.76, 0, 0.18, 1) var(--rvd, 0s);
+    &::after {
+      content: ""; position: absolute; top: 0; bottom: 0; left: 50%;
+      width: 2px; margin-left: -1px; background: var(--rv-accent);
+      box-shadow: 0 0 18px var(--rv-glow);
+      opacity: 0; pointer-events: none;
+    }
+    &.seen { opacity: 1; clip-path: inset(0 0 0 0); }
+    &.seen::after { animation: rvSeam 0.9s ease var(--rvd, 0s) both; }
+  }
+
+  /* ---------- iris — circular aperture ---------- */
+  .rv-iris {
+    opacity: 0; clip-path: circle(0% at 50% 50%);
+    transition:
+      opacity 0.5s ease var(--rvd, 0s),
+      clip-path 0.9s var(--rv-ease) var(--rvd, 0s);
+    &.seen { opacity: 1; clip-path: circle(120% at 50% 50%); }
+  }
+
+  /* ---------- scan — materialise behind a scanline ---------- */
+.rv-scan {
+  opacity: 0;                       /* hidden until .seen */
+  clip-path: inset(0 0 100% 0);
+  position: relative;
+
+  &::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px;
+    background: var(--rv-accent);
+    box-shadow: 0 0 16px var(--rv-glow), 0 0 40px var(--rv-glow);
+    opacity: 0; pointer-events: none; z-index: 3;
+  }
+
+  &.seen {
+    animation: rvScanReveal 0.8s var(--rv-ease) var(--rvd, 0s) both;
+  }
+  &.seen::before {
+    animation: rvScanline 0.8s var(--rv-ease) var(--rvd, 0s) both;
+  }
+}
+
+@keyframes rvScanReveal {
+  from { opacity: 1; clip-path: inset(0 0 100% 0); }
+  to   { opacity: 1; clip-path: inset(0 0 -2% 0); }
+}
+
+  /* ---------- wipe — clip from the left + slide settle ---------- */
+  .rv-wipe {
+    opacity: 0; clip-path: inset(0 100% 0 0); transform: translateX(-10px);
+    transition:
+      opacity 0.55s ease var(--rvd, 0s),
+      clip-path 0.85s var(--rv-ease) var(--rvd, 0s),
+      transform 0.85s var(--rv-ease) var(--rvd, 0s);
+    &.seen { opacity: 1; clip-path: inset(0 -2% 0 0); transform: none; }
+  }
+
+  /* ---------- zoom — push-in from large with deblur ---------- */
+  .rv-zoom {
+    opacity: 0; transform: scale(1.16); filter: blur(10px);
+    transition:
+      opacity 0.8s ease var(--rvd, 0s),
+      transform 0.95s var(--rv-ease) var(--rvd, 0s),
+      filter 0.95s ease var(--rvd, 0s);
+    &.seen { opacity: 1; transform: scale(1); filter: blur(0); }
+  }
+
+  /* ---------- glitch — datamosh assemble ---------- */
+  .rv-glitch {
+    opacity: 0;
+    &.seen { animation: rvGlitch 0.65s steps(2, end) var(--rvd, 0s) both; }
+  }
+
+  /* ---------- drop — falls in with a settle bounce ---------- */
+  .rv-drop {
+    opacity: 0; transform: translateY(-30px);
+    transition:
+      opacity 0.55s ease var(--rvd, 0s),
+      transform 0.8s cubic-bezier(0.22, 1.4, 0.36, 1) var(--rvd, 0s);
+    &.seen { opacity: 1; transform: none; }
+  }
+}
+
+@keyframes rvSeam     { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes rvScanline { 0% { top: 0; opacity: 1; } 85% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+@keyframes rvGlitch {
+  0%   { opacity: 0; transform: translate(-8px, 3px); clip-path: inset(42% 0 28% 0); }
+  25%  { opacity: 1; transform: translate(6px, -2px);  clip-path: inset(8% 0 64% 0); }
+  50%  { transform: translate(-4px, 2px); clip-path: inset(64% 0 4% 0); }
+  75%  { transform: translate(3px, 0);    clip-path: inset(0 0 0 0); }
+  100% { opacity: 1; transform: none;     clip-path: inset(0 0 0 0); }
+}

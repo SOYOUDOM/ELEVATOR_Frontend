@@ -1,0 +1,52 @@
+<ng-template #inner>
+  @if (brackets) {
+    <span class="elv-btn__tick elv-btn__tick--tl" aria-hidden="true"></span>
+    <span class="elv-btn__tick elv-btn__tick--tr" aria-hidden="true"></span>
+    <span class="elv-btn__tick elv-btn__tick--bl" aria-hidden="true"></span>
+    <span class="elv-btn__tick elv-btn__tick--br" aria-hidden="true"></span>
+  }
+  <span class="elv-btn__content">
+    @if (loading) {
+      <span class="elv-btn__spinner" aria-hidden="true"></span>
+    } @else if (icon) {
+      <i class="pi {{ icon }}" [style]="iconStyle" aria-hidden="true"></i>
+    }
+    @if (title) { <span class="elv-btn__label">{{ title }}</span> }
+    <ng-content></ng-content>
+    @if (iconRight && !loading) { <i class="pi {{ iconRight }}" aria-hidden="true"></i> }
+  </span>
+</ng-template>
+
+@if (url && isExternal) {
+  <a [ngClass]="classes" [href]="isDisabled ? null : url"
+     target="_blank" rel="noopener noreferrer"
+     pRipple
+     [style.background-color]="fillColor"
+     [attr.aria-label]="ariaLabel || title || null"
+     [attr.aria-disabled]="isDisabled || null"
+     [attr.aria-busy]="loading || null"
+     [attr.tabindex]="isDisabled ? -1 : null"
+     (click)="onClick($event)">
+    <ng-container *ngTemplateOutlet="inner"></ng-container>
+  </a>
+} @else if (url) {
+  <a [ngClass]="classes" [routerLink]="isDisabled ? null : url"
+     pRipple
+     [style.background-color]="fillColor"
+     [attr.aria-label]="ariaLabel || title || null"
+     [attr.aria-disabled]="isDisabled || null"
+     [attr.aria-busy]="loading || null"
+     [attr.tabindex]="isDisabled ? -1 : null"
+     (click)="onClick($event)">
+    <ng-container *ngTemplateOutlet="inner"></ng-container>
+  </a>
+} @else {
+  <button [ngClass]="classes" [type]="type" [disabled]="isDisabled"
+          pRipple
+          [style.background-color]="fillColor"
+          [attr.aria-label]="ariaLabel || title || null"
+          [attr.aria-busy]="loading || null"
+          (click)="onClick($event)">
+    <ng-container *ngTemplateOutlet="inner"></ng-container>
+  </button>
+}

@@ -8,7 +8,7 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
     animations: [appModuleAnimation()],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [LocalizePipe],
+    // imports: [LocalizePipe],
 })
 export class AboutComponent extends AppComponentBase {
     constructor(injector: Injector) {

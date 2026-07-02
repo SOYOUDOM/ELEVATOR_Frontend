@@ -1,7 +1,24 @@
-<nav class="main-header navbar navbar-expand navbar-white navbar-light">
+<div class="fixed top-0 inset-x-0 z-50 flex items-center justify-between
+            h-[var(--p-elevator-navbar-height)] px-6 sm:px-12
+            border-b border-[var(--p-elevator-line-soft)]
+            bg-[var(--p-elevator-bg0)]/30 backdrop-blur-md">
+
+  <!-- LEFT: hamburger (mobile) + logo -->
+  <div class="flex items-center shrink-0">
     <header-left-navbar></header-left-navbar>
-    <ul class="navbar-nav ml-auto">
-        <header-language-menu></header-language-menu>
-        <header-user-menu></header-user-menu>
-    </ul>
-</nav>
+  </div>
+
+  <!-- NAV: desktop only -->
+  <div class="flex items-center gap-8 shrink-0 max-mobile:hidden">
+    @for (item of menuItems; track item.route) {
+      <a [routerLink]="[item.route]"
+         routerLinkActive="nav-link--active"
+         [class.nav-link--cta]="item.isActive"
+         class="nav-link">
+        {{ item.label | localize }}
+      </a>
+    }
+  </div>
+
+  <span class="nav-saber" aria-hidden="true"></span>
+</div>

@@ -1,0 +1,22 @@
+
+<div class="fixed top-0 inset-x-0 z-50 flex items-center justify-between
+            h-[88px] px-6 sm:px-12
+            border-b border-[var(--p-elevator-line-soft)]
+            bg-[var(--p-elevator-bg0)]/30 backdrop-blur-md">
+
+  <!-- LEFT -->
+  <div class="flex items-center shrink-0">
+    <header-left-navbar></header-left-navbar>
+  </div>
+
+  <div class="flex items-center gap-8 shrink-0 max-[914px]:hidden">
+  @for (item of menuItems; track item.route) {
+    <a [routerLink]="[item.route]"
+       routerLinkActive="nav-link--active"
+       [class.nav-link--cta]="item.isActive"
+       class="nav-link">
+      {{ item.label | localize }}
+    </a>
+  }
+</div>
+</div>
