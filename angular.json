@@ -36,6 +36,11 @@
                                 "glob": "mockServiceWorker.js",
                                 "input": "public",
                                 "output": "/"
+                            },
+                            {
+                                "glob": "**/*",
+                                "input": "public",
+                                "output": "/"
                             }
                         ],
                         "styles": [
@@ -142,6 +147,10 @@
                                 "glob": "abp.signalr-client.js",
                                 "input": "node_modules/abp-web-resources/Abp/Framework/scripts/libs",
                                 "output": "/assets/abp"
+                            },
+                            {
+                                "glob": "**/*",
+                                "input": "public"
                             }
                         ],
                         "styles": [

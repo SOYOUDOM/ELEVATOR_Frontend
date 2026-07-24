@@ -11,6 +11,8 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { FormsModule } from '@node_modules/@angular/forms';
+import { LandingComponent } from '../layout/landing/landing.component';
+import { FooterComponent } from '../layout/footer.component';
 
 @Component({
     templateUrl: './home.component.html',
@@ -27,6 +29,8 @@ import { FormsModule } from '@node_modules/@angular/forms';
         InputIconModule,
         ToggleButtonModule,
         FormsModule,
+        LandingComponent,
+        FooterComponent,
     ],
 })
 export class HomeComponent extends AppComponentBase {

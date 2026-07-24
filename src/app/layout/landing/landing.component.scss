@@ -2,31 +2,50 @@
 //  ELEVATOR — Landing Component Styles
 //  Scoped with `elv-` prefix to avoid AdminLTE collisions.
 //  Uses CSS custom props so PrimeNG theme vars don't fight us.
+//
+//  CLEANUP PASS — what changed:
+//   · dedup: h1 double letter-spacing, notch clip-path (now 1 mixin),
+//     dead commented blocks, unused $bp-* vars, orphaned
+//     .elv-feat-grid / .elv-steps rules, unused typewriter styles
+//   · FIX: .elv-reveal's keyframe ends on `transform:none` (held by
+//     fill-mode forwards) — it was silently ERASING the old
+//     translate() centering on both hero imgs. That's why the logo
+//     drifted right/low and the face dropped out of the headline,
+//     killing the front/behind letter weave. Both imgs now position
+//     with the standalone `translate` property, which lives outside
+//     `transform` and can't be wiped by reveal animations.
+//   · NEW: logo outline glow + left→right light sweep, lifted to
+//     sit on the hero title (tunable via --elv-logo-* knobs)
 // ================================================================
-
-// ── Design tokens (scoped) ──────────────────────────────────────
-
 
 // ── Google fonts (Orbitron as display fallback) ─────────────────
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Chakra+Petch:wght@300;400;600&display=swap');
-// _breakpoints.scss (or at top of your global styles)
-$bp-mobile: 900px;
-$bp-tablet: 1120px;
-$bp-desktop: 1024px;
+
+// ── Breakpoints ────────────────────────────────────────────────
+$bp-mobile: 900px;   // $bp-tablet / $bp-desktop were never referenced — removed
+
+// ── Shared notch cut (was pasted 3×) ───────────────────────────
+@mixin elv-notch($c: var(--p-elevator-corner)) {
+  clip-path: polygon(
+    #{$c} 0, 100% 0,
+    100% calc(100% - #{$c}), calc(100% - #{$c}) 100%,
+    0 100%, 0 #{$c});
+}
+
 // ── Font helpers ───────────────────────────────────────────────
 .font-display {
-  font-family: 'Varino','Orbitron', 'Chakra Petch', sans-serif !important;
+  font-family: 'Varino', 'Orbitron', 'Chakra Petch', sans-serif !important;
 }
 
 // ── Page wrapper ───────────────────────────────────────────────
 .elv-page {
-    background: var(--p-elevator-bg0);
+  background: var(--p-elevator-bg0);
   color: var(--p-elevator-ink);
   font-family: 'Chakra Petch', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   position: relative;
-  overflow-x: clip;   /* ← add this line */
+  overflow-x: clip;
 
   // starfield dots via radial gradients (no canvas needed)
   &::before {
@@ -65,11 +84,11 @@ $bp-desktop: 1024px;
   }
 
   // top accent glow
-.elv-hero-glow {
-  position: absolute;
-  left: 50%; top: 0;
-  transform: translateX(-50%);
-  width: min(900px, 100vw); height: 400px;   /* ← was: width: 900px */
+  .elv-hero-glow {
+    position: absolute;
+    left: 50%; top: 0;
+    transform: translateX(-50%);
+    width: min(900px, 100vw); height: 400px;
     background: radial-gradient(ellipse 70% 55% at 50% 0%,
       color-mix(in oklch, var(--p-elevator-accent) 7%, transparent), transparent 72%);
     pointer-events: none;
@@ -111,7 +130,7 @@ $bp-desktop: 1024px;
   letter-spacing: .34em;
   text-transform: uppercase;
   font-size: 12px;
-  color: var(--elv-ink-2);
+  color: var(--p-elevator-ink2);   // was --elv-ink-2 (old prefix, undefined → it silently inherited)
   display: inline-flex;
   align-items: center;
   gap: 13px;
@@ -171,20 +190,14 @@ $bp-desktop: 1024px;
   .elv-notch-edge {
     position: absolute; inset: 0;
     background: var(--p-elevator-edgecolor, var(--p-elevator-line));
-    clip-path: polygon(
-      var(--p-elevator-corner) 0, 100% 0,
-      100% calc(100% - var(--p-elevator-corner)), calc(100% - var(--p-elevator-corner)) 100%,
-      0 100%, 0 var(--p-elevator-corner));
+    @include elv-notch;
     pointer-events: none;
   }
 
   .elv-notch-face {
     position: absolute; inset: 1px;
     background: var(--p-elevator-panel);
-    clip-path: polygon(
-      var(--p-elevator-corner) 0, 100% 0,
-      100% calc(100% - var(--p-elevator-corner)), calc(100% - var(--p-elevator-corner)) 100%,
-      0 100%, 0 var(--p-elevator-corner));
+    @include elv-notch;
     pointer-events: none;
   }
 
@@ -250,7 +263,6 @@ $bp-desktop: 1024px;
   to { opacity: 1; transform: none; }
 }
 
-
 // ── Hero ─────────────────────────────────────────────────────
 .elv-hero {
   position: relative;
@@ -260,12 +272,12 @@ $bp-desktop: 1024px;
   overflow: visible;
 
   h1 {
-    font-family: 'Varino', 'Orbitron', 'Chakra Petch', sans-serif;
-    font-weight: 400;
+    font-family: 'Chakra Petch', system-ui, sans-serif;
+    font-weight: 700;
+    line-height: .95;
     font-size: clamp(36px, 6.5vw, 80px);
-    line-height: .96;
     margin: 26px auto 0;
-    letter-spacing: .01em;
+    letter-spacing: .01em;       // the earlier -0.03em was dead — this one always won the cascade
     text-transform: uppercase;
     max-width: 16ch;
     text-wrap: balance;
@@ -281,22 +293,6 @@ $bp-desktop: 1024px;
   line-height: 1.65;
 }
 
-// Typewriter word
-.elv-typeword       { position: relative; display: inline-block; vertical-align: top; }
-.elv-typeword-sizer { visibility: hidden; white-space: nowrap; }
-.elv-typeword-live  { position: absolute; left: 0; top: 0; white-space: nowrap; color: var(--p-elevator-accent); }
-
-.elv-cursor {
-  display: inline-block;
-  width: 3px; height: .82em;
-  background: var(--p-elevator-accent);
-  box-shadow: 0 0 14px var(--p-elevator-accent-glow);
-  vertical-align: -.06em;
-  margin-left: 2px;
-  animation: elv-blink 1.05s steps(1) infinite;
-}
-@keyframes elv-blink { 50% { opacity: 0; } }
-
 .elv-hero-cta {
   display: flex;
   gap: 16px;
@@ -306,7 +302,7 @@ $bp-desktop: 1024px;
 }
 
 .cta-section {
-  background-image: url('../../../assets/img/earth.png');
+  background-image: url('/assets/img/earth.png');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: bottom;
@@ -326,14 +322,22 @@ $bp-desktop: 1024px;
 // opacity<1, or isolation, or it becomes a stacking context and traps .front again.
 .headline { position: relative; }
 
+.elv-hero-visual { position: relative; }
+
+// WHY `translate` INSTEAD OF `transform` ON BOTH IMGS BELOW:
+// both carry .elv-reveal, whose keyframe ends on `transform: none` and holds
+// it (forwards). That wiped the old translate() centering the moment the
+// reveal finished — face fell out of the headline, weave gone, logo shoved
+// right. The standalone `translate` property is composited separately from
+// `transform`, so reveal/elvReveal animations can never touch it.
 .elv-hero-face {
   position: absolute;
-  right: 0%;
+  right: 0;
   top: 0;
-  transform: translateY(-50%);
+  translate: 0 -50%;             // was transform:translateY(-50%) — see note above
   height: min(1480px, 100vh);
   width: auto;
-  z-index: 2;                    // above base headline text, below .front
+  z-index: 2;                    // above base headline text, below .front (20)
   pointer-events: none;
   user-select: none;
 
@@ -343,23 +347,84 @@ $bp-desktop: 1024px;
           mask-image: radial-gradient(62% 72% at 55% 42%, #000 58%, transparent 85%);
 }
 
-//  .hero-portrait {
-//    position: relative;
-//    display: inline-block;
-//    isolation: isolate;
-//  }
- .hero-portrait {
-   display: block;
-   filter: grayscale(1) contrast(1.1) brightness(0.95);
- }
-.hero-portrait::after {
-  content: "";
+.hero-portrait {
+  display: block;
+  filter: grayscale(1) contrast(1.1) brightness(0.95);
+}
+// NOTE: the old .hero-portrait::after accent tint was removed — pseudo-elements
+// never render on <img> (replaced element), so it was dead weight. If you want
+// the soft-light accent wash back, it needs a wrapper div in the template.
+
+// ── Logo outline — glows, catches light from the left, and is
+//    lifted up to sit on the hero title ────────────────────────
+.elv-hero-logo-outline {
+  // TUNING KNOBS — nudge these two to seat the outline on the title:
+  --elv-logo-x: 60%;        // horizontal anchor inside the hero (old value was 20%)
+  --elv-logo-lift: 170px;   // extra push UP into the headline; bigger = higher
+
   position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 38% 42%, var(--p-elevator-accent) 0%, transparent 62%);
-  mix-blend-mode: soft-light;
-  opacity: 1.00;
+  left: var(--elv-logo-x);
+  top: 0;
+  translate: -50% calc(-50% - var(--elv-logo-lift));   // survives .elv-reveal — see note above
+  width: min(1280px, 100vw);
+  height: auto;
+  z-index: 1;                    // below the face (2), above base headline glyphs
   pointer-events: none;
+
+  // neon glow biased to the left edge → reads as light hitting from the left
+  filter:
+    drop-shadow(0 0 3px var(--p-elevator-accent))
+    drop-shadow(-14px 0 26px var(--p-elevator-accent-glow))
+    drop-shadow(-4px 0 70px var(--p-elevator-accent-glow));
+
+  // light sweep: a bright band travels left → right across the artwork.
+  // the mask dims the outline to ~70% everywhere except inside the band,
+  // so the band reads as a moving specular highlight.
+  -webkit-mask-image: linear-gradient(100deg,
+      rgba(0,0,0,.7) 0 40%, #000 50%, rgba(0,0,0,.7) 60% 100%);
+          mask-image: linear-gradient(100deg,
+      rgba(0,0,0,.7) 0 40%, #000 50%, rgba(0,0,0,.7) 60% 100%);
+  -webkit-mask-size: 300% 100%;
+          mask-size: 300% 100%;
+  -webkit-mask-position: 100% 0;
+          mask-position: 100% 0;
+
+  // this rule OVERRIDES .elv-reveal's `animation` (same specificity, later in
+  // file), so the reveal keyframes must ride along in the list or the img
+  // stays at opacity:0 forever. Template's inline animation-delay:.25s
+  // applies to all three — that's fine.
+  animation:
+    elv-reveal .7s cubic-bezier(.2,.7,.2,1) forwards,
+    elv-logo-shine 6.5s ease-in-out 1.2s infinite,
+    elv-logo-breathe 4.5s ease-in-out 1.2s infinite;   // delete this line for a calmer, cheaper logo
+}
+
+// sweep in the first ~38% of the loop, then rest until the next pass
+@keyframes elv-logo-shine {
+  0% {
+    -webkit-mask-position: 100% 0;
+            mask-position: 100% 0;
+  }
+  38%, 100% {
+    -webkit-mask-position: 0% 0;
+            mask-position: 0% 0;
+  }
+}
+
+// gentle glow pulse layered on top of the sweep
+@keyframes elv-logo-breathe {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 3px var(--p-elevator-accent))
+      drop-shadow(-14px 0 26px var(--p-elevator-accent-glow))
+      drop-shadow(-4px 0 70px var(--p-elevator-accent-glow));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 5px var(--p-elevator-accent))
+      drop-shadow(-18px 0 36px var(--p-elevator-accent-glow))
+      drop-shadow(-6px 0 92px var(--p-elevator-accent-glow));
+  }
 }
 
 // the letters that cross IN FRONT of the face
@@ -379,19 +444,27 @@ $bp-desktop: 1024px;
 @media (max-width: $bp-mobile) {
   .elv-hero-face {
     position: absolute;
-    // right: auto; top: auto;
     transform: none;
+    translate: none;              // undo the desktop lift
     height: auto;
     width: min(460px, 80%);
     margin: 24px auto 0;
     -webkit-mask-image: none;
             mask-image: none;
-            // display: none;
   }
-  // .elv-headline .front { z-index: auto; }
+
+  .elv-hero-logo-outline {
+    --elv-logo-lift: 90px;        // headline is shorter on mobile — sit a bit lower
+  }
 }
 
-
+@media (prefers-reduced-motion: reduce) {
+  .elv-hero-logo-outline {
+    animation: elv-reveal .7s cubic-bezier(.2,.7,.2,1) forwards;   // keep reveal, drop sweep + pulse
+    -webkit-mask-image: none;
+            mask-image: none;
+  }
+}
 
 // ── Spotlight ────────────────────────────────────────────────
 .elv-spotlight-grid {
@@ -440,21 +513,19 @@ $bp-desktop: 1024px;
   justify-content: center;
   gap: 12px;
   position: relative;
-  clip-path: polygon(
-    12px 0, 100% 0,
-    100% calc(100% - 12px), calc(100% - 12px) 100%,
-    0 100%, 0 12px);
+  @include elv-notch(12px);
   border: 1px solid var(--p-elevator-accent);
   box-shadow: 0 0 28px color-mix(in oklch, var(--p-elevator-accent) 12%, transparent) inset;
-      background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+
   &.elv-ph-before {
-    background-image: url(../../../assets/img/sample-before.jpg);
+    background-image: url(/assets/img/sample-before.jpg);
   }
 
   &.elv-ph-after {
-  background-image: url(../../../assets/img/sample-after.jpg);
+    background-image: url(/assets/img/sample-after.jpg);
   }
 }
 
@@ -495,15 +566,9 @@ $bp-desktop: 1024px;
 }
 
 // ── Responsive guards ─────────────────────────────────────────
+// (.elv-feat-grid / .elv-steps rules deleted — those classes left the
+//  template when the grids moved to Tailwind + <app-elv-card>)
 @media (max-width: 600px) {
-  .elv-feat-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .elv-steps {
-    grid-template-columns: 1fr;
-  }
-
   .elv-ba-card {
     flex-direction: column;
 

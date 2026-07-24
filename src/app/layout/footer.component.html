@@ -1,11 +1,71 @@
-<footer class="main-footer">
-    <strong>
-        Copyright &copy; {{ currentYear }}
-        <a href="javascript:;">Elevator</a>
-        .
-    </strong>
-    <div class="float-right d-none d-sm-inline-block">
-        <b>{{ 'Version' | localize }}</b>
-        {{ versionText }}
+<!-- `footer` class is intentional — the global boot choreography
+     already targets `html[data-boot] app-footer .footer` for footUp -->
+<footer class="footer elv-footer">
+
+  <span class="elv-footer__edge" aria-hidden="true"></span>
+
+  <div class="elv-footer__shaft" aria-hidden="true">
+    <span></span><span></span><span></span>
+  </div>
+
+  <div class="elv-footer__inner">
+
+    <!-- ── brand ─────────────────────────────────────── -->
+    <div class="elv-footer__brand">
+      <a routerLink="/app/home" class="elv-footer__mark" aria-label="ELEVATOR — home">
+        <img src="/assets/img/Logo_outline.png" alt="" class="elv-footer__logo" />
+        <span class="brand-name elv-footer__wordmark" aria-label="ELEVATOR">
+          <span class="brand-lead" aria-hidden="true">E</span>
+          <span aria-hidden="true">
+            @for (l of brandLetters; track $index) {
+              <span class="brand-l">{{ l }}</span>
+            }
+          </span>
+        </span>
+      </a>
+
+      <p class="elv-footer__tagline">
+        Your story, your freedom, your future. AI writing, ATS scoring and
+        studio headshots — every premium feature, free.
+      </p>
+
+      <ul class="elv-footer__social">
+        @for (s of socials; track s.label) {
+          <li>
+            <a [href]="s.href" class="elv-social" [attr.aria-label]="s.label"
+               target="_blank" rel="noopener noreferrer">
+              <i [class]="s.icon" aria-hidden="true"></i>
+            </a>
+          </li>
+        }
+      </ul>
     </div>
+
+    <!-- ── floor directory ───────────────────────────── -->
+    @for (col of columns; track col.label) {
+      <nav class="elv-footer__col" [attr.aria-label]="col.label">
+        <p class="elv-footer__col-head">
+          <span class="elv-footer__floor">{{ col.floor }}</span>
+          {{ col.label }}
+        </p>
+        <ul>
+          @for (link of col.links; track link.label) {
+            <li><a [routerLink]="link.to" class="elv-link">{{ link.label }}</a></li>
+          }
+        </ul>
+      </nav>
+    }
+  </div>
+
+  <!-- ── base bar ───────────────────────────────────── -->
+  <div class="elv-footer__base">
+    <div class="elv-footer__base-inner">
+      <span class="elv-footer__copy">© {{ year }} ELEVATOR — Built in Phnom Penh</span>
+
+      <span class="elv-status">
+        <span class="elv-status__dot" aria-hidden="true"></span>
+        All systems nominal
+      </span>
+    </div>
+  </div>
 </footer>

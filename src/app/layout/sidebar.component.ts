@@ -1,6 +1,8 @@
 import { Component, ChangeDetectionStrategy, Renderer2, OnInit, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { LayoutStoreService } from '@shared/layout/layout-store.service';
+import { ElvCircuitDirective } from '@shared/directives/elv-circuit.directive';
+import { ElvButtonComponent } from '@shared/components/elv-button/elv-button.component';
 
 interface SidebarItem {
     label: string;
@@ -18,7 +20,7 @@ interface SidebarItem {
     styleUrl: './sidebar.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [],
+    imports: [ElvCircuitDirective,ElvButtonComponent],
 })
 export class SidebarComponent implements OnInit {
     sidebarExpanded: boolean = false;

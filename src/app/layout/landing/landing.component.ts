@@ -9,8 +9,9 @@ import { Stat, StatsComponent } from '@shared/components/stats/stats.component';
 import { RevealDirective } from '@shared/directives/reveal.directive';
 import { ElvButtonComponent } from '@shared/components/elv-button/elv-button.component';
 import { ElvChipComponent } from '@shared/components/elv-chip/elv-chip.component';
-import {ElvCardComponent} from '@shared/components/elv-card/elv-card.component'
-import {FooterComponent} from '../footer.component'
+import {ElvCardComponent} from '@shared/components/elv-card/elv-card.component';
+import {ElvCircuitDirective} from '@shared/directives/elv-circuit.directive';
+import {FooterComponent} from '../footer.component';
 
 
 
@@ -33,7 +34,7 @@ interface Step {
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, ButtonModule, ChipModule, BadgeModule, RippleModule, StatsComponent, RevealDirective, ElvButtonComponent, ElvChipComponent,ElvCardComponent],
+  imports: [CommonModule, ButtonModule, ChipModule, BadgeModule, RippleModule, StatsComponent, RevealDirective, ElvButtonComponent, ElvChipComponent,ElvCardComponent,ElvCircuitDirective],
   templateUrl: './landing.component.html',
   styleUrls: ['./landing.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

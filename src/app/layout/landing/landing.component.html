@@ -35,17 +35,21 @@
 <!-- NOTE: NO elv-reveal on the h1 — that class makes it its own paint layer,
      which is exactly what was trapping .front and keeping OM behind the face -->
 <div class="headline">
-  <h1 class="Varino elv-headline text-center">
+  <h1 class="elv-headline text-center">
     YOUR <span class="text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)] relative max-mobile:z-20">STOR<span class="relative min-mobile:z-20">Y</span></span><br />
     YOUR <span class="text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)] relative max-mobile:z-20">FREED<span class="relative min-mobile:z-20">OM</span></span><br />
-    YOUR <span class="text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)] front">FUTURE</span><br />
+    YOUR <span class="text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)]">FUTURE</span><br />
   </h1>
 </div>
 
+<div class="elv-hero-visual">
+<!-- logo-outline -->
+<img src="/assets/img/Logo_outline.png" alt="logo outline" class="elv-hero-logo-outline elv-reveal" style="animation-delay:.25s" aria-hidden="true" />
 <!-- portrait: out of flow, doesn't affect layout -->
-<img src="../../../assets/img/face2.png" class="elv-hero-face elv-reveal elv-hero-face hero-portrait"
+<img src="/assets/img/face2.png" class="elv-hero-face elv-reveal elv-hero-face hero-portrait"
      elvReveal="wipe" aria-hidden="true" alt="" />
 
+</div>
 <!-- lede -->
 <p class="elv-lede elv-reveal" style="animation-delay:.4s">
   Build a professional, ATS-ready CV in minutes with a clean AI-powered studio —

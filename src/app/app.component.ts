@@ -4,7 +4,7 @@ import { SignalRAspNetCoreHelper } from '@shared/helpers/SignalRAspNetCoreHelper
 import { LayoutStoreService } from '@shared/layout/layout-store.service';
 import { HeaderComponent } from './layout/header.component';
 import { SidebarComponent } from './layout/sidebar.component';
-import { NavigationEnd, Router } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { FooterComponent } from './layout/footer.component';
 import { LandingComponent } from './layout/landing/landing.component';
 import { CommonModule, DOCUMENT } from '@angular/common';
@@ -17,13 +17,13 @@ import { Subscription, filter } from 'rxjs';
     templateUrl: './app.component.html',
     standalone: true,
     imports: [
-        HeaderComponent,
-        SidebarComponent,
-        FooterComponent,
-        LandingComponent,
-        CommonModule,
-        // FxGrainComponent,
-    ],
+    HeaderComponent,
+    SidebarComponent,
+    FooterComponent,
+    LandingComponent,
+    CommonModule,
+    RouterOutlet
+],
 })
 export class AppComponent extends AppComponentBase implements OnInit {
     sidebarExpanded = false;

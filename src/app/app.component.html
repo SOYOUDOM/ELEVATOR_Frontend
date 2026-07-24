@@ -90,22 +90,58 @@
 
 <!-- FX: film grain (canvas) + mouse glow -->
 <!-- <app-fx-grain></app-fx-grain> -->
-<div class="fx-glow" aria-hidden="true"></div>
+<!-- <div class="fx-glow" aria-hidden="true"></div> -->
 
 <!-- ============================================================
      BOOT OVERLAY — must be a direct child of the app root so it
      covers everything. Removed from the DOM after boot completes
      (see app.component.ts), so it costs nothing afterwards.
      ============================================================ -->
-  <div class="boot" *ngIf="booting" aria-hidden="true">
+  <!-- <div class="boot" *ngIf="booting" aria-hidden="true">
     <div class="boot-door l"></div>
     <div class="boot-door r"></div>
-    <div class="boot-flash"></div>   <!-- NEW -->
+    <div class="boot-flash"></div>
     <div class="boot-seam"></div>
     <div class="boot-label">…</div>
-  </div>
+  </div> -->
  
-<div class="wrapper">
+<!-- <div class="wrapper !max-w-none !mx-0 w-full">
+
+  <app-header></app-header>
+
+  <aside
+    id="app-sidebar"
+    class="fixed top-0 left-0 h-screen w-64 z-40
+           transform transition-transform duration-300 ease-in-out
+           lg:hidden"
+    [class.-translate-x-full]="!sidebarExpanded"
+    [class.translate-x-0]="sidebarExpanded">
+    <sidebar></sidebar>
+  </aside> -->
+
+  <!-- Backdrop -->
+  <!-- <div
+    *ngIf="sidebarExpanded"
+    (click)="toggleSidebar()"
+    class="fixed inset-0 bg-black/45 z-30 lg:hidden">
+  </div> -->
+
+  <!-- route-shell gets the rise+deblur on boot and on every route
+       change (the key re-creates the div so the CSS animation replays) -->
+  <!-- <div class="route-shell" *ngIf="routeKey"> -->
+    
+
+    <!-- <div class="content-wrapper">
+      <router-outlet></router-outlet>
+    </div> -->
+    <!-- <app-footer></app-footer>
+  </div>
+</div> -->
+
+
+
+<div class="wrapper !max-w-none !mx-0 !px-0 w-full elv-shell">
+
   <app-header></app-header>
 
   <aside
@@ -118,21 +154,15 @@
     <sidebar></sidebar>
   </aside>
 
-  <!-- Backdrop -->
   <div
     *ngIf="sidebarExpanded"
     (click)="toggleSidebar()"
     class="fixed inset-0 bg-black/45 z-30 lg:hidden">
   </div>
 
-  <!-- route-shell gets the rise+deblur on boot and on every route
-       change (the key re-creates the div so the CSS animation replays) -->
-  <div class="route-shell" *ngIf="routeKey">
-    <app-landing CustomClass="pt-10"></app-landing>
-
-    <!-- <div class="content-wrapper">
+  <div class="route-shell" [attr.data-route-key]="routeKey">
+    <div class="elv-content">
       <router-outlet></router-outlet>
-    </div> -->
-    <app-footer></app-footer>
+    </div>
   </div>
 </div>
