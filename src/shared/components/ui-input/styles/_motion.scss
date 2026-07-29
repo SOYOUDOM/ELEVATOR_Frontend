@@ -1,0 +1,94 @@
+/* ── Registered custom properties ──────────────────────────────────
+   @property is global (Angular does not scope at-rules), hence the
+   `uii-` prefix. Registering the angle is what makes the conic /
+   linear gradient borders animatable at all — an unregistered
+   custom property cannot be interpolated.
+   ---------------------------------------------------------------- */
+@property --uii-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes ui-angle { to { --uii-angle: 360deg; } }
+
+@keyframes ui-spin { to { transform: rotate(360deg); } }
+
+/* Checkmark draw-on. 26 ≈ the path length of the tick in the SVG. */
+@keyframes ui-draw {
+  from { stroke-dashoffset: 26; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* Clear button / trailing affordance entrance. */
+@keyframes ui-pop {
+  0%   { opacity: 0; transform: scale(.5) rotate(-30deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+@keyframes ui-msg-in {
+  from { opacity: 0; transform: translate3d(0, -4px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* Two identical keyframe sets. The component alternates between the
+   `is-shake-1` / `is-shake-2` classes so the animation restarts
+   deterministically through the signal graph — no forced reflow,
+   no classList mutation a host [class] binding could clobber. */
+@keyframes ui-shake-a {
+  0%,100% { transform: translate3d(0,0,0); }
+  15%     { transform: translate3d(-5px,0,0); }
+  30%     { transform: translate3d(4px,0,0); }
+  45%     { transform: translate3d(-3px,0,0); }
+  60%     { transform: translate3d(2px,0,0); }
+  80%     { transform: translate3d(-1px,0,0); }
+}
+@keyframes ui-shake-b {
+  0%,100% { transform: translate3d(0,0,0); }
+  15%     { transform: translate3d(-5px,0,0); }
+  30%     { transform: translate3d(4px,0,0); }
+  45%     { transform: translate3d(-3px,0,0); }
+  60%     { transform: translate3d(2px,0,0); }
+  80%     { transform: translate3d(-1px,0,0); }
+}
+
+/* Idle breathing for glow="pulse". */
+@keyframes ui-breathe {
+  0%,100% { opacity: .35; transform: scale(.985); }
+  50%     { opacity: .9;  transform: scale(1.015); }
+}
+
+/* HUD scanline travelling top → bottom. */
+@keyframes ui-scan {
+  0%   { top: 0;    opacity: 0; }
+  12%  { opacity: .9; }
+  88%  { opacity: .9; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* Loading / async-validating band. */
+@keyframes ui-slide {
+  from { background-position: 150% 0; }
+  to   { background-position: -50% 0; }
+}
+
+/* No-op animations whose `animationstart` event is the only reliable
+   autofill signal Chrome gives us. See _states.scss + trackAutofill(). */
+@keyframes ui-autofill-on  { from {} to {} }
+@keyframes ui-autofill-off { from {} to {} }
+
+/* ── Reduced motion ────────────────────────────────────────────────
+   Collapse every duration rather than disabling animations outright:
+   final states still apply, so nothing ends up stuck mid-transition.
+   ---------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  :host,
+  :host *,
+  :host *::before,
+  :host *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}

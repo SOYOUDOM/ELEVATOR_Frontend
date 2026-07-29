@@ -1,0 +1,65 @@
+/* ════════════════════════════════════════════════════════════════
+   SHAPES — radius, clip-path, and the border-technique swap.
+   [radius] on the component writes --ui-radius-custom, which always
+   beats the shape's own value.
+   ════════════════════════════════════════════════════════════════ */
+
+:host { --ui-radius: var(--ui-radius-custom, var(--ui-radius-base, 0)); }
+
+:host([data-shape='sharp'])   { --ui-radius-base: 0; }
+:host([data-shape='soft'])    { --ui-radius-base: calc(var(--ui-r) * .55); }
+:host([data-shape='rounded']) { --ui-radius-base: var(--ui-r); }
+
+:host([data-shape='pill']) {
+  --ui-radius-base: 999px;
+  /* A pill needs its horizontal padding pushed off the curve. */
+  --ui-pad-x: calc(var(--ui-pad-x-base) * (.5 + .5 * var(--ui-density-k)) * 1.6);
+}
+
+:host([data-shape='organic']) {
+  --ui-radius-base: calc(var(--ui-r) * 2.1) calc(var(--ui-r) * .5)
+                    calc(var(--ui-r) * 2.1) calc(var(--ui-r) * .5);
+}
+
+/* ── notch ─────────────────────────────────────────────────────────
+   ELEVATOR's chamfered corner, matching elv-button's clip-path.
+
+   The mask-ring border technique cannot express this: its mask hole
+   is an inset rectangle, so the clipped corner fills in as a solid
+   triangle. So notch switches to the stacked-shape technique — the
+   border layer drops behind the fill, and the fill is inset by the
+   stroke width with a proportionally smaller polygon. That requires
+   an opaque-ish fill, which every notch-friendly variant (neon, hud)
+   already has.
+   ---------------------------------------------------------------- */
+:host([data-shape='notch']) {
+  --ui-radius-base: 0;
+  --ui-cut: var(--ui-corner);
+
+  --ui-clip: polygon(
+    var(--ui-cut) 0, 100% 0,
+    100% calc(100% - var(--ui-cut)), calc(100% - var(--ui-cut)) 100%,
+    0 100%, 0 var(--ui-cut)
+  );
+  --ui-clip-inner: polygon(
+    calc(var(--ui-cut) - var(--ui-border-w)) 0, 100% 0,
+    100% calc(100% - var(--ui-cut) + var(--ui-border-w)),
+    calc(100% - var(--ui-cut) + var(--ui-border-w)) 100%,
+    0 100%, 0 calc(var(--ui-cut) - var(--ui-border-w))
+  );
+
+  /* A box-shadow ring would trace a rectangle around a chamfered
+     box. The glow layer carries focus emphasis here instead. */
+  --ui-ring: 0 0 #0000;
+
+  .ui-layer--border {
+    z-index: 0;
+    padding: 0;
+    background: var(--ui-border-paint);
+    -webkit-mask: none;
+            mask: none;
+  }
+  .ui-layer--fill  { z-index: 1; inset: var(--ui-border-w); clip-path: var(--ui-clip-inner); }
+  .ui-layer--tint  { z-index: 2; inset: var(--ui-border-w); clip-path: var(--ui-clip-inner); }
+  .ui-layer--sheen { z-index: 3; inset: var(--ui-border-w); clip-path: var(--ui-clip-inner); }
+}

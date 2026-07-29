@@ -1,0 +1,404 @@
+/* ════════════════════════════════════════════════════════════════
+   CORE — the five-layer compositor and the content row.
+   Contains no appearance decisions; every visual value it reads is
+   a custom property some later partial owns.
+   ════════════════════════════════════════════════════════════════ */
+
+:host {
+  display: block;
+  position: relative;
+  width: 100%;
+  font-family: var(--ui-font);
+  color: var(--ui-ink);
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity var(--ui-t) var(--ui-ease),
+              filter  var(--ui-t) var(--ui-ease);
+}
+:host, :host *, :host *::before, :host *::after { box-sizing: border-box; }
+
+.ui-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-label-gap);
+}
+
+/* ── shell ─────────────────────────────────────────────────────────
+   No overflow/clip-path here: the glow layer sits at z-index -1 and
+   must be free to bleed past the box. Clipping is applied per-layer.
+   ---------------------------------------------------------------- */
+.ui-shell {
+  position: relative;
+  isolation: isolate;
+  min-height: var(--ui-min-h);
+  border-radius: var(--ui-radius);
+  transform: translate3d(0, var(--ui-lift), 0);
+  box-shadow: var(--ui-ring), var(--ui-drop);
+  transition: transform  var(--ui-t) var(--ui-ease-out),
+              box-shadow var(--ui-t) var(--ui-ease);
+}
+/* will-change only while it can actually move — promoting every
+   field on a 40-input form would cost more than it saves. */
+:host(:hover) .ui-shell,
+:host(.is-focused) .ui-shell { will-change: transform; }
+
+:host(.is-shake-1) .ui-shell { animation: ui-shake-a .5s var(--ui-ease); }
+:host(.is-shake-2) .ui-shell { animation: ui-shake-b .5s var(--ui-ease); }
+
+/* ── layers ────────────────────────────────────────────────────── */
+.ui-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+}
+.ui-layer--fill,
+.ui-layer--tint,
+.ui-layer--sheen,
+.ui-layer--border { clip-path: var(--ui-clip, none); }
+
+.ui-layer--fill {
+  z-index: 0;
+  background: var(--ui-fill);
+  backdrop-filter: var(--ui-blur);
+  -webkit-backdrop-filter: var(--ui-blur);
+  box-shadow: var(--ui-inset);
+  transition: background var(--ui-t) var(--ui-ease),
+              box-shadow var(--ui-t) var(--ui-ease);
+}
+
+/* Ambient wash — follows the pointer via --ui-mx / --ui-my. */
+.ui-layer--tint {
+  z-index: 1;
+  background: var(--ui-tint);
+  opacity: var(--ui-tint-o);
+  transition: opacity var(--ui-t-slow) var(--ui-ease);
+}
+
+/* Specular sweeps, scanlines, light trails. Variants own ::before /
+   ::after here; the parent only provides a clipped stage. */
+.ui-layer--sheen {
+  z-index: 2;
+  overflow: hidden;
+}
+
+/* Default technique: a true hollow ring. `padding` sets the stroke
+   width; the two masks XOR to punch the middle out, so a gradient
+   border never bleeds behind the fill. */
+.ui-layer--border {
+  z-index: 3;
+  padding: var(--ui-border-w);
+  background: var(--ui-border-paint);
+  opacity: var(--ui-border-o);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  transition: background var(--ui-t) var(--ui-ease),
+              opacity    var(--ui-t) var(--ui-ease);
+}
+
+/* Outer bloom. A blurred solid rect behind the shell — cheaper and
+   far more controllable than a stack of coloured box-shadows. */
+.ui-layer--glow {
+  z-index: -1;
+  inset: -2px;
+  background: var(--ui-glow-color);
+  filter: blur(var(--ui-glow-blur));
+  opacity: var(--ui-glow-o);
+  transition: opacity var(--ui-t-slow) var(--ui-ease);
+}
+
+/* HUD corner ticks. */
+.ui-brackets {
+  position: absolute;
+  inset: -1px;
+  z-index: 5;
+  pointer-events: none;
+
+  i {
+    position: absolute;
+    width: 9px; height: 9px;
+    border: 1px solid var(--ui-tone);
+    opacity: .5;
+    transition: width var(--ui-t) var(--ui-ease-out),
+                height var(--ui-t) var(--ui-ease-out),
+                opacity var(--ui-t) var(--ui-ease);
+  }
+  i:nth-child(1) { top: 0;    left: 0;  border-right: 0; border-bottom: 0; }
+  i:nth-child(2) { top: 0;    right: 0; border-left: 0;  border-bottom: 0; }
+  i:nth-child(3) { bottom: 0; right: 0; border-left: 0;  border-top: 0; }
+  i:nth-child(4) { bottom: 0; left: 0;  border-right: 0; border-top: 0; }
+}
+:host(.is-focused) .ui-brackets i { opacity: 1; width: 15px; height: 15px; }
+
+/* Animated rule — the underline variant's spine, and the validation
+   accent everywhere else. */
+.ui-rule {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 1px;
+  z-index: 4;
+  background: var(--ui-rule-color);
+  transform: scaleX(var(--ui-rule-scale));
+  transform-origin: center;
+  pointer-events: none;
+  transition: transform  var(--ui-t-slow) var(--ui-spring),
+              background var(--ui-t) var(--ui-ease);
+}
+
+/* ── content row ───────────────────────────────────────────────── */
+.ui-row {
+  position: relative;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: var(--ui-gap);
+  min-height: var(--ui-min-h);
+  padding: var(--ui-pad-y) var(--ui-pad-x);
+}
+:host(.is-multiline) .ui-row { align-items: flex-start; }
+
+/* :empty is exact here — Angular strips whitespace-only text nodes by
+   default and <ng-content> emits no node when nothing is projected,
+   so this replaces a content query. */
+.ui-slot {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--ui-gap) * .7);
+  flex: 0 0 auto;
+  color: var(--ui-ink-3);
+  transition: color var(--ui-t) var(--ui-ease);
+
+  &:empty { display: none; }
+}
+:host(.is-focused) .ui-slot--lead { color: var(--ui-tone); }
+:host(.is-multiline) .ui-slot { padding-top: calc(var(--ui-fs) * .18); }
+
+.ui-icon { font-size: var(--ui-icon); line-height: 1; }
+
+.ui-affix {
+  font-size: calc(var(--ui-fs) * .92);
+  color: var(--ui-ink-3);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.ui-control {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: var(--ui-label-space);
+}
+
+/* ── native field ──────────────────────────────────────────────── */
+.ui-native {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: var(--ui-fs);
+  line-height: var(--ui-lh);
+  letter-spacing: var(--ui-tracking);
+  font-variation-settings: 'wght' var(--ui-wght);
+  caret-color: var(--ui-tone);
+  transition: font-variation-settings var(--ui-t) var(--ui-ease),
+              letter-spacing var(--ui-t) var(--ui-ease),
+              color var(--ui-t) var(--ui-ease);
+
+  &::placeholder {
+    color: var(--ui-ink-3);
+    opacity: var(--ui-ph-o, 1);
+    transition: opacity var(--ui-t) var(--ui-ease);
+  }
+  &::selection { background: var(--ui-tone-soft); color: var(--ui-ink); }
+
+  /* Kill the UA affordances we replace with our own. */
+  &::-webkit-search-cancel-button,
+  &::-webkit-search-decoration { -webkit-appearance: none; appearance: none; }
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+  &[type='number'] { -moz-appearance: textfield; appearance: textfield; }
+}
+:host(.is-focused) { --ui-wght: 500; }
+
+textarea.ui-native {
+  display: block;
+  resize: none;
+  overflow: hidden;   /* autoGrow drives height instead */
+}
+
+/* ── labels ────────────────────────────────────────────────────── */
+.ui-label {
+  font-family: var(--ui-font);
+  user-select: none;
+}
+.ui-label__req {
+  color: var(--ui-tone-danger);
+  margin-left: .25em;
+  font-size: .9em;
+}
+
+.ui-label--stacked {
+  font-size: var(--ui-label-fs);
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--ui-ink-2);
+  transition: color var(--ui-t) var(--ui-ease);
+}
+:host(.is-focused) .ui-label--stacked { color: var(--ui-tone); }
+
+/* Floating label. Transform-only so it never triggers layout, and it
+   lives inside the field (Stripe/Framer) rather than notching the
+   border (Material) — no mask gymnastics, better at small sizes. */
+.ui-label--float {
+  position: absolute;
+  inset: 0 auto 0 0;
+  display: flex;
+  align-items: center;
+  max-width: 100%;
+  font-size: var(--ui-fs);
+  color: var(--ui-ink-3);
+  white-space: nowrap;
+  pointer-events: none;
+  transform-origin: left center;
+  transform: translate3d(0, var(--ui-lbl-rest-y, 0px), 0) scale(1);
+  transition: transform var(--ui-t) var(--ui-ease-out),
+              color var(--ui-t) var(--ui-ease),
+              letter-spacing var(--ui-t) var(--ui-ease-out);
+}
+:host(.is-floated) .ui-label--float,
+:host([data-label-mode='inline']) .ui-label--float {
+  transform: translate3d(0, calc(-1 * var(--ui-label-rise)), 0)
+             scale(var(--ui-label-scale));
+  color: var(--ui-tone);
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+:host(.is-multiline) .ui-label--float {
+  align-items: flex-start;
+  --ui-lbl-rest-y: calc(var(--ui-label-space) + .18em);
+}
+:host(.is-multiline.is-floated) .ui-label--float,
+:host(.is-multiline[data-label-mode='inline']) .ui-label--float {
+  transform: translate3d(0, 0, 0) scale(var(--ui-label-scale));
+}
+
+/* Hide the placeholder while a floating label still occupies the
+   line — the label morphing upward *is* the placeholder transition. */
+:host([data-label-mode='floating']:not(.is-floated)) { --ui-ph-o: 0; }
+
+/* ── trailing affordances ──────────────────────────────────────── */
+.ui-act {
+  display: inline-grid;
+  place-items: center;
+  width: var(--ui-act-size);
+  height: var(--ui-act-size);
+  margin: 0; padding: 0; border: 0;
+  background: none;
+  color: var(--ui-ink-3);
+  font-size: calc(var(--ui-icon) * .9);
+  border-radius: 50%;
+  cursor: pointer;
+  animation: ui-pop .32s var(--ui-spring) both;
+  transition: color var(--ui-t-fast) var(--ui-ease),
+              background-color var(--ui-t-fast) var(--ui-ease),
+              transform var(--ui-t-fast) var(--ui-spring);
+
+  &:hover {
+    color: var(--ui-ink);
+    background: color-mix(in oklab, var(--ui-ink) 10%, transparent);
+  }
+  &:active { transform: scale(.86); }
+  &:focus-visible {
+    outline: 2px solid var(--ui-tone);
+    outline-offset: 2px;
+    color: var(--ui-ink);
+  }
+}
+
+.ui-spinner {
+  display: inline-grid;
+  place-items: center;
+  width: var(--ui-icon);
+  height: var(--ui-icon);
+  flex: 0 0 auto;
+
+  i {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, transparent 0 20%, var(--ui-tone) 100%);
+    -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 2px), #000 calc(100% - 2px));
+            mask: radial-gradient(farthest-side, #0000 calc(100% - 2px), #000 calc(100% - 2px));
+    animation: ui-spin .75s linear infinite;
+  }
+}
+
+.ui-check {
+  width: var(--ui-icon);
+  height: var(--ui-icon);
+  flex: 0 0 auto;
+  overflow: visible;
+
+  path {
+    fill: none;
+    stroke: var(--ui-tone-success);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 26;
+    animation: ui-draw .46s var(--ui-ease-out) both;
+  }
+}
+
+/* ── assist row ────────────────────────────────────────────────────
+   grid-template-rows 0fr → 1fr animates to intrinsic height with no
+   magic max-height number and no JS measurement.
+   ---------------------------------------------------------------- */
+.ui-assist {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--ui-t-slow) var(--ui-ease-out);
+
+  &.is-open { grid-template-rows: 1fr; }
+}
+.ui-assist__clip { overflow: hidden; min-height: 0; }
+.ui-assist__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: var(--ui-assist-gap);
+}
+
+.ui-msg {
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: var(--ui-msg-fs);
+  line-height: 1.45;
+  color: var(--ui-msg-color, var(--ui-ink-3));
+  animation: ui-msg-in .34s var(--ui-ease-out) both;
+
+  &__icon { font-size: 1em; line-height: 1.45; flex: 0 0 auto; }
+}
+
+.ui-counter {
+  flex: 0 0 auto;
+  font-family: var(--ui-font-mono);
+  font-size: calc(var(--ui-msg-fs) * .95);
+  font-variant-numeric: tabular-nums;
+  color: var(--ui-ink-4);
+  transition: color var(--ui-t) var(--ui-ease);
+
+  &__sep { opacity: .5; margin: 0 1px; }
+}
+:host(.is-focused) .ui-counter { color: var(--ui-ink-3); }

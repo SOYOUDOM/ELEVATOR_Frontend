@@ -1,0 +1,124 @@
+/* ════════════════════════════════════════════════════════════════
+   BORDERS — explicit [border] overrides.
+   `auto` (the default) is intentionally absent: it means "whatever
+   the appearance chose", so it needs no rule at all.
+
+   Equal specificity with the variant rules; this file loads later,
+   so source order decides. That's the whole mechanism.
+   ════════════════════════════════════════════════════════════════ */
+
+:host([data-border='none']) { --ui-border-w: 0px; --ui-border-o: 0; }
+
+:host([data-border='solid']) { --ui-border-paint: var(--ui-line-strong); }
+
+/* dashed & double leave the mask-ring technique behind: a real
+   border / box-shadow expresses them in one declaration and still
+   follows border-radius. */
+:host([data-border='dashed']) .ui-layer--border {
+  padding: 0;
+  background: none;
+  -webkit-mask: none;
+          mask: none;
+  border: var(--ui-border-w) dashed var(--ui-line-strong);
+}
+:host([data-border='dashed'].is-focused) .ui-layer--border { border-color: var(--ui-tone); }
+
+:host([data-border='double']) .ui-layer--border {
+  padding: 0;
+  background: none;
+  -webkit-mask: none;
+          mask: none;
+  box-shadow:
+    inset 0 0 0 var(--ui-border-w) var(--ui-line-strong),
+    0 0 0 3px transparent,
+    0 0 0 4px color-mix(in oklab, var(--ui-line-strong) 55%, transparent);
+}
+:host([data-border='double'].is-focused) .ui-layer--border {
+  box-shadow:
+    inset 0 0 0 var(--ui-border-w) var(--ui-tone),
+    0 0 0 3px transparent,
+    0 0 0 4px color-mix(in oklab, var(--ui-tone) 45%, transparent);
+}
+
+:host([data-border='neon']) {
+  --ui-border-paint: var(--ui-tone);
+  --ui-border-o: .55;
+  --ui-glow-blur: 20px;
+}
+:host([data-border='neon'].is-focused) { --ui-border-o: 1; }
+
+:host([data-border='gradient']) {
+  --ui-border-paint: linear-gradient(var(--uii-angle),
+    color-mix(in oklab, var(--ui-tone) 92%, transparent),
+    color-mix(in oklab, var(--ui-tone) 12%, transparent) 34%,
+    color-mix(in oklab, var(--ui-ink) 32%, transparent) 55%,
+    color-mix(in oklab, var(--ui-tone) 92%, transparent));
+
+  .ui-layer--border { animation: ui-angle 6s linear infinite; animation-play-state: paused; }
+}
+
+:host([data-border='aurora']) {
+  --ui-border-paint: conic-gradient(from var(--uii-angle) at 50% 50%,
+    #ff5bb0, #ffd35b 20%, #5bffa6 42%, #5bb8ff 64%, #b45bff 84%, #ff5bb0);
+  --ui-border-o: .55;
+
+  .ui-layer--border { animation: ui-angle 7s linear infinite; animation-play-state: paused; }
+}
+:host([data-border='aurora'].is-focused) { --ui-border-o: 1; }
+
+:host([data-border='metal']) {
+  --ui-border-paint: linear-gradient(var(--uii-angle),
+    #6f7a88, #e8eef6 17%, #9aa6b4 33%, #f5f8fc 51%,
+    #7d8794 69%, #dfe6ee 85%, #6f7a88);
+
+  .ui-layer--border { animation: ui-angle 10s linear infinite; animation-play-state: paused; }
+}
+
+/* Property-animated gradients repaint every frame, so they idle
+   paused and only run while the field is actually engaged. */
+:host([data-border='gradient']:hover) .ui-layer--border,
+:host([data-border='gradient'].is-focused) .ui-layer--border,
+:host([data-border='aurora']:hover) .ui-layer--border,
+:host([data-border='aurora'].is-focused) .ui-layer--border,
+:host([data-border='metal']:hover) .ui-layer--border,
+:host([data-border='metal'].is-focused) .ui-layer--border { animation-play-state: running; }
+
+/* trail is the deliberate exception: it's opt-in, and the travelling
+   segment is the entire point of asking for it. */
+:host([data-border='trail']) {
+  --ui-border-paint:
+    conic-gradient(from var(--uii-angle) at 50% 50%,
+      transparent 0deg 296deg,
+      color-mix(in oklab, var(--ui-tone) 96%, #fff) 340deg,
+      transparent 360deg),
+    var(--ui-line);
+
+  .ui-layer--border { animation: ui-angle 3.2s linear infinite; }
+}
+
+/* A bright band that crosses once, on focus. */
+:host([data-border='sweep']) {
+  --ui-border-paint: linear-gradient(100deg,
+    var(--ui-line) 0 40%,
+    var(--ui-tone) 50%,
+    var(--ui-line) 60% 100%);
+
+  .ui-layer--border {
+    background-size: 300% 100%;
+    background-position: 100% 0;
+    transition: background-position .9s var(--ui-ease-out),
+                opacity var(--ui-t) var(--ui-ease);
+  }
+}
+:host([data-border='sweep'].is-focused) .ui-layer--border { background-position: 0 0; }
+
+:host([data-border='frost']) {
+  --ui-border-paint: linear-gradient(180deg,
+    rgba(255,255,255,.34), rgba(255,255,255,.06) 46%, rgba(255,255,255,.02));
+}
+:host([data-border='frost'].is-focused) {
+  --ui-border-paint: linear-gradient(180deg,
+    rgba(255,255,255,.6),
+    color-mix(in oklab, var(--ui-tone) 38%, transparent) 55%,
+    rgba(255,255,255,.16));
+}

@@ -216,3 +216,35 @@
 </div>
 
 
+<!-- The signature -->
+<ui-input label="Full name" appearance="aurora" shape="rounded" glow="focus" />
+
+<!-- Search, Raycast-style. Escape clears. -->
+<ui-input
+  appearance="glass" shape="pill" size="lg"
+  leadingIcon="pi-search" labelMode="hidden" label="Search"
+  clearable
+  [animatedPlaceholder]="['Search templates…','Search skills…','Search roles…']"
+  (enter)="runSearch($event)" />
+
+<!-- Password with reveal + strength tone -->
+<ui-input label="Password" type="password" revealable
+          leadingIcon="pi-lock" [tone]="strengthTone()" />
+
+<!-- HUD readout — pairs with notch + brackets -->
+<ui-input label="Target ID" appearance="hud" shape="notch" brackets
+          border="trail" glow="pulse" />
+
+<!-- Dense table filter -->
+<ui-input appearance="minimal" size="xs" density="compact"
+          labelMode="hidden" label="Filter" placeholder="Filter…" />
+
+<!-- Auto-growing textarea. Use stacked labels for multiline. -->
+<ui-input label="Summary" multiline [rows]="4" labelMode="stacked"
+          counter [maxlength]="600" appearance="soft" shape="soft" />
+
+<!-- Projected content in the trailing slot -->
+<ui-input label="Amount" prefix="$" appearance="elevated">
+  <span uiTrail class="text-xs opacity-60">USD</span>
+</ui-input>
+

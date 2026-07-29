@@ -1,0 +1,92 @@
+/* ════════════════════════════════════════════════════════════════
+   SIZES — 6 steps × 4 densities.
+   Size sets the type scale; density scales padding independently, so
+   `size="lg" density="compact"` gives large text in a tight box.
+   ════════════════════════════════════════════════════════════════ */
+
+:host { --ui-density-k: 1; }
+:host([data-density='compact'])     { --ui-density-k: .66; }
+:host([data-density='dense'])       { --ui-density-k: .84; }
+:host([data-density='default'])     { --ui-density-k: 1; }
+:host([data-density='comfortable']) { --ui-density-k: 1.24; }
+
+:host {
+  /* Density hits vertical padding at full strength and horizontal at
+     half — squeezing the sides as hard as the top reads as broken. */
+  --ui-pad-y: calc(var(--ui-pad-y-base) * var(--ui-density-k));
+  --ui-pad-x: calc(var(--ui-pad-x-base) * (.5 + .5 * var(--ui-density-k)));
+
+  --ui-label-space: 0px;
+  --ui-min-h: calc(
+    var(--ui-fs) * var(--ui-lh) + var(--ui-pad-y) * 2 + var(--ui-label-space)
+  );
+}
+
+/* Only floating/inline labels reserve in-field vertical space. */
+:host([data-label-mode='floating']),
+:host([data-label-mode='inline']) { --ui-label-space: var(--ui-lbl); }
+
+:host([data-size='xs']) {
+  --ui-fs: 11.5px;  --ui-pad-x-base: 9px;  --ui-pad-y-base: 5px;
+  --ui-gap: 6px;    --ui-icon: 12px;       --ui-act-size: 20px;
+  --ui-corner: 6px; --ui-r: 5px;
+  --ui-label-fs: 9.5px;  --ui-msg-fs: 10.5px;
+  --ui-lbl: 10px;   --ui-label-rise: 8px;  --ui-label-scale: .86;
+  --ui-label-gap: 5px;   --ui-assist-gap: 5px;
+}
+:host([data-size='sm']) {
+  --ui-fs: 13px;    --ui-pad-x-base: 11px; --ui-pad-y-base: 7px;
+  --ui-gap: 7px;    --ui-icon: 14px;       --ui-act-size: 24px;
+  --ui-corner: 8px; --ui-r: 7px;
+  --ui-label-fs: 10.5px; --ui-msg-fs: 11.5px;
+  --ui-lbl: 12px;   --ui-label-rise: 9px;  --ui-label-scale: .84;
+  --ui-label-gap: 6px;   --ui-assist-gap: 6px;
+}
+:host([data-size='md']) {
+  --ui-fs: 14.5px;  --ui-pad-x-base: 14px; --ui-pad-y-base: 10px;
+  --ui-gap: 9px;    --ui-icon: 16px;       --ui-act-size: 28px;
+  --ui-corner: 10px; --ui-r: 9px;
+  --ui-label-fs: 11px;   --ui-msg-fs: 12.5px;
+  --ui-lbl: 14px;   --ui-label-rise: 10px; --ui-label-scale: .82;
+  --ui-label-gap: 8px;   --ui-assist-gap: 7px;
+}
+:host([data-size='lg']) {
+  --ui-fs: 16px;    --ui-pad-x-base: 17px; --ui-pad-y-base: 13px;
+  --ui-gap: 10px;   --ui-icon: 18px;       --ui-act-size: 32px;
+  --ui-corner: 12px; --ui-r: 11px;
+  --ui-label-fs: 11.5px; --ui-msg-fs: 13px;
+  --ui-lbl: 16px;   --ui-label-rise: 12px; --ui-label-scale: .8;
+  --ui-label-gap: 9px;   --ui-assist-gap: 8px;
+}
+:host([data-size='xl']) {
+  --ui-fs: 18px;    --ui-pad-x-base: 21px; --ui-pad-y-base: 16px;
+  --ui-gap: 12px;   --ui-icon: 20px;       --ui-act-size: 36px;
+  --ui-corner: 14px; --ui-r: 13px;
+  --ui-label-fs: 12px;   --ui-msg-fs: 13.5px;
+  --ui-lbl: 18px;   --ui-label-rise: 13px; --ui-label-scale: .78;
+  --ui-label-gap: 10px;  --ui-assist-gap: 9px;
+}
+:host([data-size='xxl']) {
+  --ui-fs: 21px;    --ui-pad-x-base: 26px; --ui-pad-y-base: 20px;
+  --ui-gap: 14px;   --ui-icon: 23px;       --ui-act-size: 42px;
+  --ui-corner: 16px; --ui-r: 15px;
+  --ui-label-fs: 13px;   --ui-msg-fs: 14.5px;
+  --ui-lbl: 21px;   --ui-label-rise: 15px; --ui-label-scale: .76;
+  --ui-label-gap: 11px;  --ui-assist-gap: 10px;
+}
+
+/* ── touch ─────────────────────────────────────────────────────────
+   Coarse pointers get a 44px minimum target (WCAG 2.5.5 / Apple HIG)
+   and larger tap areas on the inline buttons, without changing the
+   type scale on desktop.
+   ---------------------------------------------------------------- */
+@media (pointer: coarse) {
+  .ui-shell { min-height: max(var(--ui-min-h), 44px); }
+  .ui-act {
+    min-width: max(var(--ui-act-size), 40px);
+    min-height: max(var(--ui-act-size), 40px);
+  }
+  /* iOS zooms the viewport on focus below 16px. */
+  :host([data-size='xs']) .ui-native,
+  :host([data-size='sm']) .ui-native { font-size: max(var(--ui-fs), 16px); }
+}
