@@ -1,5 +1,158 @@
 ﻿<div [@routerTransition]>
-    <div class="pt-10">
-        
-    </div>
+  <div class="elv-page scene">
+
+    <!-- ── HERO (unchanged — boot choreography owns it) ─────────── -->
+    <section id="home" class="elv-hero elv-container scroll-mt-[110px]">
+
+      <!-- ambient backdrop glow -->
+      <div class="elv-hero-glow" aria-hidden="true"></div>
+
+      <!-- eyebrow -->
+      <div class="elv-eyebrow elv-reveal" style="animation-delay:.05s">
+        About the founder
+      </div>
+
+      <!-- headline -->
+      <!-- NOTE: NO elv-reveal on the h1 — that class makes it its own paint layer,
+     which is exactly what was trapping .front and keeping OM behind the face -->
+      <div class="headline">
+        <h1 class="elv-headline text-center evl-reveal" style="animation-delay:.05s">{{this.branding.founderName}}</h1>
+      </div>
+      <div class="elv-hero-visual">
+<!-- logo-outline -->
+<img src="/assets/img/Logo_outline.png" alt="logo outline" class="elv-hero-logo-outline elv-reveal mt-[5rem]" style="animation-delay:.25s" aria-hidden="true" />
 </div>
+
+      <!-- lede -->
+      <p class="elv-mono text-sm mt-4">FOUNDER & CEO OF {{this.branding.appName}}, INC.
+      </p>
+    </section>
+
+
+
+  <!-- ══════════════════════════════════════════════════════════
+     THE ACROSTIC — eight lines, first letters spell ELEVATOR
+     ══════════════════════════════════════════════════════════ -->
+<section class="story" aria-labelledby="story-h">
+  <div class="wrap">
+
+    <header class="story-head">
+      <p class="eyebrow">My story</p>
+      <h2 id="story-h" class="story-h">
+        Read the first letter<br />of every line
+      </h2>
+    </header>
+
+    <ol class="acr" role="list">
+
+      <li class="acr-line">
+        <p class="acr-text"><span class="acr-cap">E</span>very door felt closed back then. I was unemployed, with very little money, and I knew exactly how heavy it feels to want to apply for jobs but not have the right tools to move forward.</p>
+      </li>
+
+      <li class="acr-line">
+        <p class="acr-text"><span class="acr-cap">L</span>ooking for help, I struggled to find a CV builder that was truly free, professional, and genuinely useful. Most were locked, limited, or hollow.</p>
+      </li>
+
+      <li class="acr-line">
+        <p class="acr-text"><span class="acr-cap">E</span>ach platform I tried was missing the things that actually matter — real AI assistance, ATS checking, grammar correction, smart suggestions, and proper formatting.</p>
+      </li>
+
+      <li class="acr-line">
+        <p class="acr-text"><span class="acr-cap">V</span>aluing my time and dignity, I kept trying anyway, sending out application after application, hoping one of them would finally land.</p>
+      </li>
+
+      <li class="acr-line">
+        <p class="acr-text"><span class="acr-cap">A</span>nd still I failed, many times, because my CV simply was not strong enough to compete with everyone else in the stack.</p>
+      </li>
+
+      <li class="acr-line">
+        <p class="acr-text"><span class="acr-cap">T</span>he hardest part was knowing it did not present my value clearly — it was not good enough to get me past the very first step.</p>
+      </li>
+
+      <li class="acr-line">
+        <p class="acr-text"><span class="acr-cap">O</span>ut of that frustration, one stubborn idea kept growing: build the honest, powerful tool I desperately wished I had.</p>
+      </li>
+
+      <li class="acr-line">
+        <p class="acr-text"><span class="acr-cap">R</span>efusing to accept that good tools should only belong to people who can pay, I started building — alone, from nothing, with only determination.</p>
+      </li>
+
+    </ol>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     THE PAYOFF — doors part, wordmark behind them
+     ══════════════════════════════════════════════════════════ -->
+<section class="built" aria-labelledby="built-h">
+  <div class="built-stage">
+    <p class="built-kicker">So I built</p>
+    <h2 id="built-h" elvReveal class="built-word">ELEVATOR</h2>
+  </div>
+
+  <div elvReveal="doors" aria-hidden="true">
+    <!-- <span class="door l"></span>
+    <span class="door r"></span>
+    <span class="seam"></span> -->
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     MISSION
+     ══════════════════════════════════════════════════════════ -->
+<section class="mission" >
+  <div class="wrap wrap--narrow">
+    <p class="mission-p" elvReveal="iris" [revealDelay]="0.08">
+      ELEVATOR is the tool I built for the person I used to be — someone who needs a real
+      opportunity but cannot always afford expensive software. My goal is to make professional,
+      AI-powered, ATS-friendly CV creation accessible to everyone.
+    </p>
+    <p class="mission-p" elvReveal="iris" [revealDelay]="0.16">
+      What I once lacked, I now want to share. If this platform helps even one person feel more
+      prepared, more confident, and one step closer to a better future, then it has already
+      served its purpose.
+    </p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     WHAT I STAND FOR
+     ══════════════════════════════════════════════════════════ -->
+<section class="stand" aria-labelledby="stand-h">
+  <div class="wrap">
+    <p class="eyebrow">What I stand for</p>
+    <h2 id="stand-h" class="stand-lead rv">
+      <span class="lead-yes">Promises,</span><br />
+      <span class="lead-no">not pop-ups.</span>
+    </h2>
+
+    <!-- ⚠ You wrote the line above. The three below are my drafts —
+         rewrite them in your own voice or delete the list entirely. -->
+    <ul class="stand-list" role="list">
+      <li class="stand-item elv-reveal text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)]" style="animation-delay:.25s" elvReveal="wipe">
+        <h3>Every feature, free</h3>
+        <p>AI writing, ATS scoring, grammar checks, headshots. Nothing is held back for a paid tier, because there isn't one.</p>
+      </li>
+      <li class="stand-item elv-reveal text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)]"style="animation-delay:.25s" elvReveal="wipe">
+        <h3>One ad per export</h3>
+        <p>Watch a short video when you download your CV. That is what keeps the servers running — not your wallet.</p>
+      </li>
+      <li class="stand-item elv-reveal text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)]"style="animation-delay:.25s" elvReveal="wipe">
+        <h3>Your CV stays yours</h3>
+        <p>Export it, keep it, delete it. No hostage files, no watermarks on the way out.</p>
+      </li>
+    </ul>
+  </div>
+</section >
+<section class="stand" aria-labelledby="stand-h">
+ <h1 class="elv-headline text-center evl-reveal" style="animation-delay:.05s">I WISH YOU THE FIVE BLESSINGS OF THE BUDDHA:<br>
+  <span class="text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)]">A</span>GE, 
+  <span class="text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)]">C</span>ASTE, 
+  <span class="text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)]">H</span>APPINESS, 
+  <span class="text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)]">W</span>ISDOM, AND 
+  <span class="text-(--p-elevator-accent) [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)]">S</span>TRENGTH.</h1>
+ <p class="text-center">
+
+May this work bring good to all — past, present, and future. May you enjoy the fruits of this merit. — {{this.branding.founderName}}</p>
+</section>
+  </div>

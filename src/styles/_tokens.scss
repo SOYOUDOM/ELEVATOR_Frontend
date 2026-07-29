@@ -1,0 +1,32 @@
+// ════════════════════════════════════════════════════════════
+// TOKENS · every :root custom property, in one place.
+// ------------------------------------------------------------
+// Was three separate :root blocks scattered through the old file
+// (fx / easing / mouse) — merged here. Custom properties resolve
+// at computed-value time, so where they are declared never
+// affects the result.
+//
+// EXCEPTION: --bd (boot delay) stays in _boot.scss, right next to
+// the html[data-boot="run"] rule that overrides it.
+//
+// The palette itself (--p-elevator-*) comes from the PrimeNG
+// theme preset, not from here.
+// ════════════════════════════════════════════════════════════
+
+:root {
+  // ── FX layer ────────────────────────────────────────────────
+  --fx-grain-opacity: 0.07;   /* stronger grain */
+  --fx-glow-radius:   900px;  /* wider glow spread */
+  --fx-glow-color:    rgba(91, 255, 166, 0.10);  /* brighter glow */
+
+  // ── Motion curves + glow shorthand ──────────────────────────
+  // used by: header burger, boot doors, brand ignite, nav saber
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-fast: cubic-bezier(0.6, 0.1, 0.3, 0.9);
+  --accent-glow: var(--p-elevator-accent-glow, rgba(91, 255, 166, 0.45));
+
+  // ── Mouse position — written at runtime by the FX glow
+  //    listener; off-screen until the pointer enters ───────────
+  --cx: 50%;
+  --cy: -200px;
+}

@@ -12,6 +12,9 @@
   --_success: #34d399;
   --_corner: 10px; --_radius: 9px;
   --_pad-x: 28px; --_pad-y: 13px; --_font: 13px;
+  --_icon-gap: 9px;                                  /* overridable per-button via [iconGap] */
+  --_neon: var(--_accent);                           /* recolor with [accentColor] */
+  --_neon-glow: color-mix(in oklch, var(--_neon) 45%, transparent);
   --_ease: var(--ease, cubic-bezier(.2, .7, .2, 1));
 }
 :host(.elv-host-block) { display: block; }
@@ -23,7 +26,7 @@
   cursor: pointer; border: 0;
   background: var(--_fill, var(--_panel));
   color: var(--_text, var(--_ink));
-  font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: "Jost", sans-serif;
   font-weight: 700;
   letter-spacing: .18em; 
   text-transform: uppercase;
@@ -46,9 +49,17 @@
 }
 .elv-btn:hover:not(.elv-btn--disabled):not(.elv-btn--loading)::before { transform: translateX(130%); }
 
-.elv-btn__content { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 9px;
+.elv-btn__content { position: relative; z-index: 1; display: inline-flex; align-items: center;
+  justify-content: center; gap: var(--_icon-gap);
   i { font-size: .9em; line-height: 1; } }
 .elv-btn__label { white-space: nowrap; }
+
+/* icon placement — `icon` moves, `iconRight` stays last */
+.elv-btn__icon-trail { order: 3; }
+.elv-btn--icon-pos-top .elv-btn__content,
+.elv-btn--icon-pos-bottom .elv-btn__content { flex-direction: column; }
+.elv-btn--icon-pos-right .elv-btn__icon,
+.elv-btn--icon-pos-bottom .elv-btn__icon { order: 2; }
 
 .elv-btn:not(.elv-btn--disabled):not(.elv-btn--loading):active { transform: translateY(1px) scale(.992); }
 .elv-btn:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--_accent); }
@@ -71,6 +82,23 @@
 .elv-btn--glow { --_fill: var(--_accent-dim); --_border: var(--_accent); --_text: #000;
   animation: elv-btn-breathe 2.6s ease-in-out infinite; &:hover { --_fill: var(--_accent); } }
 @keyframes elv-btn-breathe { 0%,100% { filter: drop-shadow(0 0 5px var(--_accent-glow)); } 50% { filter: drop-shadow(0 0 16px var(--_accent-glow)); } }
+
+/* neon — hairline accent rule on near-black, add [glow]="true" for the halo */
+.elv-btn--neon {
+  --_fill: color-mix(in oklch, var(--_panel) 82%, #000);
+  --_border: var(--_neon); --_text: var(--_neon);
+  box-shadow: inset 0 0 0 1px var(--_border), inset 0 0 26px -16px var(--_neon);
+  &:hover:not(.elv-btn--disabled):not(.elv-btn--loading) {
+
+  } }
+
+/* neon-soft — the muted secondary row (social / “continue with …”) */
+.elv-btn--neon-soft {
+  --_fill: color-mix(in oklch, var(--_panel) 90%, #000);
+  --_border: color-mix(in oklch, var(--_line) 70%, transparent);
+  --_text: color-mix(in oklch, var(--_ink) 72%, transparent);
+  &:hover:not(.elv-btn--disabled):not(.elv-btn--loading) {
+    --_border: var(--_neon); --_text: var(--_ink); } }
 
 .elv-btn--link { --_fill: transparent; --_border: transparent; --_text: var(--_accent);
   clip-path: none; box-shadow: none; padding: 4px 2px;
@@ -95,6 +123,13 @@
 .elv-btn--block { width: 100%; }
 .elv-btn--icon { aspect-ratio: 1; padding: var(--_pad-y);
   .elv-btn__content { gap: 0; } .elv-btn__label { display: none; } }
+/* neon halo — drop-shadow (not box-shadow) so it survives the notch clip-path */
+.elv-btn--has-glow {
+  filter: drop-shadow(0 0 4px var(--_neon-glow)) drop-shadow(0 0 14px var(--_neon-glow));
+  .elv-btn__label { text-shadow: 0 0 14px var(--_neon-glow); }
+  &:hover:not(.elv-btn--disabled):not(.elv-btn--loading) {
+    filter: drop-shadow(0 0 6px var(--_neon-glow)) drop-shadow(0 0 22px var(--_neon-glow)); } }
+
 .elv-btn--disabled { opacity: .45; pointer-events: none; cursor: not-allowed; filter: grayscale(.3); animation: none; }
 .elv-btn--loading { cursor: progress; pointer-events: none; }
 

@@ -1,0 +1,21 @@
+// ════════════════════════════════════════════════════════════
+// SHARED ANIMATION UTILITIES
+// ------------------------------------------------------------
+// ⚠ LOAD ORDER: must be @use'd BEFORE _hero.scss.
+// .elv-hero-logo-outline re-declares `animation` at the SAME
+// specificity as .elv-reveal (both 0-1-0), so it only wins by
+// sitting later in the compiled output. Swap the two @use lines
+// and the logo freezes at opacity:0 forever.
+//
+// (Scroll-triggered reveals live in ../reveals.scss.)
+// ════════════════════════════════════════════════════════════
+
+.elv-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  animation: elv-reveal .7s cubic-bezier(.2,.7,.2,1) forwards;
+}
+
+@keyframes elv-reveal {
+  to { opacity: 1; transform: none; }
+}

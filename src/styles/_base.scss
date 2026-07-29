@@ -1,0 +1,31 @@
+// ════════════════════════════════════════════════════════════
+// BASE · element-level defaults + the one global override
+// ════════════════════════════════════════════════════════════
+
+html {
+  background: #020202;
+}
+
+body {
+  overflow-x: hidden;
+  user-select: none;
+  margin: 0;
+  min-height: 100%;
+}
+
+// Kept from the old file (was commented out there too):
+// .group{
+//     color: var(--p-elevator-ink );
+//     text-decoration: none;
+//     transition: color .2s ease;
+// }
+
+// ⚠ KNOWN ISSUE — hits every <a> in the app with !important.
+// It still loses to .nav-link / .nav-link--active because those are
+// higher specificity AND !important, which is why the nav survives.
+// TODO: scope to `.elv-page a`, or delete and fix the few links that
+// actually need it. Left verbatim so nothing shifts today.
+a, a:hover, a:focus {
+  color: var(--p-elevator-ink) !important;
+  text-decoration: none !important;
+}

@@ -27,12 +27,15 @@ export class SidebarComponent implements OnInit {
     brandLetters = 'LEVATOR'.split('');
     activeLabel = 'Home';
 
+    /** AccountModule is mounted outside the app shell — always link absolutely. */
+    readonly loginRoute = '/account/login';
+
     navItems: SidebarItem[] = [
         { label: 'Home', icon: 'fa-thin fa-house', target: 'home' },
         { label: 'Get Started', icon: 'fa-thin fa-table-cells', target: 'features' },
         { label: 'Templates', icon: 'fa-thin fa-table-cells', target: 'features' },
         { label: 'About', icon: 'fa-thin fa-circle-info', target: 'how' },
-        { label: 'Login', icon: 'fa-thin fa-arrow-left-to-bracket', route: '/account/login' },
+        { label: 'Login', icon: 'fa-thin fa-arrow-left-to-bracket', route: this.loginRoute },
     ];
     constructor(
         private renderer: Renderer2,
@@ -88,5 +91,10 @@ export class SidebarComponent implements OnInit {
                 document.getElementById(item.target!)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 0);
         }
+    }
+
+    /** Bottom “Sign in” CTA — same behaviour as the Login row in the nav list. */
+    goLogin(): void {
+        this.go({ label: 'Login', icon: '', route: this.loginRoute });
     }
 }

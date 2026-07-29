@@ -1,0 +1,55 @@
+// ════════════════════════════════════════════════════════════
+// LAYOUT · containers, sections, small utility helpers
+// ════════════════════════════════════════════════════════════
+
+.elv-container {
+  width: min(var(--p-elevator-maxw), 92vw);
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  padding: clamp(36px, 6vw, 76px) 0 70px;   // ← top padding pushes the eyebrow below the fixed navbar
+}
+
+.elv-section {
+  padding: clamp(60px, 8vw, 120px) 0;
+  position: relative;
+}
+
+.elv-row {
+  display: flex;
+  align-items: center;
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+.elv-gap-12 { gap: 12px; }
+.elv-center { text-align: center; }
+.elv-muted  { color: var(--p-elevator-ink2); }
+
+// ── Section head ──────────────────────────────────────────────
+// The nested .elv-lede here (0-2-0) always beats the standalone
+// .elv-lede in _hero.scss (0-1-0), regardless of file order.
+.elv-section-head {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 48px;
+
+  h2 {
+    font-family: 'Orbitron', 'Chakra Petch', sans-serif;
+    font-weight: 400;
+    font-size: clamp(28px, 4vw, 56px);
+    line-height: 1.05;
+    margin: 0;
+    letter-spacing: .01em;
+    text-transform: uppercase;
+    color: var(--p-elevator-ink);
+  }
+
+  .elv-lede {
+    color: var(--p-elevator-ink2);
+    max-width: 560px;
+    line-height: 1.6;
+    font-size: 16px;
+    margin: 0;
+  }
+}

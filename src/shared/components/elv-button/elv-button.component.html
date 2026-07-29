@@ -7,13 +7,13 @@
   }
   <span class="elv-btn__content">
     @if (loading) {
-      <span class="elv-btn__spinner" aria-hidden="true"></span>
+      <span class="elv-btn__spinner elv-btn__icon" aria-hidden="true"></span>
     } @else if (icon) {
-      <i class="pi {{ icon }}" [style]="iconStyle" aria-hidden="true"></i>
+      <i class="pi {{ icon }} elv-btn__icon" [style]="iconStyle" aria-hidden="true"></i>
     }
     @if (title) { <span class="elv-btn__label">{{ title }}</span> }
     <ng-content></ng-content>
-    @if (iconRight && !loading) { <i class="pi {{ iconRight }}" aria-hidden="true"></i> }
+    @if (iconRight && !loading) { <i class="pi {{ iconRight }} elv-btn__icon-trail" aria-hidden="true"></i> }
   </span>
 </ng-template>
 

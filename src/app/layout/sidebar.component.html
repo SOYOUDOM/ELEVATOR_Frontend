@@ -28,7 +28,7 @@
     </div>
 
   <app-elv-button [size]="'large'"  customClass="w-full!" [corner]="'round'" [fillColor]="'none'" [icon]="'fa-utility fa-semibold fa-angle-right'"
-    [title]="'Sign in'" class="flex divide-x divide-gray-300 mb-2">
+    [title]="'Sign in'" class="flex divide-x divide-gray-300 mb-2" (clicked)="goLogin()">
   </app-elv-button>
 <!-- Infos -->
 <span class="text-[var(--p-elevator-ink)] border-t border-[var(--p-elevator-accent-glow)] pl-3 w-full p-2">Hope this fruitfull blessing you.<br>.<br>.<br>.<br>.<br>.<br>.<br>.<br></span>

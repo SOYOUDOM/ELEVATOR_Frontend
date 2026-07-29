@@ -1,0 +1,14 @@
+// ════════════════════════════════════════════════════════════
+// BREAKPOINTS · Sass variables only — emits ZERO css.
+// ------------------------------------------------------------
+// Any partial that needs a media query starts with:
+//     @use 'breakpoints' as *;
+//
+// Keep these in sync with the @theme block in styles.scss, which
+// hands the same numbers to Tailwind as the `mobile:` / `tablet:`
+// / `desktop:` variants.
+// ════════════════════════════════════════════════════════════
+
+$bp-mobile: 900px;
+$bp-tablet: 1120px;
+$bp-desktop: 1024px;

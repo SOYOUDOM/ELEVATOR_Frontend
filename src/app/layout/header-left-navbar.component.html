@@ -17,12 +17,12 @@
 
 
   <!-- ELEVATOR wordmark — left on desktop, centered on mobile -->
-  <span aria-label="ELEVATOR"
+  <a aria-label="ELEVATOR"
         class="brand-name flex items-baseline gap-[1px] leading-none select-none whitespace-nowrap
                text-[1.7rem] tracking-[0.12em] uppercase
                max-mobile:absolute max-mobile:left-1/2 max-mobile:top-1/2
                max-mobile:-translate-x-1/2 max-mobile:-translate-y-1/2 justify-center items-center gap-2
-               ">
+               " href="/app/home">
                  <img src="/Logo.png" alt="ELEVATOR Logo" class="h-6 w-auto sm:h-8 md:h-10 lg:h-12 object-contain">
     <span class="brand-lead text-[var(--p-elevator-accent)]
                  drop-shadow-[0_0_8px_var(--p-elevator-accent-glow)]"
@@ -32,5 +32,5 @@
         <span class="brand-l" [style.--i]="$index">{{ l }}</span>
       }
     </span>
-  </span>
+  </a>
 </div>

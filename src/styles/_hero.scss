@@ -1,0 +1,223 @@
+@use 'breakpoints' as *;
+
+// ════════════════════════════════════════════════════════════
+// HERO + LANDING BANDS
+//   1. hero block (h1, lede, CTA, chips)
+//   2. headline ⇄ face weave (the fragile part — read the notes)
+//   3. logo outline (glow, light sweep, breathe)
+//   4. responsive + reduced-motion overrides
+//
+// ⚠ This partial must be @use'd AFTER _animations.scss — see the
+//   note on .elv-hero-logo-outline's `animation` below.
+// ════════════════════════════════════════════════════════════
+
+// ── 1 · Hero ─────────────────────────────────────────────────
+.elv-hero {
+  position: relative;
+  isolation: isolate;            // the ONE stacking context for the whole hero
+  text-align: center;
+  padding: clamp(36px, 6vw, 76px) 0 70px;
+  overflow: visible;
+
+  h1 {
+    font-family: 'Chakra Petch', system-ui, sans-serif;
+    font-weight: 700;
+    line-height: .95;
+    font-size: clamp(36px, 6.5vw, 80px);
+    margin: 26px auto 0;
+    letter-spacing: .01em;       // the earlier -0.03em was dead — this one always won the cascade
+    text-transform: uppercase;
+    max-width: 16ch;
+    text-wrap: balance;
+    color: var(--p-elevator-ink);
+  }
+}
+
+// standalone lede — .elv-section-head .elv-lede (_layout.scss) is
+// more specific, so section heads keep their own smaller version
+.elv-lede {
+  max-width: 600px;
+  margin: 30px auto 0;
+  color: var(--p-elevator-ink);
+  font-size: clamp(15px, 1.4vw, 18px);
+  line-height: 1.65;
+}
+
+.elv-hero-cta {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 40px;
+}
+
+.elv-hero-chips {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+// landing CTA band (bottom of the page, earth photo backdrop).
+// Move to its own _sections.scss once there are more page bands.
+.cta-section {
+  background-image: url('/assets/img/earth.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: bottom;
+  overflow: hidden;
+}
+
+// ── 2 · Headline ⇄ face weave ────────────────────────────────
+// .headline ONLY gets position:relative — never a z-index, transform, filter,
+// opacity<1, or isolation, or it becomes a stacking context and traps .front again.
+.headline { position: relative; }
+
+.elv-hero-visual { position: relative; }
+
+// WHY `translate` INSTEAD OF `transform` ON BOTH IMGS BELOW:
+// both carry .elv-reveal, whose keyframe ends on `transform: none` and holds
+// it (forwards). That wiped the old translate() centering the moment the
+// reveal finished — face fell out of the headline, weave gone, logo shoved
+// right. The standalone `translate` property is composited separately from
+// `transform`, so reveal/elvReveal animations can never touch it.
+.elv-hero-face {
+  position: absolute;
+  right: 0;
+  top: 0;
+  translate: 0 -50%;             // was transform:translateY(-50%) — see note above
+  height: min(1480px, 100vh);
+  width: auto;
+  z-index: 2;                    // above base headline text, below .front (20)
+  pointer-events: none;
+  user-select: none;
+
+  // feathers the photo edges to transparent (no visible box).
+  // delete these two lines if face2.png is already a clean cut-out PNG.
+  -webkit-mask-image: radial-gradient(62% 72% at 55% 42%, #000 58%, transparent 85%);
+          mask-image: radial-gradient(62% 72% at 55% 42%, #000 58%, transparent 85%);
+}
+
+.hero-portrait {
+  display: block;
+  filter: grayscale(1) contrast(1.1) brightness(0.95);
+}
+// NOTE: the old .hero-portrait::after accent tint was removed — pseudo-elements
+// never render on <img> (replaced element), so it was dead weight. If you want
+// the soft-light accent wash back, it needs a wrapper div in the template.
+
+// the letters that cross IN FRONT of the face
+.elv-headline .front {
+  position: relative;
+  z-index: 20;                    // beats the face (2)
+}
+
+// keep the controls above the tall portrait so it never veils them
+.elv-lede,
+.elv-hero-cta,
+.elv-hero-chips {
+  position: relative;
+  z-index: 4;
+}
+
+// ── 3 · Logo outline ─────────────────────────────────────────
+// Glows, catches light from the left, and is lifted up to sit on
+// the hero title.
+.elv-hero-logo-outline {
+  // TUNING KNOBS — nudge these two to seat the outline on the title:
+  --elv-logo-x: 60%;        // horizontal anchor inside the hero (old value was 20%)
+  --elv-logo-lift: 170px;   // extra push UP into the headline; bigger = higher
+
+  position: absolute;
+  left: var(--elv-logo-x);
+  top: 0;
+  translate: -50% calc(-50% - var(--elv-logo-lift));   // survives .elv-reveal — see note above
+  width: min(1280px, 100vw);
+  height: auto;
+  z-index: 1;                    // below the face (2), above base headline glyphs
+  pointer-events: none;
+
+  // neon glow biased to the left edge → reads as light hitting from the left
+  filter:
+    drop-shadow(0 0 3px var(--p-elevator-accent))
+    drop-shadow(-14px 0 26px var(--p-elevator-accent-glow))
+    drop-shadow(-4px 0 70px var(--p-elevator-accent-glow));
+
+  // light sweep: a bright band travels left → right across the artwork.
+  // the mask dims the outline to ~70% everywhere except inside the band,
+  // so the band reads as a moving specular highlight.
+  -webkit-mask-image: linear-gradient(100deg,
+      rgba(0,0,0,.7) 0 40%, #000 50%, rgba(0,0,0,.7) 60% 100%);
+          mask-image: linear-gradient(100deg,
+      rgba(0,0,0,.7) 0 40%, #000 50%, rgba(0,0,0,.7) 60% 100%);
+  -webkit-mask-size: 300% 100%;
+          mask-size: 300% 100%;
+  -webkit-mask-position: 100% 0;
+          mask-position: 100% 0;
+
+  // this rule OVERRIDES .elv-reveal's `animation` (same specificity, later in
+  // file), so the reveal keyframes must ride along in the list or the img
+  // stays at opacity:0 forever. Template's inline animation-delay:.25s
+  // applies to all three — that's fine.
+  // ⚠ "later in file" now means "_animations.scss is @use'd before _hero.scss"
+  //   in styles.scss. Keep that order.
+  animation:
+    elv-reveal .7s cubic-bezier(.2,.7,.2,1) forwards,
+    elv-logo-shine 6.5s ease-in-out 1.2s infinite,
+    elv-logo-breathe 4.5s ease-in-out 1.2s infinite;   // delete this line for a calmer, cheaper logo
+}
+
+// sweep in the first ~38% of the loop, then rest until the next pass
+@keyframes elv-logo-shine {
+  0% {
+    -webkit-mask-position: 100% 0;
+            mask-position: 100% 0;
+  }
+  38%, 100% {
+    -webkit-mask-position: 0% 0;
+            mask-position: 0% 0;
+  }
+}
+
+// gentle glow pulse layered on top of the sweep
+@keyframes elv-logo-breathe {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 3px var(--p-elevator-accent))
+      drop-shadow(-14px 0 26px var(--p-elevator-accent-glow))
+      drop-shadow(-4px 0 70px var(--p-elevator-accent-glow));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 5px var(--p-elevator-accent))
+      drop-shadow(-18px 0 36px var(--p-elevator-accent-glow))
+      drop-shadow(-6px 0 92px var(--p-elevator-accent-glow));
+  }
+}
+
+// ── 4 · Responsive + reduced motion ──────────────────────────
+@media (max-width: $bp-mobile) {
+  .elv-hero-face {
+    position: absolute;
+    transform: none;
+    translate: none;              // undo the desktop lift
+    height: auto;
+    width: min(460px, 80%);
+    margin: 24px auto 0;
+    -webkit-mask-image: none;
+            mask-image: none;
+  }
+
+  .elv-hero-logo-outline {
+    --elv-logo-lift: 90px;        // headline is shorter on mobile — sit a bit lower
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .elv-hero-logo-outline {
+    animation: elv-reveal .7s cubic-bezier(.2,.7,.2,1) forwards;   // keep reveal, drop sweep + pulse
+    -webkit-mask-image: none;
+            mask-image: none;
+  }
+}

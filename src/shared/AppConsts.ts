@@ -18,4 +18,9 @@ export class AppConsts {
     static readonly authorization = {
         encryptedAuthTokenName: 'enc_auth_token',
     };
+
+    static readonly branding = {
+        appName: 'ELEVATOR',
+        founderName: 'Soy Oudom',
+    };
 }

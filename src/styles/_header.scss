@@ -1,0 +1,138 @@
+@use 'breakpoints' as *;
+
+/* ============================================================
+   HEADER
+     1. header-left-navbar burger — toggle on the logo "E".
+        ≥900px: the real Varino "E" (logo untouched), toggle inert.
+        ≤900px: wordmark hides; the "E" becomes a notched hamburger
+                button whose bars morph to an X when the drawer opens.
+     2. .nav-link — underline sweep, active state, breathing CTA.
+   ============================================================ */
+
+// ── 1 · Hamburger toggle (mobile/tablet) — bars ⇄ X ────────────
+header-left-navbar .hdr-burger {
+  --hb: 44px; --hb-bar-w: 20px; --hb-bar: 2px; --hb-gap: 5px; --hb-corner: 7px;
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--hb-gap);
+  width: var(--hb);
+  height: var(--hb);
+  cursor: pointer;
+  color: var(--p-elevator-accent);
+  background: var(--p-elevator-panel, #0a0e15);
+  border: 1px solid var(--p-elevator-line-strong, rgba(150, 180, 210, 0.22));
+  clip-path: polygon(
+    var(--hb-corner) 0, 100% 0,
+    100% calc(100% - var(--hb-corner)), calc(100% - var(--hb-corner)) 100%,
+    0 100%, 0 var(--hb-corner));
+  transition: border-color .25s var(--ease), background .25s var(--ease), transform .15s var(--ease);
+}
+
+/* hidden on desktop — this selector outranks Tailwind's `lg:hidden`,
+   so the hide must be enforced here too */
+@media (min-width: $bp-mobile) {
+  header-left-navbar .hdr-burger { display: none; }
+}
+
+header-left-navbar .hdr-burger:hover  { border-color: var(--p-elevator-accent-soft); }
+header-left-navbar .hdr-burger:active { transform: scale(.94); }
+
+header-left-navbar .hdr-burger__bar {
+  display: block;
+  width: var(--hb-bar-w);
+  height: var(--hb-bar);
+  border-radius: 1px;
+  background: currentColor;
+  transition: transform .3s var(--ease), opacity .2s var(--ease);
+}
+
+header-left-navbar .hdr-burger[data-open="true"] {
+  border-color: var(--p-elevator-accent-soft);
+  background: color-mix(in oklch, var(--p-elevator-accent) 6%, var(--p-elevator-panel, #0a0e15));
+}
+header-left-navbar .hdr-burger[data-open="true"] .hdr-burger__bar:nth-child(1) {
+  transform: translateY(calc(var(--hb-gap) + var(--hb-bar))) rotate(45deg);
+}
+header-left-navbar .hdr-burger[data-open="true"] .hdr-burger__bar:nth-child(2) { opacity: 0; }
+header-left-navbar .hdr-burger[data-open="true"] .hdr-burger__bar:nth-child(3) {
+  transform: translateY(calc(-1 * (var(--hb-gap) + var(--hb-bar)))) rotate(-45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  header-left-navbar .hdr-burger,
+  header-left-navbar .hdr-burger__bar { transition: none !important; }
+}
+
+/* ── 2 · Navbar links ────────────────────────────────────────── */
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-decoration: none !important;
+  color: var(--p-elevator-ink2) !important;   // beats the global `a` override in _base.scss
+  transition: color .3s ease;
+
+  /* underline — shared by all states */
+  &::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: -3px;
+    height: 1px;
+    background: var(--p-elevator-accent);
+    box-shadow: 0 0 8px var(--p-elevator-accent-glow);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .35s cubic-bezier(.16, 1, .3, 1);
+  }
+
+  &:hover {
+    color: var(--p-elevator-ink) !important;
+
+    &::after { transform: scaleX(1); }
+  }
+
+  /* current route stays lit */
+  &--active {
+    color: var(--p-elevator-accent) !important;
+
+    &::after { transform: scaleX(1); }
+  }
+
+  /* CTA — the breathing glow (Create CV) */
+  &--cta {
+    color: var(--p-elevator-ink) !important;
+    text-shadow: 0 0 6px var(--p-elevator-accent-glow);
+    animation: navBreathe 2.8s ease-in-out infinite;
+    transition: text-shadow .3s ease, transform .3s ease, color .3s ease;
+
+    &:hover {
+      text-shadow: 0 0 16px var(--p-elevator-accent-glow),
+                   0 0 30px var(--p-elevator-accent-soft);
+      transform: translateY(-1px);
+      animation-play-state: paused;
+    }
+  }
+}
+
+@keyframes navBreathe {
+  0%, 100% {
+    text-shadow: 0 0 5px var(--p-elevator-accent-glow);
+  }
+  50% {
+    text-shadow: 0 0 14px var(--p-elevator-accent-glow),
+                 0 0 24px var(--p-elevator-accent-soft);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-link--cta { animation: none; }
+}

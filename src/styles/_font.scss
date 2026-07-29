@@ -1,0 +1,15 @@
+// ════════════════════════════════════════════════════════════
+// FONTS · remote stylesheets
+// ------------------------------------------------------------
+// @use'd FIRST in styles.scss on purpose — a CSS @import is only
+// honoured by the browser when it appears before every other rule.
+//
+// The three LOCAL @font-face blocks (Varino / Designer / Moon)
+// stay in styles.scss because their url() paths are relative to
+// that file.
+// ════════════════════════════════════════════════════════════
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@100..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
+

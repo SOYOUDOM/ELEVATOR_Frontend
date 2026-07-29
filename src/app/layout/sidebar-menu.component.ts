@@ -48,7 +48,7 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
             new MenuItem(this.l('GetStarted'), '', 'fas fa-theater-masks', 'Pages.Roles',undefined,true),
             new MenuItem(this.l('Templates'), '', 'fas fa-building', 'Pages.Tenants'),
             new MenuItem(this.l('About'), '/app/about', 'fas fa-info-circle'),
-            new MenuItem(this.l('Login'), '', 'fas fa-users', 'Pages.Users'),
+            new MenuItem(this.l('Login'), '/account/login', 'fas fa-arrow-right-to-bracket'),
         ];
     }
 
