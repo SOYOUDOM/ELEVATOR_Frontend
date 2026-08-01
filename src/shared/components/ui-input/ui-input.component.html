@@ -1,0 +1,189 @@
+<!--
+  Slot spans are always rendered and collapsed by `.ui-slot:empty` in CSS.
+  Angular strips whitespace-only text nodes by default, and <ng-content>
+  emits no node when nothing is projected, so :empty is exact — this avoids
+  a content query purely to decide whether to show a wrapper.
+-->
+<div class="ui-field">
+
+  @if (labelMode() === 'stacked' && label()) {
+    <label class="ui-label ui-label--stacked" [id]="labelId" [attr.for]="inputId">
+      {{ label() }}
+      @if (required()) { <span class="ui-label__req" aria-hidden="true">*</span> }
+    </label>
+  }
+
+  <div class="ui-shell">
+    <span class="ui-layer ui-layer--fill"   aria-hidden="true"></span>
+    <span class="ui-layer ui-layer--tint"   aria-hidden="true"></span>
+    <span class="ui-layer ui-layer--border" aria-hidden="true"></span>
+    <span class="ui-layer ui-layer--sheen"  aria-hidden="true"></span>
+    <span class="ui-layer ui-layer--glow"   aria-hidden="true"></span>
+
+    @if (brackets()) {
+      <span class="ui-brackets" aria-hidden="true">
+        <i></i><i></i><i></i><i></i>
+      </span>
+    }
+
+    <div class="ui-row">
+
+      <span class="ui-slot ui-slot--lead">
+        <ng-content select="[uiLead]" />
+        @if (leadingIcon()) {
+          <i class="ui-icon pi {{ leadingIcon() }}" aria-hidden="true"></i>
+        }
+        @if (prefix()) { <span class="ui-affix">{{ prefix() }}</span> }
+      </span>
+
+      <span class="ui-control">
+
+        @if (labelMode() === 'floating' || labelMode() === 'inline') {
+          @if (label()) {
+            <label class="ui-label ui-label--float" [id]="labelId" [attr.for]="inputId">
+              {{ label() }}
+              @if (required()) { <span class="ui-label__req" aria-hidden="true">*</span> }
+            </label>
+          }
+        }
+
+        @if (multiline()) {
+          <textarea
+            #field
+            class="ui-native"
+            [id]="inputId"
+            [attr.name]="name()"
+            [rows]="rows()"
+            [value]="currentValue() ?? ''"
+            [attr.placeholder]="placeholder() || ' '"
+            [disabled]="isDisabled()"
+            [readOnly]="readonly()"
+            [attr.required]="required() || null"
+            [attr.maxlength]="maxlength()"
+            [attr.minlength]="minlength()"
+            [attr.autocomplete]="autocomplete()"
+            [attr.inputmode]="inputmode()"
+            [attr.autocapitalize]="autocapitalize()"
+            [attr.spellcheck]="spellcheck()"
+            [attr.aria-label]="labelMode() === 'hidden' ? label() || null : null"
+            [attr.aria-labelledby]="labelMode() !== 'hidden' && label() ? labelId : null"
+            [attr.aria-describedby]="describedBy()"
+            [attr.aria-invalid]="status() === 'invalid'"
+            [attr.aria-required]="required() || null"
+            [attr.aria-busy]="loading() || status() === 'pending' ? 'true' : null"
+            (input)="handleInput($event)"
+            (focus)="handleFocus($event)"
+            (blur)="handleBlur($event)"
+            (keydown)="handleKeydown($event)"
+          ></textarea>
+        } @else {
+          <input
+            #field
+            class="ui-native"
+            [id]="inputId"
+            [type]="effectiveType()"
+            [attr.name]="name()"
+            [value]="currentValue() ?? ''"
+            [attr.placeholder]="placeholder() || ' '"
+            [disabled]="isDisabled()"
+            [readOnly]="readonly()"
+            [attr.required]="required() || null"
+            [attr.maxlength]="maxlength()"
+            [attr.minlength]="minlength()"
+            [attr.min]="min()"
+            [attr.max]="max()"
+            [attr.step]="step()"
+            [attr.pattern]="pattern()"
+            [attr.autocomplete]="autocomplete()"
+            [attr.inputmode]="inputmode()"
+            [attr.autocapitalize]="autocapitalize()"
+            [attr.spellcheck]="spellcheck()"
+            [attr.aria-label]="labelMode() === 'hidden' ? label() || null : null"
+            [attr.aria-labelledby]="labelMode() !== 'hidden' && label() ? labelId : null"
+            [attr.aria-describedby]="describedBy()"
+            [attr.aria-invalid]="status() === 'invalid'"
+            [attr.aria-required]="required() || null"
+            [attr.aria-busy]="loading() || status() === 'pending' ? 'true' : null"
+            (input)="handleInput($event)"
+            (focus)="handleFocus($event)"
+            (blur)="handleBlur($event)"
+            (keydown)="handleKeydown($event)"
+          />
+        }
+      </span>
+
+      <span class="ui-slot ui-slot--trail">
+        @if (suffix()) { <span class="ui-affix">{{ suffix() }}</span> }
+
+        @if (loading() || status() === 'pending') {
+          <span class="ui-spinner" role="status" aria-label="Validating">
+            <i></i>
+          </span>
+        }
+
+        @if (status() === 'valid' && !loading()) {
+          <svg class="ui-check" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 12.5 9.5 18 20 6.5" />
+          </svg>
+        }
+
+        @if (showClear()) {
+          <button
+            type="button" class="ui-act ui-act--clear"
+            aria-label="Clear field" tabindex="-1"
+            (mousedown)="$event.preventDefault()" (click)="clear()">
+            <i class="pi pi-times" aria-hidden="true"></i>
+          </button>
+        }
+
+        @if (showReveal()) {
+          <button
+            type="button" class="ui-act ui-act--reveal"
+            [attr.aria-label]="revealed() ? 'Hide password' : 'Show password'"
+            [attr.aria-pressed]="revealed()"
+            (mousedown)="$event.preventDefault()" (click)="toggleReveal()">
+            <i class="pi" [class.pi-eye]="!revealed()" [class.pi-eye-slash]="revealed()"
+               aria-hidden="true"></i>
+          </button>
+        }
+
+        @if (trailingIcon()) {
+          <button
+            type="button" class="ui-act"
+            aria-label="Field action"
+            (click)="trailingIconClick.emit($event)">
+            <i class="ui-icon pi {{ trailingIcon() }}" aria-hidden="true"></i>
+          </button>
+        }
+
+        <ng-content select="[uiTrail]" />
+      </span>
+
+    </div>
+
+    <span class="ui-rule" aria-hidden="true"></span>
+  </div>
+
+  <div class="ui-assist" [class.is-open]="!!message() || showCounter()">
+    <div class="ui-assist__clip">
+      <div class="ui-assist__row">
+        @if (message(); as msg) {
+          <p class="ui-msg" [id]="messageId"
+             [attr.role]="status() === 'invalid' ? 'alert' : null"
+             [attr.aria-live]="status() === 'invalid' ? null : 'polite'">
+            @if (messageIcon(); as icon) {
+              <i class="ui-msg__icon pi {{ icon }}" aria-hidden="true"></i>
+            }
+            <span class="ui-msg__text">{{ msg }}</span>
+          </p>
+        }
+        @if (showCounter()) {
+          <span class="ui-counter" [id]="counterId" aria-live="off">
+            {{ charCount() }}<span class="ui-counter__sep">/</span>{{ maxlength() }}
+          </span>
+        }
+      </div>
+    </div>
+  </div>
+
+</div>

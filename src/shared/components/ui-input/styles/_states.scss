@@ -1,0 +1,160 @@
+/* ════════════════════════════════════════════════════════════════
+   STATES — loaded last, on purpose.
+
+   Most status colour needs no rule here at all: activeTone() in TS
+   already resolves [data-tone] to danger/success/warning/info, and
+   every variant paints from var(--ui-tone). This file only handles
+   the variants whose borders are NOT tone-derived (aurora, glass,
+   holo, minimal), plus the non-colour state work.
+
+   Specificity note: the overrides below use two attribute selectors
+   (0,2,0), matching `:host([data-appearance='x'].is-focused)`. The
+   tie is broken by source order — which is why this file is last.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── glow ──────────────────────────────────────────────────────── */
+:host([data-glow='none'])   { --ui-glow-o: 0; }
+:host([data-glow='focus'])  { --ui-glow-o: 0; }
+:host([data-glow='focus'].is-focused)  { --ui-glow-o: 1; }
+:host([data-glow='always']) { --ui-glow-o: .65; }
+:host([data-glow='always'].is-focused) { --ui-glow-o: 1; }
+:host([data-glow='pulse'])  { --ui-glow-o: 1; }
+:host([data-glow='pulse']) .ui-layer--glow {
+  animation: ui-breathe 3.6s var(--ui-ease-in-out) infinite;
+}
+:host([data-glow='pulse'].is-focused) .ui-layer--glow { animation-duration: 2.2s; }
+
+/* ── validation ────────────────────────────────────────────────── */
+:host([data-status='invalid'][data-tone]) {
+  --ui-msg-color: var(--ui-tone-danger);
+  --ui-border-paint: var(--ui-tone-danger);
+  --ui-border-o: 1;
+  --ui-rule-color: var(--ui-tone-danger);
+  --ui-rule-scale: 1;
+  --ui-glow-o: .55;
+}
+:host([data-status='invalid'][data-tone].is-focused) {
+  --ui-glow-o: 1;
+  --ui-ring: 0 0 0 3px color-mix(in oklab, var(--ui-tone-danger) 18%, transparent);
+}
+
+:host([data-status='valid'][data-tone]) {
+  --ui-msg-color: var(--ui-tone-success);
+  --ui-rule-color: var(--ui-tone-success);
+}
+:host([data-status='valid'][data-tone].is-focused) {
+  --ui-border-paint: var(--ui-tone-success);
+}
+
+:host([data-status='warning'][data-tone]) {
+  --ui-msg-color: var(--ui-tone-warning);
+  --ui-border-paint: var(--ui-tone-warning);
+  --ui-border-o: 1;
+}
+
+:host([data-status='pending'][data-tone]) {
+  --ui-msg-color: var(--ui-tone-info);
+}
+
+/* Async validating + explicit [loading] share one treatment: a band
+   travelling along the border. Reads as "working", not "broken". */
+:host(.is-loading),
+:host([data-status='pending']) {
+  --ui-border-paint: linear-gradient(90deg,
+    var(--ui-line) 0 34%,
+    color-mix(in oklab, var(--ui-tone) 92%, transparent) 50%,
+    var(--ui-line) 66% 100%);
+  --ui-border-o: 1;
+}
+:host(.is-loading) .ui-layer--border,
+:host([data-status='pending']) .ui-layer--border {
+  background-size: 250% 100%;
+  animation: ui-slide 1.25s linear infinite;
+}
+
+/* ── typing ────────────────────────────────────────────────────────
+   A small lift in ambient light while keys are landing. Anything
+   louder becomes noise at 60 wpm.
+   ---------------------------------------------------------------- */
+:host(.is-typing) .ui-layer--tint { opacity: calc(var(--ui-tint-o) + .12); }
+
+/* ── disabled ──────────────────────────────────────────────────── */
+:host(.is-disabled) {
+  --ui-glow-o: 0;
+  --ui-tint-o: 0;
+  --ui-ring: 0 0 #0000;
+  opacity: .46;
+  filter: saturate(.3);
+  cursor: not-allowed;
+}
+:host(.is-disabled) .ui-native,
+:host(.is-disabled) .ui-label { cursor: not-allowed; }
+:host(.is-disabled) .ui-layer--sheen { display: none; }
+
+/* ── readonly ──────────────────────────────────────────────────────
+   Distinct from disabled: the content still matters and stays fully
+   legible, but the field reads as inert. */
+:host(.is-readonly) {
+  --ui-fill: color-mix(in oklab, var(--ui-ink) 3%, transparent);
+  --ui-border-o: .5;
+  --ui-glow-o: 0;
+}
+:host(.is-readonly) .ui-native { cursor: default; }
+
+/* ── autofill ──────────────────────────────────────────────────────
+   Two jobs. Visually: kill Chrome's yellow slab — a 9999s background
+   transition is the only way to stop it repainting, and
+   -webkit-text-fill-color is the only way to recolour the text.
+   Functionally: the animation-name swap fires `animationstart`,
+   which trackAutofill() listens for so the floating label gets out
+   of the way of browser-injected text.
+
+   Kept in separate rule blocks because Firefox does not parse
+   :-webkit-autofill and would drop a shared selector list.
+   ---------------------------------------------------------------- */
+.ui-native { animation: ui-autofill-off 1ms; }
+
+.ui-native:-webkit-autofill,
+.ui-native:-webkit-autofill:hover,
+.ui-native:-webkit-autofill:focus {
+  animation: ui-autofill-on 1ms;
+  -webkit-text-fill-color: var(--ui-ink);
+  -webkit-box-shadow: 0 0 0 1000px transparent inset;
+  caret-color: var(--ui-tone);
+  transition: background-color 9999s ease-out 0s;
+}
+.ui-native:autofill {
+  animation: ui-autofill-on 1ms;
+  caret-color: var(--ui-tone);
+}
+
+/* ── forced colours / high contrast ────────────────────────────────
+   Every decorative layer is dropped and the field falls back to
+   system colours. Focus must survive as a real outline, since none
+   of the glow/tint machinery renders in this mode.
+   ---------------------------------------------------------------- */
+@media (forced-colors: active) {
+  .ui-layer { display: none !important; }
+  .ui-shell {
+    border: 1px solid ButtonBorder;
+    background: Field;
+    box-shadow: none;
+  }
+  :host(.is-focused) .ui-shell {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+  :host([data-status='invalid']) .ui-shell { border-color: LinkText; }
+  .ui-native { color: FieldText; }
+  .ui-msg, .ui-counter, .ui-label { color: CanvasText; forced-color-adjust: none; }
+  :host(.is-disabled) { opacity: 1; }
+  :host(.is-disabled) .ui-native { color: GrayText; }
+}
+
+/* ── coarse-pointer trim ───────────────────────────────────────────
+   Hover choreography on touch devices fires on tap and sticks until
+   the next tap elsewhere. Drop the pointer-tracked wash there. */
+@media (hover: none) {
+  .ui-layer--tint { opacity: 0; }
+  :host(.is-focused) .ui-layer--tint { opacity: var(--ui-tint-o); }
+}

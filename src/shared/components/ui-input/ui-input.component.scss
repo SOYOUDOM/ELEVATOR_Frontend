@@ -1,0 +1,28 @@
+/* ════════════════════════════════════════════════════════════════
+   ELEVATOR — ui-input
+   ----------------------------------------------------------------
+   ORDER MATTERS. Sass emits a @use'd module's CSS at the point of
+   first load, so this list *is* the cascade:
+
+   1. motion   — @property + @keyframes. Must register before any
+                 rule animates them.
+   2. tokens   — :host custom properties (bridged to --p-elevator-*)
+   3. core     — structure. Layout only, no personality.
+   4. sizes    — the 6×4 size/density matrix
+   5. shapes   — radius + clip-path, and the border-technique swap
+   6. variants — the 10 appearances
+   7. borders  — explicit [border] overrides. AFTER variants: equal
+                 specificity, later source wins, so `border="neon"`
+                 beats whatever the appearance chose.
+   8. states   — focus/valid/invalid/disabled/autofill. LAST, so a
+                 field that is both focused and invalid reads red.
+   ════════════════════════════════════════════════════════════════ */
+
+@use './styles/motion';
+@use './styles/tokens';
+@use './styles/core';
+@use './styles/sizes';
+@use './styles/shapes';
+@use './styles/variants';
+@use './styles/borders';
+@use './styles/states';

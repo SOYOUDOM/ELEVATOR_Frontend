@@ -1,0 +1,85 @@
+/* ════════════════════════════════════════════════════════════════
+   TOKENS — the only place that knows about the outside world.
+   Every value bridges to a --p-elevator-* token from
+   src/app/theme/my-preset.ts, with the literal fallback baked in so
+   the component is correct even if the preset never loads.
+   ════════════════════════════════════════════════════════════════ */
+
+:host {
+  /* ── palette bridge ─────────────────────────────────────────── */
+  --ui-accent:      var(--p-elevator-accent, #ffd35b);
+  --ui-ink:         var(--p-elevator-ink,  #e9eef5);
+  --ui-ink-2:       var(--p-elevator-ink2, #aab4c2);
+  --ui-ink-3:       var(--p-elevator-ink3, #6b7585);
+  --ui-ink-4:       var(--p-elevator-ink4, #454f5e);
+  --ui-bg-0:        var(--p-elevator-bg0,  #04060a);
+  --ui-panel:       var(--p-elevator-panel,    #0a0e15);
+  --ui-panel-hi:    var(--p-elevator-panel-hi, #111824);
+  --ui-line:        var(--p-elevator-line,        rgba(150,180,210,.12));
+  --ui-line-soft:   var(--p-elevator-line-soft,   rgba(150,180,210,.07));
+  --ui-line-strong: var(--p-elevator-line-strong, rgba(150,180,210,.22));
+
+  /* ── semantic tones ─────────────────────────────────────────── */
+  --ui-tone-brand:   var(--ui-accent);
+  --ui-tone-success: #34d399;
+  --ui-tone-warning: #ffb454;
+  --ui-tone-danger:  #ff5b74;
+  --ui-tone-info:    #5bb8ff;
+  --ui-tone-neutral: var(--ui-ink-2);
+
+  /* Resolved from [data-tone] below. Because custom-property
+     substitution is lazy, every derived value re-resolves for free
+     the moment --ui-tone changes. */
+  --ui-tone: var(--ui-tone-brand);
+  --ui-tone-soft: color-mix(in oklab, var(--ui-tone) 18%, transparent);
+  --ui-tone-glow: color-mix(in oklab, var(--ui-tone) 42%, transparent);
+
+  /* ── motion ─────────────────────────────────────────────────── */
+  --ui-ease:        cubic-bezier(.2, .7, .2, 1);
+  --ui-ease-out:    cubic-bezier(.16, 1, .3, 1);      /* expo — arrivals  */
+  --ui-ease-in-out: cubic-bezier(.65, 0, .35, 1);     /* symmetric loops  */
+  --ui-spring:      cubic-bezier(.34, 1.56, .64, 1);  /* overshoot        */
+  --ui-t-fast: 120ms;
+  --ui-t:      220ms;
+  --ui-t-slow: 420ms;
+
+  /* ── typography ─────────────────────────────────────────────── */
+  --ui-font:      'Jost', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --ui-font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --ui-lh: 1.5;
+  --ui-wght: 420;      /* variable-font weight, animates on focus */
+  --ui-tracking: 0;
+
+  /* ── paint surface (variants + borders write these) ─────────── */
+  --ui-fill: transparent;
+  --ui-blur: none;
+  --ui-tint: none;
+  --ui-tint-o: 0;
+  --ui-border-w: 1px;
+  --ui-border-paint: var(--ui-line-strong);
+  --ui-border-o: 1;
+  --ui-glow-color: var(--ui-tone-glow);
+  --ui-glow-blur: 22px;
+  --ui-glow-o: 0;
+  --ui-lift: 0px;
+  --ui-ring:  0 0 #0000;   /* focus ring on .ui-shell */
+  --ui-drop:  0 0 #0000;   /* cast shadow on .ui-shell */
+  --ui-inset: 0 0 #0000;   /* inner specular on .ui-layer--fill */
+  --ui-rule-color: transparent;
+  --ui-rule-scale: 0;
+
+  /* ── ambient pointer position (written by trackPointer(),
+        never through change detection) ─────────────────────────── */
+  --ui-mx: 50%;
+  --ui-my: 50%;
+}
+
+/* Tone selection. Status overrides this via activeTone() in TS, which
+   is why validation colour propagates to border, glow, caret,
+   selection and message with no per-variant work. */
+:host([data-tone='brand'])   { --ui-tone: var(--ui-tone-brand); }
+:host([data-tone='success']) { --ui-tone: var(--ui-tone-success); }
+:host([data-tone='warning']) { --ui-tone: var(--ui-tone-warning); }
+:host([data-tone='danger'])  { --ui-tone: var(--ui-tone-danger); }
+:host([data-tone='info'])    { --ui-tone: var(--ui-tone-info); }
+:host([data-tone='neutral']) { --ui-tone: var(--ui-tone-neutral); }
