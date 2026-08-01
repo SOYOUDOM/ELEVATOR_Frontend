@@ -1,0 +1,130 @@
+@if (labelMode() === 'stacked' && label()) {
+<label class="fld__label" [id]="labelId" [attr.for]="inputId">
+    {{ label() }}
+    @if (required()) { <span class="fld__req" aria-hidden="true">*</span> }
+    @if (optional() && !required()) { <span class="fld__opt">Optional</span> }
+</label>
+}
+
+<div class="fld__box">
+
+    @if (prefix()) {
+    <span class="fld__seg">
+        @if (prefixIcon()) { <i class="pi {{ prefixIcon() }} fld__icon" aria-hidden="true"></i> }
+        {{ prefix() }}
+    </span>
+    <span class="fld__rule" aria-hidden="true"></span>
+    }
+
+    <ng-content select="[elvLead]" />
+    @if (icon()) { <i class="pi {{ icon() }} fld__icon" aria-hidden="true"></i> }
+
+    @if (labelMode() === 'float') {
+    <span class="fld__stack">
+        @if (label()) {
+        <label class="fld__label fld__label--float" [id]="labelId" [attr.for]="inputId">
+            {{ label() }}
+        </label>
+        }
+        <ng-container [ngTemplateOutlet]="control" />
+    </span>
+    } @else {
+    <ng-container [ngTemplateOutlet]="control" />
+    }
+
+    <span class="fld__trail" [class.fld__trail--corner]="multiline()">
+        @if (suffix()) { <span class="fld__unit">{{ suffix() }}</span> }
+
+        @if (status() === 'loading') {
+        <span class="fld__spin" role="status" aria-label="Working"></span>
+        }
+        @if (status() === 'success') {
+        <svg class="fld__check" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 12.5 9.5 18 20 6.5" />
+        </svg>
+        }
+        @else if (statusIcon(); as si) {
+        <i class="pi {{ si }} fld__status" aria-hidden="true"></i>
+        }
+
+        @if (showReveal()) {
+        <button class="fld__act" type="button" [attr.aria-label]="revealedState() ? 'Hide password' : 'Show password'"
+            [attr.aria-pressed]="revealedState()" (mousedown)="$event.preventDefault()" (click)="toggleReveal()">
+            <i class="pi" [class.pi-eye]="!revealedState()" [class.pi-eye-slash]="revealedState()"
+                aria-hidden="true"></i>
+        </button>
+        }
+
+        @if (copyable()) {
+        <button class="fld__act" type="button" aria-label="Copy value" (click)="copy()">
+            <i class="pi" [class.pi-copy]="!copiedState()" [class.pi-check]="copiedState()" aria-hidden="true"></i>
+        </button>
+        }
+
+        <!-- tabindex -1 by design: Escape clears it, keeping tab order clean on
+         long forms. Remove the attribute if clearing is essential in yours. -->
+        @if (showClear()) {
+        <button class="fld__act" type="button" aria-label="Clear field" tabindex="-1"
+            (mousedown)="$event.preventDefault()" (click)="clear()">
+            <i class="pi pi-times" aria-hidden="true"></i>
+        </button>
+        }
+
+        @if (kbd(); as keys) {
+        @for (k of keys; track k) { <kbd class="fld__kbd">{{ k }}</kbd> }
+        }
+
+        @if (actionLabel()) {
+        <span class="fld__rule" aria-hidden="true"></span>
+        <button class="fld__btn" type="button" (click)="action.emit($event)">
+            {{ actionLabel() }}
+        </button>
+        }
+
+        <ng-content select="[elvTrail]" />
+    </span>
+</div>
+
+<div class="fld__assist" [class.is-open]="!!message() || showCounter()">
+    <div class="fld__assist-clip">
+        <div class="fld__assist-row">
+            @if (message(); as m) {
+            <p class="fld__msg" [id]="msgId" [attr.role]="status() === 'error' ? 'alert' : null"
+                [attr.aria-live]="status() === 'error' ? null : 'polite'">
+                @if (messageIcon(); as mi) { <i class="pi {{ mi }}" aria-hidden="true"></i> }
+                <span>{{ m }}</span>
+            </p>
+            } @else { <span></span> }
+
+            @if (showCounter()) {
+            <span class="fld__count" [class.fld__count--over]="counterOver()" [id]="countId" aria-live="off">{{
+                charCount() }}/{{ maxlength() }}</span>
+            }
+        </div>
+    </div>
+</div>
+
+<ng-template #control>
+    @if (multiline()) {
+    <textarea #field class="fld__input fld__input--area" [id]="inputId" [rows]="rows()" [value]="value() ?? ''"
+        [attr.name]="name()" [attr.placeholder]="placeholder() || null" [disabled]="isDisabled()"
+        [readOnly]="readonly()" [attr.required]="required() || null" [attr.maxlength]="maxlength()"
+        [attr.minlength]="minlength()" [attr.autocomplete]="autocomplete()" [attr.inputmode]="inputmode()"
+        [attr.aria-label]="labelMode() === 'hidden' ? label() || null : null"
+        [attr.aria-labelledby]="labelMode() !== 'hidden' && label() ? labelId : null"
+        [attr.aria-describedby]="describedBy()" [attr.aria-invalid]="status() === 'error'"
+        [attr.aria-busy]="status() === 'loading' ? 'true' : null" (input)="handleInput($event)"
+        (focus)="handleFocus($event)" (blur)="handleBlur($event)" (keydown)="handleKeydown($event)"></textarea>
+    } @else {
+    <input #field class="fld__input" [class.fld__input--mono]="mono()" [class.fld__input--num]="numeric()"
+        [id]="inputId" [type]="effectiveType()" [value]="value() ?? ''" [attr.name]="name()"
+        [attr.placeholder]="placeholder() || null" [disabled]="isDisabled()" [readOnly]="readonly()"
+        [attr.required]="required() || null" [attr.maxlength]="maxlength()" [attr.minlength]="minlength()"
+        [attr.min]="min()" [attr.max]="max()" [attr.step]="step()" [attr.autocomplete]="autocomplete()"
+        [attr.inputmode]="inputmode()" [attr.aria-label]="labelMode() === 'hidden' ? label() || null : null"
+        [attr.aria-labelledby]="labelMode() !== 'hidden' && label() ? labelId : null"
+        [attr.aria-describedby]="describedBy()" [attr.aria-invalid]="status() === 'error'"
+        [attr.aria-busy]="status() === 'loading' ? 'true' : null" (input)="handleInput($event)"
+        (focus)="handleFocus($event)" (blur)="handleBlur($event)" (keydown)="handleKeydown($event)" />
+    }
+</ng-template>

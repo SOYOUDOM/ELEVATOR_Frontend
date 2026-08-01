@@ -215,36 +215,57 @@
   </section>
 </div>
 
+<elv-field formControlName="name" label="Full name" icon="pi-user"
+           placeholder="As it appears on your ID"
+           hint="Appears at the top of every export." maxWidth="400" />
 
-<!-- The signature -->
-<ui-input label="Full name" appearance="aurora" shape="rounded" glow="focus" />
+<elv-field formControlName="email" label="Email" icon="pi-envelope" required />
+<elv-field formControlName="portfolio" label="Portfolio" icon="pi-link" optional
+           placeholder="dribbble.com/you" />
+           <elv-field formControlName="password" label="Password" type="password" (blurred)="true"
+           icon="pi-lock" revealable autocomplete="current-password" [kbd]="['⌘','K']"
+           hint="Twelve characters or more. A passphrase beats symbols." />
+           <elv-field formControlName="name" label="Full name" icon="pi-user"
+           labelMode="float" />
+           <elv-field formControlName="summary" label="Professional summary"
+           multiline [rows]="3" counter [maxlength]="400" class="w-200" icon="pi-file" optional
+           hint="Three sentences is the sweet spot.">
+  <button elvTrail class="ai-chip" type="button" >
+    <i class="pi pi-sparkles"></i> Rewrite with AI
+  </button>
+</elv-field>
+<elv-code-field formControlName="otp" label="Six-digit code"
+                [length]="6" [groupAfter]="3"
+                hint="Sent to oudom@elevator.dev. Paste works across all six." type="password" class="w-400"
+                >
+  <button elvCodeAction type="button" >Resend</button>
+</elv-code-field>
+<elv-field label="Filter" density="compact" labelMode="hidden" />  <!-- table filters -->
+<elv-field label="Email"  density="roomy" />                        <!-- onboarding -->
+<elv-field label="Access code" corner="sharp" />                    <!-- elv-button language -->
+<elv-field label="Search" corner="pill" icon="pi-search" />         <!-- command bars -->
+<elv-field  label="Phone" icon="pi-phone"
+           warning="We couldn’t verify this. You can still continue." />
 
-<!-- Search, Raycast-style. Escape clears. -->
-<ui-input
-  appearance="glass" shape="pill" size="lg"
-  leadingIcon="pi-search" labelMode="hidden" label="Search"
-  clearable
-  [animatedPlaceholder]="['Search templates…','Search skills…','Search roles…']"
-  (enter)="runSearch($event)" />
+<elv-field label="Username" icon="pi-at"
+           loading hint="Checking availability…" />
 
-<!-- Password with reveal + strength tone -->
-<ui-input label="Password" type="password" revealable
-          leadingIcon="pi-lock" [tone]="strengthTone()" />
+<elv-field formControlName="email" label="Email" />
+<elv-field label="AI prompt" icon="pi-sparkles" accent="#b45bff" maxWidth="400" />
+<form  class="stack">
+  <elv-field formControlName="name"  label="Full name" icon="pi-user" required />
+  <elv-field formControlName="email" label="Email" type="email"
+             icon="pi-envelope" required autocomplete="email" clearable />
+  <elv-field formControlName="bio"   label="Summary" multiline
+             counter [maxlength]="400" />
 
-<!-- HUD readout — pairs with notch + brackets -->
-<ui-input label="Target ID" appearance="hud" shape="notch" brackets
-          border="trail" glow="pulse" />
+  <app-elv-button variant="glow" type="submit" title="Save"/>
+</form>
 
-<!-- Dense table filter -->
-<ui-input appearance="minimal" size="xs" density="compact"
-          labelMode="hidden" label="Filter" placeholder="Filter…" />
-
-<!-- Auto-growing textarea. Use stacked labels for multiline. -->
-<ui-input label="Summary" multiline [rows]="4" labelMode="stacked"
-          counter [maxlength]="600" appearance="soft" shape="soft" />
-
-<!-- Projected content in the trailing slot -->
-<ui-input label="Amount" prefix="$" appearance="elevated">
-  <span uiTrail class="text-xs opacity-60">USD</span>
-</ui-input>
-
+<elv-field [width]="320" label="Full name" />
+<elv-field maxWidth="28rem" label="Email" />
+<elv-field width="clamp(240px, 40vw, 480px)" label="Search" [autoGrow]="true" [shake]="true"  [error]="'Error hx ah o'"/>
+<elv-field label="Summary" multiline>
+  <button elvTrail type="button">Rewrite with AI</button>
+</elv-field>
+<elv-code-field [length]="1" value="Console.log"></elv-code-field>

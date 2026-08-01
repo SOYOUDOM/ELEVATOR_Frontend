@@ -12,7 +12,7 @@ import { ElvChipComponent } from '@shared/components/elv-chip/elv-chip.component
 import {ElvCardComponent} from '@shared/components/elv-card/elv-card.component';
 import {ElvCircuitDirective} from '@shared/directives/elv-circuit.directive';
 import {FooterComponent} from '../footer.component';
-import {UiInputComponent} from '@shared/components/ui-input';
+import {ElvCodeFieldComponent, ElvFieldComponent} from '@shared/components/elv-field';
 
 
 
@@ -35,7 +35,7 @@ interface Step {
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, ButtonModule, ChipModule, BadgeModule, RippleModule, StatsComponent, RevealDirective, ElvButtonComponent, ElvChipComponent,ElvCardComponent,ElvCircuitDirective,UiInputComponent],
+  imports: [CommonModule, ButtonModule, ChipModule, BadgeModule, RippleModule, StatsComponent,ElvFieldComponent,ElvCodeFieldComponent, RevealDirective, ElvButtonComponent, ElvChipComponent,ElvCardComponent,ElvCircuitDirective],
   templateUrl: './landing.component.html',
   styleUrls: ['./landing.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -32,6 +32,7 @@ import { provideUiInput } from '@shared/components/ui-input';
 
 import { ElevatorPreset } from './app/theme/my-preset';
 import { CommonModule } from '@angular/common';
+import { provideElvField } from '@shared/components/elv-field';
 
 if (environment.production) {
     enableProdMode();
@@ -83,15 +84,9 @@ const bootstrap = () => {
                 },
             }),
             provideAnimationsAsync(),
-            provideUiInput({
-                defaults: {
-                    appearance: 'neon', // native ELEVATOR look
-                    shape: 'notch', // matches elv-button's chamfer
-                    size: 'md',
-                    glow: 'focus',
-                    labelMode: 'floating',
-                    validateOn: 'touched',
-                },
+
+            provideElvField({
+                defaults: { density: 'default', corner: 'soft', labelMode: 'stacked' },
             }),
         ],
     });
