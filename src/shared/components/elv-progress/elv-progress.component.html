@@ -1,0 +1,56 @@
+<div [class]="classes" [style.--_accent]="accentColor || null">
+    @if (shape === 'bar') {
+        @if (hasHeader) {
+            <div class="elv-progress__header">
+                @if (label) {
+                    <span class="elv-progress__label">{{ label }}</span>
+                }
+                @if (showValue && !indeterminate) {
+                    <span class="elv-progress__value">{{ displayValue }}</span>
+                }
+            </div>
+        }
+
+        <div
+            class="elv-progress__track"
+            role="progressbar"
+            [attr.aria-label]="resolvedAriaLabel"
+            [attr.aria-valuemin]="indeterminate ? null : 0"
+            [attr.aria-valuemax]="indeterminate ? null : 100"
+            [attr.aria-valuenow]="indeterminate ? null : percent"
+            [attr.aria-valuetext]="indeterminate ? null : displayValue">
+            <span class="elv-progress__fill" [style.width.%]="indeterminate ? null : percent"></span>
+        </div>
+    } @else {
+        <div
+            class="elv-progress__ring"
+            role="progressbar"
+            [attr.aria-label]="resolvedAriaLabel"
+            [attr.aria-valuemin]="indeterminate ? null : 0"
+            [attr.aria-valuemax]="indeterminate ? null : 100"
+            [attr.aria-valuenow]="indeterminate ? null : percent"
+            [attr.aria-valuetext]="indeterminate ? null : displayValue">
+            <svg viewBox="0 0 100 100" aria-hidden="true">
+                <circle class="elv-progress__ring-track" cx="50" cy="50" [attr.r]="ringRadius" />
+                <circle
+                    class="elv-progress__ring-fill"
+                    cx="50"
+                    cy="50"
+                    [attr.r]="ringRadius"
+                    [attr.stroke-dasharray]="ringCircumference"
+                    [attr.stroke-dashoffset]="ringDashOffset" />
+            </svg>
+
+            @if (showValue || label) {
+                <div class="elv-progress__ring-center">
+                    @if (showValue && !indeterminate) {
+                        <span class="elv-progress__value">{{ displayValue }}</span>
+                    }
+                    @if (label) {
+                        <span class="elv-progress__label">{{ label }}</span>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>

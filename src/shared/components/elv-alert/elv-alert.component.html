@@ -1,0 +1,28 @@
+@if (visible) {
+    <div [class]="classes" [style.--_accent]="accentColor || null" [attr.role]="role">
+        @if (bar) {
+            <span class="elv-alert__bar" aria-hidden="true"></span>
+        }
+
+        @if (resolvedIcon) {
+            <span class="elv-alert__icon" aria-hidden="true"><i class="pi {{ resolvedIcon }}"></i></span>
+        }
+
+        <div class="elv-alert__body">
+            @if (title) {
+                <p class="elv-alert__title">{{ title }}</p>
+            }
+            @if (text) {
+                <p class="elv-alert__text">{{ text }}</p>
+            }
+            <ng-content></ng-content>
+            <div class="elv-alert__actions"><ng-content select="[alert-actions]"></ng-content></div>
+        </div>
+
+        @if (dismissible) {
+            <button type="button" class="elv-alert__close" [attr.aria-label]="closeAriaLabel" (click)="dismiss()">
+                <i class="pi pi-times" aria-hidden="true"></i>
+            </button>
+        }
+    </div>
+}

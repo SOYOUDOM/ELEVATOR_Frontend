@@ -1,0 +1,244 @@
+// ── ELEVATOR Progress ──────────────────────────────────────────
+// Two shapes off one API: a track/fill bar and an SVG ring.
+:host {
+    display: block;
+}
+
+.elv-progress {
+    // per-instance accent (overridable via [style.--_accent] / accentColor)
+    --_accent: var(--p-elevator-accent);
+    // tone colour — every tone below rebinds this one variable
+    --_tone: var(--_accent);
+    // track thickness — sizes below rebind it for both shapes
+    --_thickness: 6px;
+
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        Roboto,
+        sans-serif;
+    color: var(--p-elevator-ink2);
+}
+
+// ── tones ──────────────────────────────────────────────────────
+.elv-progress--accent {
+    --_tone: var(--_accent);
+}
+.elv-progress--info {
+    --_tone: #5bd1ff;
+}
+.elv-progress--success {
+    --_tone: #5bffa6;
+}
+.elv-progress--warning {
+    --_tone: #ffd35b;
+}
+.elv-progress--danger {
+    --_tone: #ff5b6e;
+}
+.elv-progress--neutral {
+    --_tone: var(--p-elevator-ink3);
+}
+
+// ── header (label + readout) ───────────────────────────────────
+.elv-progress__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1em;
+    margin-bottom: 0.6em;
+}
+
+.elv-progress__label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--p-elevator-ink3);
+}
+
+.elv-progress__value {
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    color: var(--p-elevator-ink);
+}
+.elv-progress--glow .elv-progress__value {
+    color: var(--_tone);
+    text-shadow: 0 0 12px color-mix(in oklch, var(--_tone) 45%, transparent);
+}
+
+// ── bar ────────────────────────────────────────────────────────
+.elv-progress__track {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: var(--_thickness);
+    border: 1px solid var(--p-elevator-line);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.elv-progress__fill {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: var(--_tone);
+    transition: width 0.35s ease;
+}
+.elv-progress--glow .elv-progress__fill {
+    box-shadow: 0 0 12px color-mix(in oklch, var(--_tone) 55%, transparent);
+}
+
+// diagonal hatching over the fill
+.elv-progress--striped .elv-progress__fill {
+    background-image: linear-gradient(
+        115deg,
+        rgba(0, 0, 0, 0.25) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(0, 0, 0, 0.25) 50%,
+        rgba(0, 0, 0, 0.25) 75%,
+        transparent 75%
+    );
+    background-size: 0.9em 0.9em;
+    animation: elv-progress-stripes 0.9s linear infinite;
+}
+
+// unknown duration — a short sweep travelling the track
+.elv-progress--indeterminate .elv-progress__fill {
+    width: 35%;
+    transition: none;
+    animation: elv-progress-sweep 1.3s ease-in-out infinite;
+}
+
+// ── ring ───────────────────────────────────────────────────────
+.elv-progress__ring {
+    position: relative;
+    display: inline-flex;
+    width: 100%;
+    max-width: 8.5em;
+    aspect-ratio: 1;
+    svg {
+        width: 100%;
+        height: 100%;
+        // 12 o'clock start
+        transform: rotate(-90deg);
+        overflow: visible;
+    }
+    circle {
+        fill: none;
+        // thickness is expressed in the 100×100 viewBox, not in px
+        stroke-width: 8;
+    }
+}
+
+.elv-progress__ring-track {
+    stroke: var(--p-elevator-line);
+}
+
+.elv-progress__ring-fill {
+    stroke: var(--_tone);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.35s ease;
+}
+.elv-progress--glow .elv-progress__ring-fill {
+    filter: drop-shadow(0 0 6px color-mix(in oklch, var(--_tone) 55%, transparent));
+}
+
+.elv-progress--indeterminate .elv-progress__ring svg {
+    animation: elv-progress-spin 1.1s linear infinite;
+}
+.elv-progress--indeterminate .elv-progress__ring-fill {
+    transition: none;
+}
+
+.elv-progress__ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35em;
+    text-align: center;
+    pointer-events: none;
+}
+.elv-progress__ring-center .elv-progress__value {
+    font-size: 1.35em;
+}
+
+// ── corners (bar only — the ring is a circle) ───────────────────
+.elv-progress--notch .elv-progress__track {
+    clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+}
+.elv-progress--round .elv-progress__track {
+    border-radius: 4px;
+}
+.elv-progress--pill .elv-progress__track {
+    border-radius: 999px;
+}
+.elv-progress--sharp .elv-progress__track {
+    border-radius: 0;
+}
+
+// ── sizes ──────────────────────────────────────────────────────
+.elv-progress--small {
+    --_thickness: 4px;
+    font-size: 11px;
+}
+.elv-progress--small .elv-progress__ring {
+    max-width: 6em;
+}
+.elv-progress--medium {
+    --_thickness: 6px;
+    font-size: 12px;
+}
+.elv-progress--large {
+    --_thickness: 10px;
+    font-size: 13px;
+}
+.elv-progress--large .elv-progress__ring {
+    max-width: 11em;
+}
+.elv-progress--large .elv-progress__ring circle {
+    stroke-width: 6;
+}
+
+// ── motion ─────────────────────────────────────────────────────
+@keyframes elv-progress-sweep {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(340%);
+    }
+}
+
+@keyframes elv-progress-stripes {
+    to {
+        background-position: 0.9em 0;
+    }
+}
+
+@keyframes elv-progress-spin {
+    to {
+        transform: rotate(270deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .elv-progress__fill,
+    .elv-progress__ring-fill {
+        transition: none;
+    }
+    .elv-progress--striped .elv-progress__fill,
+    .elv-progress--indeterminate .elv-progress__fill,
+    .elv-progress--indeterminate .elv-progress__ring svg {
+        animation: none;
+    }
+    // no sweep to convey "busy" — fall back to a static half-filled track
+    .elv-progress--indeterminate .elv-progress__fill {
+        width: 50%;
+    }
+}

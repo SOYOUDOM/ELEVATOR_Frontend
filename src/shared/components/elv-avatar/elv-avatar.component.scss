@@ -1,0 +1,165 @@
+// ── ELEVATOR Avatar ────────────────────────────────────────────
+// The shape lives on __face, not on the host, so the status dot
+// can sit outside the clip-path of the notched variant.
+:host {
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+.elv-avatar {
+    // per-instance accent (overridable via [style.--_accent] / accentColor / autoColor)
+    --_accent: var(--p-elevator-accent);
+    // box size — the sizes below rebind this one variable
+    --_size: 2.5rem;
+
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    width: var(--_size);
+    height: var(--_size);
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        Roboto,
+        sans-serif;
+}
+
+// ── face (image / initials / icon share one box) ───────────────
+.elv-avatar__face {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    color: var(--_accent);
+    border: 1px solid var(--p-elevator-line-strong);
+    background: color-mix(in oklch, var(--_accent) 10%, var(--p-elevator-panel-hi, #111824));
+}
+
+.elv-avatar__img {
+    object-fit: cover;
+    // photos supply their own surface
+    background: var(--p-elevator-panel, #0a0e15);
+}
+
+.elv-avatar__initials {
+    font-size: calc(var(--_size) * 0.36);
+    font-weight: bold;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    user-select: none;
+}
+
+.elv-avatar__icon i {
+    font-size: calc(var(--_size) * 0.42);
+    line-height: 1;
+}
+
+// ── ring / glow ────────────────────────────────────────────────
+.elv-avatar--ring .elv-avatar__face {
+    border-color: var(--_accent);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--_accent) 14%, transparent);
+}
+
+.elv-avatar--glow .elv-avatar__face {
+    box-shadow:
+        0 0 0 3px color-mix(in oklch, var(--_accent) 14%, transparent),
+        0 0 16px color-mix(in oklch, var(--_accent) 45%, transparent);
+}
+
+// ── shapes ─────────────────────────────────────────────────────
+.elv-avatar--circle .elv-avatar__face {
+    border-radius: 999px;
+}
+.elv-avatar--round .elv-avatar__face {
+    border-radius: 0.55em;
+}
+.elv-avatar--square .elv-avatar__face {
+    border-radius: 0;
+}
+.elv-avatar--notch .elv-avatar__face {
+    border-radius: 0;
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+// clip-path cuts the ring off — restore it as an inset outline instead
+.elv-avatar--notch.elv-avatar--ring .elv-avatar__face,
+.elv-avatar--notch.elv-avatar--glow .elv-avatar__face {
+    box-shadow: inset 0 0 0 1px var(--_accent);
+}
+
+// ── presence dot ───────────────────────────────────────────────
+.elv-avatar__status {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 28%;
+    height: 28%;
+    min-width: 6px;
+    min-height: 6px;
+    border-radius: 999px;
+    // punch the dot out of the avatar surface
+    border: 2px solid var(--p-elevator-bg0, #04060a);
+    transform: translate(15%, 15%);
+}
+.elv-avatar__status--online {
+    background: #5bffa6;
+    box-shadow: 0 0 8px color-mix(in oklch, #5bffa6 55%, transparent);
+}
+.elv-avatar__status--idle {
+    background: #ffd35b;
+}
+.elv-avatar__status--busy {
+    background: #ff5b6e;
+}
+.elv-avatar__status--offline {
+    background: var(--p-elevator-ink4);
+}
+
+// ── sizes ──────────────────────────────────────────────────────
+.elv-avatar--xs {
+    --_size: 1.5rem;
+}
+.elv-avatar--xs .elv-avatar__status {
+    border-width: 1px;
+}
+.elv-avatar--sm {
+    --_size: 2rem;
+}
+.elv-avatar--sm .elv-avatar__status {
+    border-width: 1px;
+}
+.elv-avatar--md {
+    --_size: 2.5rem;
+}
+.elv-avatar--lg {
+    --_size: 3.5rem;
+}
+.elv-avatar--xl {
+    --_size: 5rem;
+}
+
+// ── interactive ────────────────────────────────────────────────
+.elv-avatar--interactive {
+    cursor: pointer;
+}
+.elv-avatar--interactive .elv-avatar__face {
+    transition:
+        border-color 0.25s,
+        box-shadow 0.25s;
+}
+.elv-avatar--interactive:hover .elv-avatar__face {
+    border-color: var(--_accent);
+}
+.elv-avatar--interactive:focus-visible {
+    outline: 2px solid var(--_accent);
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .elv-avatar--interactive .elv-avatar__face {
+        transition: none;
+    }
+}

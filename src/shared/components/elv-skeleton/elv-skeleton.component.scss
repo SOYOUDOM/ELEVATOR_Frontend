@@ -1,0 +1,147 @@
+// ── ELEVATOR Skeleton ──────────────────────────────────────────
+// Loading placeholders that hold the layout while data arrives.
+:host {
+    display: block;
+}
+
+.elv-skeleton {
+    // shared placeholder surface
+    --_fill: rgba(150, 180, 210, 0.09);
+    --_sheen: rgba(150, 180, 210, 0.18);
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.9em;
+}
+
+.elv-skeleton__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55em;
+}
+
+// ── the placeholder surface itself ─────────────────────────────
+.elv-skeleton__bar,
+.elv-skeleton__avatar {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    width: 100%;
+    height: 0.85em;
+    background: var(--_fill);
+}
+
+// ── shapes ─────────────────────────────────────────────────────
+.elv-skeleton--line .elv-skeleton__bar {
+    height: 0.85em;
+}
+
+// paragraph — the closing line is short, the way real text wraps
+.elv-skeleton--text .elv-skeleton__bar:last-child {
+    width: 62%;
+}
+
+.elv-skeleton--block .elv-skeleton__bar {
+    height: 8em;
+}
+
+.elv-skeleton--circle .elv-skeleton__bar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    // the shape is the point here — never let a corner class flatten it
+    aspect-ratio: 1;
+}
+
+.elv-skeleton--chip .elv-skeleton__bar {
+    width: 5.5em;
+    height: 1.9em;
+}
+
+// avatar beside a two-line block — the list-row case
+.elv-skeleton--avatar-text .elv-skeleton__item {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.9em;
+}
+.elv-skeleton__avatar {
+    flex: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+}
+.elv-skeleton__lines {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 0.5em;
+    min-width: 0;
+}
+.elv-skeleton__lines .elv-skeleton__bar:last-child {
+    width: 45%;
+}
+
+// ── corners ────────────────────────────────────────────────────
+.elv-skeleton--notch .elv-skeleton__bar {
+    clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+}
+.elv-skeleton--round .elv-skeleton__bar {
+    border-radius: 6px;
+}
+.elv-skeleton--pill .elv-skeleton__bar {
+    border-radius: 999px;
+}
+.elv-skeleton--sharp .elv-skeleton__bar {
+    border-radius: 0;
+}
+// circles keep their radius whatever the corner axis says
+.elv-skeleton--circle .elv-skeleton__bar {
+    border-radius: 999px;
+    clip-path: none;
+}
+
+// ── animation ──────────────────────────────────────────────────
+.elv-skeleton--anim-shimmer .elv-skeleton__bar::after,
+.elv-skeleton--anim-shimmer .elv-skeleton__avatar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, var(--_sheen), transparent);
+    transform: translateX(-100%);
+    animation: elv-skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.elv-skeleton--anim-pulse .elv-skeleton__bar,
+.elv-skeleton--anim-pulse .elv-skeleton__avatar {
+    animation: elv-skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes elv-skeleton-shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes elv-skeleton-pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.45;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .elv-skeleton--anim-shimmer .elv-skeleton__bar::after,
+    .elv-skeleton--anim-shimmer .elv-skeleton__avatar::after {
+        animation: none;
+        // a static sheen still reads as "not real content"
+        transform: none;
+        background: none;
+    }
+    .elv-skeleton--anim-pulse .elv-skeleton__bar,
+    .elv-skeleton--anim-pulse .elv-skeleton__avatar {
+        animation: none;
+    }
+}

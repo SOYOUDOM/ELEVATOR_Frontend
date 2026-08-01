@@ -1,0 +1,26 @@
+<div [class]="classes" role="status" [attr.aria-label]="ariaLabel" aria-busy="true">
+    @for (item of items; track $index) {
+        <div class="elv-skeleton__item">
+            @switch (shape) {
+                @case ('text') {
+                    @for (line of lineItems; track $index) {
+                        <span class="elv-skeleton__bar" [style.height]="height || null"></span>
+                    }
+                }
+                @case ('avatar-text') {
+                    <span class="elv-skeleton__avatar" [style.width]="width || null"></span>
+                    <span class="elv-skeleton__lines">
+                        <span class="elv-skeleton__bar"></span>
+                        <span class="elv-skeleton__bar"></span>
+                    </span>
+                }
+                @default {
+                    <span
+                        class="elv-skeleton__bar"
+                        [style.width]="width || null"
+                        [style.height]="height || null"></span>
+                }
+            }
+        </div>
+    }
+</div>

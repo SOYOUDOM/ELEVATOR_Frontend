@@ -1,0 +1,29 @@
+<div [class]="classes" [style.--_accent]="accentColor || null">
+    @if (ticks) {
+        <span class="elv-empty__tick elv-empty__tick--tl" aria-hidden="true"></span>
+        <span class="elv-empty__tick elv-empty__tick--br" aria-hidden="true"></span>
+    }
+
+    @if (resolvedIcon) {
+        <span class="elv-empty__icon" aria-hidden="true"><i class="pi {{ resolvedIcon }}"></i></span>
+    }
+
+    @if (eyebrow) {
+        <p class="elv-empty__eyebrow">{{ eyebrow }}</p>
+    }
+    @if (title) {
+        <p class="elv-empty__title">{{ title }}</p>
+    }
+    @if (text) {
+        <p class="elv-empty__text">{{ text }}</p>
+    }
+
+    <div class="elv-empty__body"><ng-content></ng-content></div>
+
+    <div class="elv-empty__actions">
+        @if (actionTitle) {
+            <button type="button" class="elv-empty__action" (click)="onAction($event)">{{ actionTitle }}</button>
+        }
+        <ng-content select="[empty-actions]"></ng-content>
+    </div>
+</div>
