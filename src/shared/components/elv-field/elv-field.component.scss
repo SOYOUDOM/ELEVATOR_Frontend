@@ -1,378 +1,728 @@
 /* ══════════════════════════════════════════════════════════════════════
    ELEVATOR — elv-field
    ----------------------------------------------------------------------
-   Five lighting layers in ONE box-shadow declaration, driven by custom
-   properties. State classes change only the properties, never the
-   declaration — the cascade stays flat and predictable.
+   THE GLOW RULE: the border used to be the glow, so focus had to shout.
+   Here five lighting layers share ONE box-shadow declaration, and the
+   focus signal is carried by a CRISP 3px ring at 11% alpha — zero blur.
+   That frees the ambient bloom to stay a whisper (18px blur, -8px spread)
+   instead of the blurred slab it replaced.
 
-     inset 0 0 0 1px               L3 · border, always 1px
-     inset 0 1px 0                 L4 · gloss top   ┐ the glass read
-     inset 0 -1px 0                L4 · gloss bottom┘
-     0 1px 2px                     ——  contact shadow, neutral black
-     0 0 0 var(--elv-ring-w)       L2 · focus ring — crisp, zero blur
-     0 0 var(--elv-amb-b) …        L1 · ambient — whisper, tone-tinted
+     inset 0 0 0 1px                L3 · border, always 1px, never thicker
+     inset 0 1px 0                  L4 · gloss top    ┐ the glass read
+     inset 0 -1px 0                 L4 · gloss bottom ┘
+     0 1px 2px                      ——  contact shadow, neutral black
+     0 0 0 var(--elv-ring-w)        L2 · focus ring, crisp, offset
+     0 0 var(--elv-amb-b) …         L1 · ambient, low alpha, tone-tinted
 
-   L5 (sheen) is the one thing a shadow can't do: a single ::after that
-   sweeps once when focus lands.
+   L5 (specular sheen) is the one thing a shadow can't do — a single
+   ::after that sweeps once when focus lands.
 
-   The focus ring carries the focus signal. That is what lets the bloom
-   stay almost invisible instead of the blurred slab it replaced.
+   State classes change only the custom properties, never the declaration,
+   so the cascade stays flat and predictable.
    ══════════════════════════════════════════════════════════════════════ */
 
 :host {
-  /* Bridged to src/app/theme/my-preset.ts, fallbacks baked in so the
-     component is correct even if the preset never loads. */
-  --elv-accent:  var(--p-elevator-accent, #ffd35b);
-  --elv-ink:     var(--p-elevator-ink,  #e9edf5);
-  --elv-ink-2:   var(--p-elevator-ink2, #9ba6ba);
-  --elv-ink-3:   var(--p-elevator-ink3, #6a7488);
-  --elv-ink-4:   var(--p-elevator-ink4, #4b5468);
-  --elv-line:     rgba(158, 180, 215, .085);
-  --elv-line-hi:  rgba(158, 180, 215, .145);
-  --elv-line-max: rgba(158, 180, 215, .26);
+    /* Bridged to src/app/theme/my-preset.ts, with the literal fallback baked
+     in so the component is correct even if the preset never loads. */
+    --elv-accent: var(--p-elevator-accent, #ffd35b);
+    --elv-ink: var(--p-elevator-ink, #e9edf5);
+    --elv-ink-2: var(--p-elevator-ink2, #9ba6ba);
+    --elv-ink-3: var(--p-elevator-ink3, #6a7488);
+    --elv-ink-4: var(--p-elevator-ink4, #4b5468);
+    --elv-line: rgba(158, 180, 215, 0.085);
+    --elv-line-hi: rgba(158, 180, 215, 0.145);
+    --elv-line-max: rgba(158, 180, 215, 0.26);
 
-  --elv-success: #35d6a0;
-  --elv-danger:  #fb7185;
-  --elv-warning: #fb923c;   /* orange, not amber — amber is the brand accent */
-  --elv-info:    #60a5fa;
+    --elv-success: #35d6a0;
+    --elv-danger: #fb7185;
+    --elv-warning: #fb923c; /* orange, not amber — amber is the brand accent */
+    --elv-info: #60a5fa;
 
-  --elv-ease:   cubic-bezier(.2, .7, .2, 1);
-  --elv-expo:   cubic-bezier(.16, 1, .3, 1);
-  --elv-spring: cubic-bezier(.34, 1.5, .64, 1);
+    --elv-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+    --elv-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --elv-spring: cubic-bezier(0.34, 1.5, 0.64, 1);
 
-  --elv-radius: 10px;
-  --elv-h:  44px;
-  --elv-fs: 14.5px;
-  --elv-pad-x: 12px;
+    --elv-radius: 10px;
+    --elv-h: 44px;
+    --elv-fs: 14.5px;
+    --elv-pad-x: 12px;
 
-  --elv-font: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
-  --elv-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --elv-font: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+    --elv-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  display: block;
-  font-family: var(--elv-font);
-  color: var(--elv-ink);
-  -webkit-tap-highlight-color: transparent;
-  
+    display: block;
+    font-family: var(--elv-font);
+    color: var(--elv-ink);
+    -webkit-tap-highlight-color: transparent;
 }
-:host, :host *, :host *::before, :host *::after { box-sizing: border-box; }
+:host,
+:host *,
+:host *::before,
+:host *::after {
+    box-sizing: border-box;
+}
 
-:host([data-density='compact']) { --elv-h: 36px; --elv-fs: 13.5px; --elv-pad-x: 10px; }
-:host([data-density='roomy'])   { --elv-h: 52px; --elv-fs: 15.5px; --elv-pad-x: 14px; }
+:host([data-density='compact']) {
+    --elv-h: 36px;
+    --elv-fs: 13.5px;
+    --elv-pad-x: 10px;
+}
+:host([data-density='roomy']) {
+    --elv-h: 52px;
+    --elv-fs: 15.5px;
+    --elv-pad-x: 14px;
+}
 
-:host([data-corner='sharp']) { --elv-radius: 0; }
-:host([data-corner='pill'])  { --elv-radius: 999px; --elv-pad-x: 18px; }
+:host([data-corner='sharp']) {
+    --elv-radius: 0;
+}
+:host([data-corner='pill']) {
+    --elv-radius: 999px;
+    --elv-pad-x: 18px;
+}
 
 /* ── label ───────────────────────────────────────────────────────────── */
 .fld__label {
-  display: flex; align-items: center; gap: 7px;
-  margin-bottom: 7px;
-  font-size: 11px; font-weight: 600; letter-spacing: .085em;
-  text-transform: uppercase; color: var(--elv-ink-3);
-  user-select: none;
-  transition: color .22s var(--elv-ease);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 7px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.085em;
+    text-transform: uppercase;
+    color: var(--elv-ink-3);
+    user-select: none;
+    transition: color 0.22s var(--elv-ease);
 }
-:host(.is-focus) .fld__label { color: var(--elv-ink-2); }
-.fld__req { color: var(--elv-danger); font-size: 13px; line-height: 0; }
+:host(.is-focus) .fld__label {
+    color: var(--elv-ink-2);
+}
+
+.fld__req {
+    color: var(--elv-danger);
+    font-size: 13px;
+    line-height: 0;
+}
 .fld__opt {
-  font-family: var(--elv-mono); font-size: 9.5px; letter-spacing: .1em;
-  color: var(--elv-ink-4); border: 1px solid var(--elv-line);
-  padding: 2px 5px; border-radius: 4px;
+    font-family: var(--elv-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    color: var(--elv-ink-4);
+    border: 1px solid var(--elv-line);
+    padding: 2px 5px;
+    border-radius: 4px;
 }
 
-/* ── the box ─────────────────────────────────────────────────────────── */
+/* ── the box: one shadow stack, five slots ───────────────────────────── */
 .fld__box {
-  --elv-tone: var(--elv-accent);
-  --elv-bd: var(--elv-line-hi);
-  --elv-gloss: rgba(255, 255, 255, .042);
-  --elv-ring-w: 0px;
-  --elv-ring-c: transparent;
-  --elv-amb-b: 0px;
-  --elv-amb-s: 0px;
-  --elv-amb-c: transparent;
-  --elv-fill: linear-gradient(180deg, #10141c, #0b0e15);
+    --elv-tone: var(--elv-accent);
+    --elv-bd: var(--elv-line-hi);
+    --elv-gloss: rgba(255, 255, 255, 0.042);
+    --elv-ring-w: 0px;
+    --elv-ring-c: transparent;
+    --elv-amb-b: 0px;
+    --elv-amb-s: 0px;
+    --elv-amb-c: transparent;
+    --elv-fill: linear-gradient(180deg, #10141c, #0b0e15);
 
-  position: relative; isolation: isolate;
-  display: flex; align-items: center; gap: 10px;
-  min-height: var(--elv-h);
-  padding: 0 var(--elv-pad-x);
-  border-radius: var(--elv-radius);
-  background: var(--elv-fill);
-  box-shadow:
-    inset 0 0 0 1px var(--elv-bd),
-    inset 0 1px 0 var(--elv-gloss),
-    inset 0 -1px 0 rgba(0, 0, 0, .34),
-    0 1px 2px rgba(0, 0, 0, .45),
-    0 0 0 var(--elv-ring-w) var(--elv-ring-c),
-    0 0 var(--elv-amb-b) var(--elv-amb-s) var(--elv-amb-c);
-  transition: box-shadow .26s var(--elv-ease), background .26s var(--elv-ease);
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: var(--elv-h);
+    padding: 0 var(--elv-pad-x);
+    border-radius: var(--elv-radius);
+    background: var(--elv-fill);
+    box-shadow:
+        inset 0 0 0 1px var(--elv-bd),
+        inset 0 1px 0 var(--elv-gloss),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.34),
+        0 1px 2px rgba(0, 0, 0, 0.45),
+        0 0 0 var(--elv-ring-w) var(--elv-ring-c),
+        0 0 var(--elv-amb-b) var(--elv-amb-s) var(--elv-amb-c);
+    transition:
+        box-shadow 0.26s var(--elv-ease),
+        background 0.26s var(--elv-ease);
 }
-:host(.is-multiline) .fld__box { align-items: flex-start; }
+:host(.is-multiline) .fld__box {
+    align-items: flex-start;
+}
 
-/* L5 · sheen */
+/* L5 · specular sheen — one pass when focus lands. */
 .fld__box::after {
-  content: ''; position: absolute; inset: 0;
-  border-radius: inherit; pointer-events: none; overflow: hidden;
-  background: linear-gradient(104deg, transparent 42%, rgba(255,255,255,.085) 50%, transparent 58%);
-  background-size: 260% 100%; background-position: 165% 0;
-  opacity: 0;
-  transition: background-position .85s var(--elv-expo), opacity .3s var(--elv-ease);
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    overflow: hidden;
+    background: linear-gradient(104deg, transparent 42%, rgba(255, 255, 255, 0.085) 50%, transparent 58%);
+    background-size: 260% 100%;
+    background-position: 165% 0;
+    opacity: 0;
+    transition:
+        background-position 0.85s var(--elv-expo),
+        opacity 0.3s var(--elv-ease);
 }
 .fld__box:focus-within::after,
-:host(.is-focus) .fld__box::after { background-position: -65% 0; opacity: 1; }
-
-/* hover — border lifts one step, nothing blooms */
-.fld__box:hover {
-  --elv-bd: var(--elv-line-max);
-  --elv-fill: linear-gradient(180deg, #131822, #0d1118);
+:host(.is-focus) .fld__box::after {
+    background-position: -65% 0;
+    opacity: 1;
 }
 
-/* focus — the crisp ring does the work */
+/* hover — the border lifts one step. Nothing blooms; that's a focus signal. */
+.fld__box:hover {
+    --elv-bd: var(--elv-line-max);
+    --elv-fill: linear-gradient(180deg, #131822, #0d1118);
+}
+
+/* focus — the crisp ring does the work, the bloom stays subordinate */
 .fld__box:focus-within,
 :host(.is-focus) .fld__box {
-  --elv-bd: color-mix(in oklab, var(--elv-tone) 50%, transparent);
-  --elv-gloss: rgba(255, 255, 255, .07);
-  --elv-ring-w: 3px;
-  --elv-ring-c: color-mix(in oklab, var(--elv-tone) 11%, transparent);
-  --elv-amb-b: 18px;
-  --elv-amb-s: -8px;
-  --elv-amb-c: color-mix(in oklab, var(--elv-tone) 42%, transparent);
-  --elv-fill: linear-gradient(180deg, #141924, #0d1119);
+    --elv-bd: color-mix(in oklab, var(--elv-tone) 50%, transparent);
+    --elv-gloss: rgba(255, 255, 255, 0.07);
+    --elv-ring-w: 3px;
+    --elv-ring-c: color-mix(in oklab, var(--elv-tone) 11%, transparent);
+    --elv-amb-b: 18px;
+    --elv-amb-s: -8px;
+    --elv-amb-c: color-mix(in oklab, var(--elv-tone) 42%, transparent);
+    --elv-fill: linear-gradient(180deg, #141924, #0d1119);
 }
 
-/* ── tone states — only --elv-tone changes; everything follows ───────── */
-:host(.is-success) .fld__box { --elv-tone: var(--elv-success); --elv-bd: color-mix(in oklab, var(--elv-success) 46%, transparent); }
-:host(.is-error)   .fld__box { --elv-tone: var(--elv-danger);  --elv-bd: color-mix(in oklab, var(--elv-danger)  52%, transparent); }
-:host(.is-warning) .fld__box { --elv-tone: var(--elv-warning); --elv-bd: color-mix(in oklab, var(--elv-warning) 48%, transparent); }
-:host(.is-loading) .fld__box { --elv-tone: var(--elv-info);    --elv-bd: color-mix(in oklab, var(--elv-info)    44%, transparent); }
-
-:host(.is-success) .fld__box, :host(.is-error) .fld__box,
-:host(.is-warning) .fld__box, :host(.is-loading) .fld__box {
-  --elv-amb-b: 16px; --elv-amb-s: -10px;
-  --elv-amb-c: color-mix(in oklab, var(--elv-tone) 38%, transparent);
+/* ── tone states — only --elv-tone changes; everything follows ────────
+   :host(.is-x) .fld__box is (0,3,0), so it outranks the (0,2,0) focus
+   rule above. The focused variants below are (0,4,0) and win over both. */
+:host(.is-success) .fld__box {
+    --elv-tone: var(--elv-success);
+    --elv-bd: color-mix(in oklab, var(--elv-success) 46%, transparent);
+}
+:host(.is-error) .fld__box {
+    --elv-tone: var(--elv-danger);
+    --elv-bd: color-mix(in oklab, var(--elv-danger) 52%, transparent);
+}
+:host(.is-warning) .fld__box {
+    --elv-tone: var(--elv-warning);
+    --elv-bd: color-mix(in oklab, var(--elv-warning) 48%, transparent);
+}
+:host(.is-loading) .fld__box {
+    --elv-tone: var(--elv-info);
+    --elv-bd: color-mix(in oklab, var(--elv-info) 44%, transparent);
 }
 
-:host(.is-success) .fld__box:focus-within, :host(.is-success.is-focus) .fld__box,
-:host(.is-error)   .fld__box:focus-within, :host(.is-error.is-focus)   .fld__box,
-:host(.is-warning) .fld__box:focus-within, :host(.is-warning.is-focus) .fld__box,
-:host(.is-loading) .fld__box:focus-within, :host(.is-loading.is-focus) .fld__box {
-  --elv-bd: color-mix(in oklab, var(--elv-tone) 72%, transparent);
-  --elv-ring-w: 3px;
-  --elv-ring-c: color-mix(in oklab, var(--elv-tone) 13%, transparent);
-  --elv-amb-b: 20px; --elv-amb-s: -8px;
+:host(.is-success) .fld__box,
+:host(.is-error) .fld__box,
+:host(.is-warning) .fld__box,
+:host(.is-loading) .fld__box {
+    --elv-amb-b: 16px;
+    --elv-amb-s: -10px;
+    --elv-amb-c: color-mix(in oklab, var(--elv-tone) 38%, transparent);
 }
 
-:host(.is-disabled) { opacity: .42; }
-:host(.is-disabled) .fld__box { --elv-fill: #0a0d13; --elv-bd: var(--elv-line); cursor: not-allowed; }
-:host(.is-disabled) .fld__input { cursor: not-allowed; }
-:host(.is-readonly) .fld__box { --elv-fill: #090c11; --elv-bd: var(--elv-line); }
-:host(.is-readonly) .fld__input { cursor: default; }
+:host(.is-success) .fld__box:focus-within,
+:host(.is-success.is-focus) .fld__box,
+:host(.is-error) .fld__box:focus-within,
+:host(.is-error.is-focus) .fld__box,
+:host(.is-warning) .fld__box:focus-within,
+:host(.is-warning.is-focus) .fld__box,
+:host(.is-loading) .fld__box:focus-within,
+:host(.is-loading.is-focus) .fld__box {
+    --elv-bd: color-mix(in oklab, var(--elv-tone) 72%, transparent);
+    --elv-ring-w: 3px;
+    --elv-ring-c: color-mix(in oklab, var(--elv-tone) 13%, transparent);
+    --elv-amb-b: 20px;
+    --elv-amb-s: -8px;
+}
+
+/* disabled = not applicable, dim everything.
+   readonly = still matters, keep the value bright. */
+:host(.is-disabled) {
+    opacity: 0.42;
+}
+:host(.is-disabled) .fld__box {
+    --elv-fill: #0a0d13;
+    --elv-bd: var(--elv-line);
+    cursor: not-allowed;
+}
+:host(.is-disabled) .fld__input {
+    cursor: not-allowed;
+}
+:host(.is-readonly) .fld__box {
+    --elv-fill: #090c11;
+    --elv-bd: var(--elv-line);
+}
+:host(.is-readonly) .fld__input {
+    cursor: default;
+}
 
 /* ── innards ─────────────────────────────────────────────────────────── */
-.fld__icon { font-size: 15px; color: var(--elv-ink-4); flex: none; transition: color .22s var(--elv-ease); }
-:host(.is-focus) .fld__icon   { color: var(--elv-ink-2); }
-:host(.is-error) .fld__icon   { color: color-mix(in oklab, var(--elv-danger) 72%, var(--elv-ink-3)); }
-:host(.is-success) .fld__icon { color: color-mix(in oklab, var(--elv-success) 66%, var(--elv-ink-3)); }
+.fld__icon {
+    font-size: 15px;
+    color: var(--elv-ink-4);
+    flex: none;
+    transition: color 0.22s var(--elv-ease);
+}
+:host(.is-focus) .fld__icon {
+    color: var(--elv-ink-2);
+}
+:host(.is-error) .fld__icon {
+    color: color-mix(in oklab, var(--elv-danger) 72%, var(--elv-ink-3));
+}
+:host(.is-success) .fld__icon {
+    color: color-mix(in oklab, var(--elv-success) 66%, var(--elv-ink-3));
+}
+
+.fld__stack {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+/* Space is reserved only in float mode, so the box height never shifts
+   when the label rises. */
+:host([data-label-mode='float']) .fld__stack {
+    padding-top: 13px;
+}
+:host([data-label-mode='float']) .fld__input {
+    line-height: 1.35;
+}
 
 .fld__input {
-  flex: 1 1 auto; min-width: 0;
-  margin: 0; padding: 0; border: 0; outline: 0; background: none;
-  color: var(--elv-ink); font-family: inherit;
-  font-size: var(--elv-fs); line-height: 1.5; letter-spacing: -.006em;
-  caret-color: var(--elv-tone, var(--elv-accent));
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    color: var(--elv-ink);
+    font-family: inherit;
+    font-size: var(--elv-fs);
+    line-height: 1.5;
+    letter-spacing: -0.006em;
+    caret-color: var(--elv-tone, var(--elv-accent));
 }
-.fld__input::placeholder { color: var(--elv-ink-4); }
-.fld__input::selection { background: color-mix(in oklab, var(--elv-accent) 26%, transparent); color: #fff; }
-.fld__input--mono, .fld__input--num { font-family: var(--elv-mono); font-variant-numeric: tabular-nums; }
-.fld__input--area { resize: none; overflow: hidden; padding: 12px 0; line-height: 1.62; display: block; }
-.fld__input[type='number'] { -moz-appearance: textfield; appearance: textfield; }
-.fld__input::-webkit-outer-spin-button,
-.fld__input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.fld__input::-webkit-search-cancel-button { -webkit-appearance: none; }
+.fld__input::placeholder {
+    color: var(--elv-ink-4);
+}
+.fld__input::selection {
+    background: color-mix(in oklab, var(--elv-accent) 26%, transparent);
+    color: #fff;
+}
+.fld__input--mono,
+.fld__input--num {
+    font-family: var(--elv-mono);
+    font-variant-numeric: tabular-nums;
+}
+.fld__input--area {
+    resize: none;
+    overflow: hidden;
+    padding: 12px 0;
+    line-height: 1.62;
+    display: block;
+}
 
-/* Chrome's autofill slab, neutralised. */
+.fld__input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+.fld__input::-webkit-outer-spin-button,
+.fld__input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.fld__input::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+}
+
+/* Chrome's autofill slab. The 9999s transition is the only way to stop it
+   repainting; -webkit-text-fill-color is the only way to recolour the text. */
 .fld__input:-webkit-autofill,
 .fld__input:-webkit-autofill:hover,
 .fld__input:-webkit-autofill:focus {
-  -webkit-text-fill-color: var(--elv-ink);
-  -webkit-box-shadow: 0 0 0 1000px transparent inset;
-  caret-color: var(--elv-tone);
-  transition: background-color 9999s ease-out 0s;
+    -webkit-text-fill-color: var(--elv-ink);
+    -webkit-box-shadow: 0 0 0 1000px transparent inset;
+    caret-color: var(--elv-tone);
+    transition: background-color 9999s ease-out 0s;
 }
 
-.fld__trail { display: flex; align-items: center; gap: 4px; flex: none; }
-.fld__trail--corner { position: absolute; right: 10px; bottom: 10px; }
+.fld__trail {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: none;
+}
+.fld__trail--corner {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
 
 .fld__act {
-  display: grid; place-items: center;
-  width: 26px; height: 26px; padding: 0; border: 0; border-radius: 6px;
-  background: transparent; color: var(--elv-ink-4); cursor: pointer;
-  font-size: 13px;
-  transition: color .16s var(--elv-ease), background-color .16s var(--elv-ease),
-              transform .16s var(--elv-spring);
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--elv-ink-4);
+    cursor: pointer;
+    font-size: 13px;
+    transition:
+        color 0.16s var(--elv-ease),
+        background-color 0.16s var(--elv-ease),
+        transform 0.16s var(--elv-spring);
 }
-.fld__act:hover { color: var(--elv-ink); background: rgba(255, 255, 255, .06); }
-.fld__act:active { transform: scale(.88); }
-.fld__act:focus-visible { outline: 2px solid var(--elv-tone, var(--elv-accent)); outline-offset: 1px; color: var(--elv-ink); }
+.fld__act:hover {
+    color: var(--elv-ink);
+    background: rgba(255, 255, 255, 0.06);
+}
+.fld__act:active {
+    transform: scale(0.88);
+}
+.fld__act:focus-visible {
+    outline: 2px solid var(--elv-tone, var(--elv-accent));
+    outline-offset: 1px;
+    color: var(--elv-ink);
+}
 
-.fld__status { font-size: 14px; flex: none; animation: elv-pop .34s var(--elv-spring) both; }
-:host(.is-success) .fld__status { color: var(--elv-success); }
-:host(.is-error)   .fld__status { color: var(--elv-danger); }
-:host(.is-warning) .fld__status { color: var(--elv-warning); }
+.fld__status {
+    font-size: 14px;
+    flex: none;
+    animation: elv-pop 0.34s var(--elv-spring) both;
+}
+:host(.is-error) .fld__status {
+    color: var(--elv-danger);
+}
+:host(.is-warning) .fld__status {
+    color: var(--elv-warning);
+}
+
+/* 26 ≈ the tick's path length, so the dash covers it exactly. */
+.fld__check {
+    width: 16px;
+    height: 16px;
+    flex: none;
+    overflow: visible;
+}
+.fld__check path {
+    fill: none;
+    stroke: var(--elv-success);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 26;
+    animation: elv-draw 0.46s var(--elv-expo) both;
+}
 
 .fld__spin {
-  width: 14px; height: 14px; flex: none; border-radius: 50%;
-  background: conic-gradient(from 0deg, transparent 0 22%, var(--elv-info) 100%);
-  -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 2px), #000 calc(100% - 2px));
-          mask: radial-gradient(farthest-side, #0000 calc(100% - 2px), #000 calc(100% - 2px));
-  animation: elv-spin .7s linear infinite;
+    width: 14px;
+    height: 14px;
+    flex: none;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, transparent 0 22%, var(--elv-info) 100%);
+    -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 2px), #000 calc(100% - 2px));
+    mask: radial-gradient(farthest-side, #0000 calc(100% - 2px), #000 calc(100% - 2px));
+    animation: elv-spin 0.7s linear infinite;
 }
 
 .fld__seg {
-  display: flex; align-items: center; gap: 7px; flex: none;
-  color: var(--elv-ink-3); font-size: 13.5px; user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex: none;
+    color: var(--elv-ink-3);
+    font-size: 13.5px;
+    user-select: none;
 }
+/* Fades at both ends instead of butting into the border. */
 .fld__rule {
-  width: 1px; align-self: stretch; margin: 9px 2px; flex: none;
-  background: linear-gradient(180deg, transparent, var(--elv-line-hi) 22%, var(--elv-line-hi) 78%, transparent);
+    width: 1px;
+    align-self: stretch;
+    margin: 9px 2px;
+    flex: none;
+    background: linear-gradient(180deg, transparent, var(--elv-line-hi) 22%, var(--elv-line-hi) 78%, transparent);
 }
-.fld__unit { color: var(--elv-ink-4); font-size: 12.5px; font-family: var(--elv-mono); flex: none; }
+.fld__unit {
+    color: var(--elv-ink-4);
+    font-size: 12.5px;
+    font-family: var(--elv-mono);
+    flex: none;
+}
 
 .fld__btn {
-  border: 0; border-radius: 7px; cursor: pointer; flex: none;
-  padding: 6px 11px; margin-right: -4px;
-  background: rgba(255, 255, 255, .07); color: var(--elv-ink);
-  font-family: inherit; font-size: 12.5px; font-weight: 550;
-  transition: background-color .18s var(--elv-ease), transform .16s var(--elv-spring);
+    border: 0;
+    border-radius: 7px;
+    cursor: pointer;
+    flex: none;
+    padding: 6px 11px;
+    margin-right: -4px;
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--elv-ink);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 550;
+    transition:
+        background-color 0.18s var(--elv-ease),
+        transform 0.16s var(--elv-spring);
 }
-.fld__btn:hover { background: rgba(255, 255, 255, .12); }
-.fld__btn:active { transform: scale(.96); }
-.fld__btn:focus-visible { outline: 2px solid var(--elv-accent); outline-offset: 2px; }
+.fld__btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+.fld__btn:active {
+    transform: scale(0.96);
+}
+.fld__btn:focus-visible {
+    outline: 2px solid var(--elv-accent);
+    outline-offset: 2px;
+}
 
 .fld__kbd {
-  display: grid; place-items: center; min-width: 19px; height: 19px; padding: 0 5px;
-  border: 1px solid var(--elv-line-hi); border-bottom-width: 2px; border-radius: 5px;
-  background: rgba(255, 255, 255, .03);
-  font-family: var(--elv-mono); font-size: 10.5px; color: var(--elv-ink-3);
+    display: grid;
+    place-items: center;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 5px;
+    border: 1px solid var(--elv-line-hi);
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.03);
+    font-family: var(--elv-mono);
+    font-size: 10.5px;
+    color: var(--elv-ink-3);
 }
 
-/* ── floating label ──────────────────────────────────────────────────── */
-.fld__stack {
-  position: relative; flex: 1 1 auto; min-width: 0;
-  display: flex; flex-direction: column; justify-content: center;
-  padding-top: 13px;
-}
-.fld__stack .fld__input { line-height: 1.35; }
+/* ── floating label — transform only, never layout ───────────────────── */
 .fld__label--float {
-  position: absolute; left: 0; top: 50%; margin: 0;
-  transform-origin: left center;
-  transform: translateY(-50%) scale(1);
-  font-size: var(--elv-fs); font-weight: 400; letter-spacing: -.006em;
-  text-transform: none; color: var(--elv-ink-4); pointer-events: none;
-  transition: transform .26s var(--elv-expo), color .22s var(--elv-ease),
-              letter-spacing .26s var(--elv-expo);
+    position: absolute;
+    left: 0;
+    top: 50%;
+    margin: 0;
+    transform-origin: left center;
+    transform: translateY(-50%) scale(1);
+    font-size: var(--elv-fs);
+    font-weight: 400;
+    letter-spacing: -0.006em;
+    text-transform: none;
+    color: var(--elv-ink-4);
+    pointer-events: none;
+    transition:
+        transform 0.26s var(--elv-expo),
+        color 0.22s var(--elv-ease),
+        letter-spacing 0.26s var(--elv-expo);
 }
 :host(.is-floated) .fld__label--float {
-  transform: translateY(-158%) scale(.74);
-  color: var(--elv-ink-3); letter-spacing: .1em;
-  text-transform: uppercase; font-weight: 600;
+    transform: translateY(-158%) scale(0.74);
+    color: var(--elv-ink-3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
 }
-:host(.is-focus) .fld__label--float { color: color-mix(in oklab, var(--elv-accent) 78%, var(--elv-ink-2)); }
+:host(.is-focus) .fld__label--float {
+    color: color-mix(in oklab, var(--elv-accent) 78%, var(--elv-ink-2));
+}
 
-/* ── assist ──────────────────────────────────────────────────────────── */
-/* 0fr → 1fr animates to intrinsic height. No magic max-height, no JS. */
+/* ── assist row ───────────────────────────────────────────────────────
+   0fr → 1fr animates to intrinsic height: no magic max-height, no JS
+   measurement, and a two-line error message no longer jumps the layout. */
 .fld__assist {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows .34s var(--elv-expo);
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.34s var(--elv-expo);
 }
-.fld__assist.is-open { grid-template-rows: 1fr; }
-.fld__assist-clip { overflow: hidden; min-height: 0; }
+.fld__assist.is-open {
+    grid-template-rows: 1fr;
+}
+.fld__assist-clip {
+    overflow: hidden;
+    min-height: 0;
+}
 .fld__assist-row {
-  display: flex; align-items: flex-start; justify-content: space-between;
-  gap: 12px; padding-top: 7px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 7px;
 }
+
 .fld__msg {
-  display: flex; align-items: flex-start; gap: 6px; margin: 0;
-  font-size: 12.5px; line-height: 1.42; color: var(--elv-ink-4);
-  animation: elv-rise .32s var(--elv-expo) both;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.42;
+    color: var(--elv-ink-4);
+    animation: elv-rise 0.32s var(--elv-expo) both;
 }
-.fld__msg i { font-size: 12px; line-height: 1.42; flex: none; }
-:host(.is-success) .fld__msg { color: var(--elv-success); }
-:host(.is-error)   .fld__msg { color: var(--elv-danger); }
-:host(.is-warning) .fld__msg { color: var(--elv-warning); }
-:host(.is-loading) .fld__msg { color: var(--elv-info); }
+.fld__msg i {
+    font-size: 12px;
+    line-height: 1.42;
+    flex: none;
+}
+:host(.is-success) .fld__msg {
+    color: var(--elv-success);
+}
+:host(.is-error) .fld__msg {
+    color: var(--elv-danger);
+}
+:host(.is-warning) .fld__msg {
+    color: var(--elv-warning);
+}
+:host(.is-loading) .fld__msg {
+    color: var(--elv-info);
+}
 
 .fld__count {
-  font-family: var(--elv-mono); font-size: 11.5px;
-  font-variant-numeric: tabular-nums; color: var(--elv-ink-4); flex: none;
+    font-family: var(--elv-mono);
+    font-size: 11.5px;
+    font-variant-numeric: tabular-nums;
+    color: var(--elv-ink-4);
+    flex: none;
 }
-.fld__count--over { color: var(--elv-danger); }
+.fld__count--over {
+    color: var(--elv-danger);
+}
 
-:host(.is-shake-1) .fld__box { animation: elv-shake-a .42s var(--elv-ease); }
-:host(.is-shake-2) .fld__box { animation: elv-shake-b .42s var(--elv-ease); }
+:host(.is-shake-1) .fld__box {
+    animation: elv-shake-a 0.42s var(--elv-ease);
+}
+:host(.is-shake-2) .fld__box {
+    animation: elv-shake-b 0.42s var(--elv-ease);
+}
 
 /* ── touch ───────────────────────────────────────────────────────────── */
 @media (pointer: coarse) {
-  .fld__box { min-height: max(var(--elv-h), 44px); }
-  .fld__act { min-width: 40px; min-height: 40px; }
-  :host([data-density='compact']) .fld__input { font-size: max(var(--elv-fs), 16px); }
+    .fld__box {
+        min-height: max(var(--elv-h), 44px);
+    }
+    .fld__act {
+        min-width: 40px;
+        min-height: 40px;
+    }
+    /* iOS zooms the viewport on focus below 16px. */
+    :host([data-density='compact']) .fld__input {
+        font-size: max(var(--elv-fs), 16px);
+    }
 }
 
-/* ── forced colours ──────────────────────────────────────────────────── */
+/* ── forced colours ───────────────────────────────────────────────────
+   Every decorative layer is dropped; focus must survive as a real
+   outline since none of the shadow machinery renders here. */
 @media (forced-colors: active) {
-  .fld__box { border: 1px solid ButtonBorder; background: Field; box-shadow: none; }
-  .fld__box::after { display: none; }
-  :host(.is-focus) .fld__box { outline: 2px solid Highlight; outline-offset: 2px; }
-  :host(.is-error) .fld__box { border-color: LinkText; }
-  .fld__input { color: FieldText; }
-  :host(.is-disabled) { opacity: 1; }
-  :host(.is-disabled) .fld__input { color: GrayText; }
+    .fld__box {
+        border: 1px solid ButtonBorder;
+        background: Field;
+        box-shadow: none;
+    }
+    .fld__box::after {
+        display: none;
+    }
+    :host(.is-focus) .fld__box {
+        outline: 2px solid Highlight;
+        outline-offset: 2px;
+    }
+    :host(.is-error) .fld__box {
+        border-color: LinkText;
+    }
+    .fld__input {
+        color: FieldText;
+    }
+    :host(.is-disabled) {
+        opacity: 1;
+    }
+    :host(.is-disabled) .fld__input {
+        color: GrayText;
+    }
 }
 
 /* ── motion ──────────────────────────────────────────────────────────── */
-@keyframes elv-spin { to { transform: rotate(360deg); } }
-@keyframes elv-pop  { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: scale(1); } }
-@keyframes elv-rise { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+@keyframes elv-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+@keyframes elv-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.6);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+@keyframes elv-rise {
+    from {
+        opacity: 0;
+        transform: translateY(-3px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+@keyframes elv-draw {
+    from {
+        stroke-dashoffset: 26;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
 /* Two identical sets — alternating between them restarts the animation
-   deterministically through the signal graph. */
+   deterministically through the signal graph, no forced-reflow hack. */
 @keyframes elv-shake-a {
-  0%,100% { transform: translateX(0); } 18% { transform: translateX(-4px); }
-  38% { transform: translateX(3px); } 58% { transform: translateX(-2px); }
-  78% { transform: translateX(1px); }
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+    18% {
+        transform: translateX(-4px);
+    }
+    38% {
+        transform: translateX(3px);
+    }
+    58% {
+        transform: translateX(-2px);
+    }
+    78% {
+        transform: translateX(1px);
+    }
 }
 @keyframes elv-shake-b {
-  0%,100% { transform: translateX(0); } 18% { transform: translateX(-4px); }
-  38% { transform: translateX(3px); } 58% { transform: translateX(-2px); }
-  78% { transform: translateX(1px); }
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+    18% {
+        transform: translateX(-4px);
+    }
+    38% {
+        transform: translateX(3px);
+    }
+    58% {
+        transform: translateX(-2px);
+    }
+    78% {
+        transform: translateX(1px);
+    }
 }
 
+/* Collapse durations rather than disabling animations outright, so final
+   states still apply and nothing ends up stuck mid-transition. */
 @media (prefers-reduced-motion: reduce) {
-  :host, :host *, :host *::before, :host *::after {
-    animation-duration: 1ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 1ms !important;
-  }
+    :host,
+    :host *,
+    :host *::before,
+    :host *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 1ms !important;
+    }
 }
-/* 26 ≈ the path length of the tick, so the dash covers it exactly. */
-.fld__check {
-  width: 16px; height: 16px; flex: none; overflow: visible;
-
-  path {
-    fill: none; stroke: var(--elv-success); stroke-width: 2.4;
-    stroke-linecap: round; stroke-linejoin: round;
-    stroke-dasharray: 26;
-    animation: elv-draw .46s var(--elv-expo) both;
-  }
-}
-@keyframes elv-draw { from { stroke-dashoffset: 26; } to { stroke-dashoffset: 0; } }
-.fld__box::before {
-  content: ''; position: absolute; inset: -3px;
-  border-radius: calc(var(--elv-radius) + 3px);
-  border: 1px solid color-mix(in oklab, var(--elv-tone) 45%, transparent);
-  opacity: 0;
-  transform: scale(1.025);
-  pointer-events: none;
-  transition: opacity .18s var(--elv-ease), transform .4s var(--elv-spring);
-}
-.fld__box:focus-within::before,
-:host(.is-focus) .fld__box::before { opacity: 1; transform: scale(1); }

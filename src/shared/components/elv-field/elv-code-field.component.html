@@ -1,26 +1,34 @@
 <span class="code__label">{{ label() }}</span>
 
 <div class="code__cells" role="group" [attr.aria-label]="label()">
-  @for (i of slots(); track i) {
-    @if (groupAfter() > 0 && i === groupAfter()) {
-      <span class="code__gap" aria-hidden="true"></span>
+    @for (i of slots(); track i) {
+        @if (groupAfter() > 0 && i === groupAfter()) {
+            <span class="code__gap" aria-hidden="true"></span>
+        }
+        <div class="code__box">
+            <input
+                #cell
+                class="code__input"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                maxlength="1"
+                [value]="charAt(i)"
+                [disabled]="isDisabled()"
+                [attr.aria-label]="'Digit ' + (i + 1)"
+                [attr.aria-invalid]="!!error()"
+                (input)="onCellInput(i, $event)"
+                (keydown)="onCellKeydown(i, $event)"
+                (paste)="onPaste($event)"
+                (blur)="markTouched()" />
+        </div>
     }
-    <div class="code__box">
-      <input #cell class="code__input"
-             inputmode="numeric" autocomplete="one-time-code" maxlength="1"
-             [value]="charAt(i)" [disabled]="isDisabled()"
-             [attr.aria-label]="'Digit ' + (i + 1)"
-             (input)="onCellInput(i, $event)"
-             (keydown)="onCellKeydown(i, $event)"
-             (paste)="onPaste($event)"
-             (blur)="markTouched()" />
-    </div>
-  }
 </div>
 
 <div class="code__assist">
-  @if (error() || hint(); as msg) {
-    <p class="code__msg" [attr.role]="error() ? 'alert' : null">{{ msg }}</p>
-  }
-  <ng-content select="[elvCodeAction]" />
+    @if (error() || hint(); as msg) {
+        <p class="code__msg" [attr.role]="error() ? 'alert' : null">{{ msg }}</p>
+    } @else {
+        <span></span>
+    }
+    <ng-content select="[elvCodeAction]" />
 </div>
