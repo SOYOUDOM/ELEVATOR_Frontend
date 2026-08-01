@@ -1,0 +1,169 @@
+/* ══════════════════════════════════════════════════════════════════════
+   ELEVATOR — elv-code-field
+   Same lighting stack as elv-field, one box per digit, so the focus ring
+   lands on the cell you're actually typing into.
+   ══════════════════════════════════════════════════════════════════════ */
+
+:host {
+    --elv-accent: var(--p-elevator-accent, #ffd35b);
+    --elv-ink: var(--p-elevator-ink, #e9edf5);
+    --elv-ink-3: var(--p-elevator-ink3, #6a7488);
+    --elv-ink-4: var(--p-elevator-ink4, #4b5468);
+    --elv-line: rgba(158, 180, 215, 0.085);
+    --elv-line-hi: rgba(158, 180, 215, 0.145);
+    --elv-line-max: rgba(158, 180, 215, 0.26);
+    --elv-danger: #fb7185;
+
+    --elv-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+    --elv-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --elv-radius: 10px;
+
+    display: block;
+    color: var(--elv-ink);
+}
+:host,
+:host * {
+    box-sizing: border-box;
+}
+
+.code__label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.085em;
+    text-transform: uppercase;
+    color: var(--elv-ink-3);
+    user-select: none;
+}
+
+.code__cells {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.code__gap {
+    width: 9px;
+    height: 1px;
+    background: var(--elv-line-hi);
+    flex: none;
+}
+
+.code__box {
+    --elv-tone: var(--elv-accent);
+    --elv-bd: var(--elv-line-hi);
+    --elv-ring-w: 0px;
+    --elv-ring-c: transparent;
+    --elv-amb-b: 0px;
+    --elv-amb-s: 0px;
+    --elv-amb-c: transparent;
+
+    position: relative;
+    width: 46px;
+    height: 48px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    border-radius: var(--elv-radius);
+    background: linear-gradient(180deg, #10141c, #0b0e15);
+    box-shadow:
+        inset 0 0 0 1px var(--elv-bd),
+        inset 0 1px 0 rgba(255, 255, 255, 0.042),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.34),
+        0 1px 2px rgba(0, 0, 0, 0.45),
+        0 0 0 var(--elv-ring-w) var(--elv-ring-c),
+        0 0 var(--elv-amb-b) var(--elv-amb-s) var(--elv-amb-c);
+    transition:
+        box-shadow 0.26s var(--elv-ease),
+        background 0.26s var(--elv-ease);
+}
+.code__box:hover {
+    --elv-bd: var(--elv-line-max);
+}
+.code__box:focus-within {
+    --elv-bd: color-mix(in oklab, var(--elv-tone) 50%, transparent);
+    --elv-ring-w: 3px;
+    --elv-ring-c: color-mix(in oklab, var(--elv-tone) 11%, transparent);
+    --elv-amb-b: 18px;
+    --elv-amb-s: -8px;
+    --elv-amb-c: color-mix(in oklab, var(--elv-tone) 42%, transparent);
+}
+
+:host(.is-error) .code__box {
+    --elv-tone: var(--elv-danger);
+    --elv-bd: color-mix(in oklab, var(--elv-danger) 52%, transparent);
+    --elv-amb-b: 16px;
+    --elv-amb-s: -10px;
+    --elv-amb-c: color-mix(in oklab, var(--elv-danger) 38%, transparent);
+}
+:host(.is-disabled) {
+    opacity: 0.42;
+}
+:host(.is-disabled) .code__input {
+    cursor: not-allowed;
+}
+
+.code__input {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    text-align: center;
+    color: var(--elv-ink);
+    font-family: var(--elv-mono);
+    font-size: 17px;
+    caret-color: var(--elv-tone);
+}
+
+.code__assist {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 7px;
+    min-height: 17px;
+}
+.code__msg {
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.42;
+    color: var(--elv-ink-4);
+}
+:host(.is-error) .code__msg {
+    color: var(--elv-danger);
+}
+
+@media (pointer: coarse) {
+    .code__box {
+        width: 44px;
+        height: 50px;
+    }
+    .code__input {
+        font-size: 18px;
+    }
+}
+
+@media (forced-colors: active) {
+    .code__box {
+        border: 1px solid ButtonBorder;
+        background: Field;
+        box-shadow: none;
+    }
+    .code__box:focus-within {
+        outline: 2px solid Highlight;
+        outline-offset: 2px;
+    }
+    :host(.is-disabled) {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :host,
+    :host * {
+        animation-duration: 1ms !important;
+        transition-duration: 1ms !important;
+    }
+}
