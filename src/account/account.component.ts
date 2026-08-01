@@ -10,6 +10,9 @@ import { AccountFooterComponent } from './layout/account-footer.component';
     templateUrl: './account.component.html',
     encapsulation: ViewEncapsulation.None,
     standalone: true,
+    host: {
+        style: 'display:block; height:100dvh',
+    },
     imports: [
         AccountHeaderComponent,
         TenantChangeComponent,
@@ -31,12 +34,12 @@ export class AccountComponent extends AppComponentBase implements OnInit, OnDest
     }
 
     ngOnInit(): void {
-        this.renderer.addClass(document.body, 'login-page');
+        // this.renderer.addClass(document.body, 'login-page');
     }
 
     ngOnDestroy(): void {
         // AdminLTE's `login-page` forces a light body background; drop it on the
         // way out so the dark app/landing background isn't left washed-out.
-        this.renderer.removeClass(document.body, 'login-page');
+        // this.renderer.removeClass(document.body, 'login-page');
     }
 }

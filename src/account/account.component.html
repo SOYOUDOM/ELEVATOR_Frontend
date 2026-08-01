@@ -1,6 +1,6 @@
-﻿<div class="login-box">
-    <account-header></account-header>
-    <div class="card">
+﻿<div class="flex h-full w-full bg-white">
+    <!-- <account-header></account-header> -->
+    <!-- <div class="card">
         @if (showTenantChange()) {
             <div class="card-header">
                 <tenant-change></tenant-change>
@@ -12,6 +12,18 @@
         <div class="card-footer">
             <account-languages></account-languages>
         </div>
+    </div> -->
+    <!-- <account-footer></account-footer> -->
+
+    <div class="w-1/2 border-r border-gray-300">
+        <div class="flex justify-center items-center h-full">
+            <div class="w-3/4">
+                <router-outlet></router-outlet>
+            </div>
+        </div>
+
     </div>
-    <account-footer></account-footer>
+    <div class="w-1/2">
+
+    </div>
 </div>

@@ -13,6 +13,15 @@ body {
   min-height: 100%;
 }
 
+// The html background above is never visible on its own: <body> paints over it.
+// adminlte.min.css is listed AFTER styles.scss in angular.json, so it wins at
+// equal specificity with `body{background-color:#fff}`, and AccountComponent
+// adds AdminLTE's `login-page` class (`.login-page{background-color:#e9ecef}`)
+// on /account/login. Out-specify both instead of reaching for !important.
+html body { background: #020202; }
+html body.login-page { background: #020202; }
+html body.register-page { background: #020202; }
+
 // Kept from the old file (was commented out there too):
 // .group{
 //     color: var(--p-elevator-ink );
