@@ -12,6 +12,7 @@ import { ElvChipComponent } from '@shared/components/elv-chip/elv-chip.component
 import {ElvCardComponent} from '@shared/components/elv-card/elv-card.component';
 import {ElvCircuitDirective} from '@shared/directives/elv-circuit.directive';
 import {FooterComponent} from '../footer.component';
+import {ElvCodeFieldComponent, ElvFieldComponent} from '@shared/components/elv-field';
 
 
 
@@ -34,12 +35,18 @@ interface Step {
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, ButtonModule, ChipModule, BadgeModule, RippleModule, StatsComponent, RevealDirective, ElvButtonComponent, ElvChipComponent,ElvCardComponent,ElvCircuitDirective],
+  imports: [CommonModule, ButtonModule, ChipModule, BadgeModule, RippleModule, StatsComponent,ElvFieldComponent,ElvCodeFieldComponent, RevealDirective, ElvButtonComponent, ElvChipComponent,ElvCardComponent,ElvCircuitDirective],
   templateUrl: './landing.component.html',
   styleUrls: ['./landing.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LandingComponent {
+strengthTone(): import("@shared/components/ui-input").UiInputTone|null {
+throw new Error('Method not implemented.');
+}
+runSearch($event: KeyboardEvent) {
+throw new Error('Method not implemented.');
+}
  // ── Typewriter ────────────────────────────────────────────────
   typeWords = ['FUTURE.', 'CAREER.', 'STORY.', 'RISE.'];
   displayWord = '';

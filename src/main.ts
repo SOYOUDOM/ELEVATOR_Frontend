@@ -5,7 +5,8 @@ import {
     APP_INITIALIZER,
     LOCALE_ID,
     importProvidersFrom,
-    isDevMode} from '@angular/core';
+    isDevMode,
+} from '@angular/core';
 import { environment } from './environments/environment';
 import { getCurrentLanguage } from './root.module';
 
@@ -27,8 +28,11 @@ import { ServiceProxyModule } from '@shared/service-proxies/service-proxy.module
 import { RootRoutingModule } from './root-routing.module';
 import { RootComponent } from './root.component';
 import { providePrimeNG } from 'primeng/config';
+import { provideUiInput } from '@shared/components/ui-input';
+
 import { ElevatorPreset } from './app/theme/my-preset';
 import { CommonModule } from '@angular/common';
+import { provideElvField } from '@shared/components/elv-field';
 
 if (environment.production) {
     enableProdMode();
@@ -48,7 +52,7 @@ const bootstrap = () => {
                 RootRoutingModule
             ),
             provideExperimentalZonelessChangeDetection(),
-            (environment.useMocks ? [] : [provideClientHydration()]),
+            environment.useMocks ? [] : [provideClientHydration()],
             { provide: HTTP_INTERCEPTORS, useClass: AbpHttpInterceptor, multi: true },
             {
                 provide: APP_INITIALIZER,
@@ -58,7 +62,7 @@ const bootstrap = () => {
             },
             {
                 provide: API_BASE_URL,
-                useFactory: () => environment.useMocks ? '' : AppConsts.remoteServiceBaseUrl,
+                useFactory: () => (environment.useMocks ? '' : AppConsts.remoteServiceBaseUrl),
             },
             {
                 provide: LOCALE_ID,
@@ -70,14 +74,20 @@ const bootstrap = () => {
                 theme: {
                     preset: ElevatorPreset,
                     options: {
-                    darkModeSelector: '.app-dark',   // see dark mode below
-                    cssLayer: {                       // see CSS override below
-                        name: 'primeng',
-                        order: 'theme, base, primeng',
+                        darkModeSelector: '.app-dark', // see dark mode below
+                        cssLayer: {
+                            // see CSS override below
+                            name: 'primeng',
+                            order: 'theme, base, primeng',
+                        },
                     },
-                    },
-                }}),
-                provideAnimationsAsync(),
+                },
+            }),
+            provideAnimationsAsync(),
+
+            provideElvField({
+                defaults: { density: 'default', corner: 'soft', labelMode: 'stacked' },
+            }),
         ],
     });
 };
@@ -86,8 +96,8 @@ const bootstrap = () => {
  * https://medium.com/@beeman/tutorial-enable-hrm-in-angular-cli-apps-1b0d13b80130#.sa87zkloh
  */
 async function enableMocking() {
-  if (!environment.useMocks) return;
-  const { worker } = await import('./mocks/browser');
-  await worker.start({ onUnhandledRequest: 'bypass' });
+    if (!environment.useMocks) return;
+    const { worker } = await import('./mocks/browser');
+    await worker.start({ onUnhandledRequest: 'bypass' });
 }
-enableMocking().then(() => bootstrap());   // ONLY one bootstrap call — no stray bootstrap() below
+enableMocking().then(() => bootstrap()); // ONLY one bootstrap call — no stray bootstrap() below

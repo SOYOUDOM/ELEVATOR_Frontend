@@ -1,0 +1,294 @@
+/* ════════════════════════════════════════════════════════════════
+   VARIANTS — ten handcrafted appearances.
+   Each owns fill, border paint, ambient tint, sheen behaviour and
+   its own hover/focus choreography. Adding one is a single block
+   plus one union member; nothing else in the system changes.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · AURORA ────────────────────────────────────────────────────
+   The signature. A slow multi-hue conic ring over a frosted panel,
+   with a tone-coloured wash tracking the pointer. The ring is paused
+   at rest (see the perf note in the entry file) and accelerates on
+   focus, so it reads as the field waking up.
+   ---------------------------------------------------------------- */
+:host([data-appearance='aurora']) {
+  --ui-fill: linear-gradient(180deg,
+    color-mix(in oklab, var(--ui-panel-hi) 90%, transparent),
+    color-mix(in oklab, var(--ui-panel) 95%, transparent));
+  --ui-blur: blur(12px) saturate(140%);
+  --ui-border-paint: conic-gradient(from var(--uii-angle) at 50% 50%,
+    color-mix(in oklab, var(--ui-tone) 88%, transparent)   0deg,
+    color-mix(in oklab, #5bb8ff 62%, transparent)         92deg,
+    color-mix(in oklab, #b45bff 55%, transparent)        176deg,
+    color-mix(in oklab, #5bffa6 60%, transparent)        268deg,
+    color-mix(in oklab, var(--ui-tone) 88%, transparent) 360deg);
+  --ui-border-o: .42;
+  --ui-tint: radial-gradient(120% 170% at var(--ui-mx) var(--ui-my),
+    color-mix(in oklab, var(--ui-tone) 26%, transparent), transparent 62%);
+  --ui-glow-blur: 26px;
+  --ui-drop: 0 8px 28px -20px #000;
+
+  .ui-layer--border {
+    animation: ui-angle 9s linear infinite;
+    animation-play-state: paused;
+  }
+}
+:host([data-appearance='aurora']:hover) { --ui-tint-o: .5; --ui-border-o: .68; }
+:host([data-appearance='aurora'].is-focused) { --ui-tint-o: .9; --ui-border-o: 1; }
+:host([data-appearance='aurora']:hover) .ui-layer--border,
+:host([data-appearance='aurora'].is-focused) .ui-layer--border { animation-play-state: running; }
+:host([data-appearance='aurora'].is-focused) .ui-layer--border { animation-duration: 3.4s; }
+
+/* ── 2 · GLASS ─────────────────────────────────────────────────────
+   Liquid glass: heavy backdrop blur, a bright top edge and a dark
+   bottom edge (the two inset shadows are what sell real thickness),
+   plus a specular streak that crosses on focus.
+   ---------------------------------------------------------------- */
+:host([data-appearance='glass']) {
+  --ui-fill: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.028));
+  --ui-blur: blur(20px) saturate(180%);
+  --ui-border-paint: linear-gradient(180deg,
+    rgba(255,255,255,.44), rgba(255,255,255,.07) 42%, rgba(255,255,255,.16));
+  --ui-inset: inset 0 1px 0 rgba(255,255,255,.22),
+              inset 0 -1px 0 rgba(0,0,0,.30);
+  --ui-drop: 0 10px 30px -18px rgba(0,0,0,.9);
+  --ui-tint: radial-gradient(90% 150% at var(--ui-mx) var(--ui-my),
+    rgba(255,255,255,.16), transparent 60%);
+
+  .ui-layer--sheen::before {
+    content: '';
+    position: absolute;
+    inset: -50% -12%;
+    background: linear-gradient(105deg,
+      transparent 42%, rgba(255,255,255,.30) 50%, transparent 58%);
+    transform: translate3d(-130%, 0, 0);
+    transition: transform 1s var(--ui-ease-out);
+  }
+}
+:host([data-appearance='glass']:hover) { --ui-tint-o: .6; }
+:host([data-appearance='glass'].is-focused) {
+  --ui-tint-o: 1;
+  --ui-border-paint: linear-gradient(180deg,
+    rgba(255,255,255,.62), color-mix(in oklab, var(--ui-tone) 40%, transparent) 55%,
+    rgba(255,255,255,.2));
+  --ui-ring: 0 0 0 4px color-mix(in oklab, var(--ui-tone) 14%, transparent);
+}
+:host([data-appearance='glass'].is-focused) .ui-layer--sheen::before {
+  transform: translate3d(130%, 0, 0);
+}
+
+/* ── 3 · NEON ──────────────────────────────────────────────────────
+   Native ELEVATOR. A hairline accent rule on near-black that goes to
+   full accent + bloom on focus, with the same diagonal light sweep
+   elv-button uses on hover. Pairs with shape="notch".
+   ---------------------------------------------------------------- */
+:host([data-appearance='neon']) {
+  --ui-fill: linear-gradient(180deg,
+    color-mix(in oklab, var(--ui-panel) 96%, transparent), var(--ui-bg-0));
+  --ui-border-paint: color-mix(in oklab, var(--ui-tone) 40%, transparent);
+  --ui-tint: linear-gradient(180deg,
+    color-mix(in oklab, var(--ui-tone) 9%, transparent), transparent 58%);
+  --ui-glow-blur: 20px;
+  --ui-tracking: .01em;
+
+  .ui-layer--sheen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 33%,
+      color-mix(in oklab, var(--ui-tone) 22%, transparent) 50%, transparent 67%);
+    transform: translate3d(-135%, 0, 0);
+    transition: transform .75s var(--ui-ease);
+  }
+  .ui-label--float { font-weight: 600; }
+}
+:host([data-appearance='neon']:hover) {
+  --ui-border-paint: color-mix(in oklab, var(--ui-tone) 70%, transparent);
+  --ui-tint-o: .6;
+}
+:host([data-appearance='neon']:hover) .ui-layer--sheen::before {
+  transform: translate3d(135%, 0, 0);
+}
+:host([data-appearance='neon'].is-focused) {
+  --ui-border-paint: var(--ui-tone);
+  --ui-tint-o: 1;
+}
+
+/* ── 4 · MINIMAL ───────────────────────────────────────────────────
+   Linear. Almost nothing until it needs to exist: a 9%-opacity
+   hairline, a whisper of fill on hover, and a crisp neutral ring on
+   focus. Deliberately does NOT tint on focus — restraint is the look.
+   ---------------------------------------------------------------- */
+:host([data-appearance='minimal']) {
+  --ui-fill: transparent;
+  --ui-border-paint: color-mix(in oklab, var(--ui-ink) 9%, transparent);
+  --ui-glow-blur: 14px;
+}
+:host([data-appearance='minimal']:hover) {
+  --ui-fill: color-mix(in oklab, var(--ui-ink) 4%, transparent);
+  --ui-border-paint: color-mix(in oklab, var(--ui-ink) 17%, transparent);
+}
+:host([data-appearance='minimal'].is-focused) {
+  --ui-fill: color-mix(in oklab, var(--ui-ink) 5.5%, transparent);
+  --ui-border-paint: color-mix(in oklab, var(--ui-ink) 32%, transparent);
+  --ui-lift: -1px;
+  --ui-drop: 0 4px 14px -10px #000;
+}
+
+/* ── 5 · SOFT ──────────────────────────────────────────────────────
+   Notion / Stripe. A filled surface with a wide, low-opacity focus
+   ring — the friendliest of the set. Best with shape="soft".
+   ---------------------------------------------------------------- */
+:host([data-appearance='soft']) {
+  --ui-fill: color-mix(in oklab, var(--ui-ink) 4.5%, transparent);
+  --ui-border-paint: color-mix(in oklab, var(--ui-ink) 11%, transparent);
+  --ui-drop: 0 1px 2px rgba(0,0,0,.32);
+}
+:host([data-appearance='soft']:hover) {
+  --ui-fill: color-mix(in oklab, var(--ui-ink) 7%, transparent);
+  --ui-border-paint: color-mix(in oklab, var(--ui-ink) 18%, transparent);
+}
+:host([data-appearance='soft'].is-focused) {
+  --ui-fill: color-mix(in oklab, var(--ui-tone) 7%, transparent);
+  --ui-border-paint: var(--ui-tone);
+  --ui-ring: 0 0 0 4px color-mix(in oklab, var(--ui-tone) 17%, transparent);
+}
+
+/* ── 6 · ELEVATED ──────────────────────────────────────────────────
+   A card that happens to accept text. Lifts on hover, lifts further
+   on focus, and carries a pointer-tracked specular highlight — the
+   light source moves, which reads more physical than a shadow that
+   merely deepens.
+   ---------------------------------------------------------------- */
+:host([data-appearance='elevated']) {
+  --ui-fill: linear-gradient(180deg, var(--ui-panel-hi), var(--ui-panel));
+  --ui-border-paint: color-mix(in oklab, var(--ui-ink) 8%, transparent);
+  --ui-tint: radial-gradient(70% 130% at var(--ui-mx) var(--ui-my),
+    color-mix(in oklab, var(--ui-ink) 13%, transparent), transparent 55%);
+  --ui-drop: 0 1px 1px rgba(0,0,0,.4), 0 6px 18px -10px rgba(0,0,0,.85);
+}
+:host([data-appearance='elevated']:hover) {
+  --ui-lift: -1px;
+  --ui-tint-o: .8;
+  --ui-drop: 0 2px 3px rgba(0,0,0,.45), 0 14px 34px -14px rgba(0,0,0,.95);
+}
+:host([data-appearance='elevated'].is-focused) {
+  --ui-lift: -2px;
+  --ui-tint-o: 1;
+  --ui-border-paint: color-mix(in oklab, var(--ui-tone) 65%, transparent);
+  --ui-drop: 0 3px 5px rgba(0,0,0,.5), 0 22px 48px -18px rgba(0,0,0,1);
+  --ui-ring: 0 0 0 3px color-mix(in oklab, var(--ui-tone) 15%, transparent);
+}
+
+/* ── 7 · OUTLINE ───────────────────────────────────────────────────
+   Elegant corporate. Transparent, crisp, no theatre — the one to
+   reach for in dense data-entry screens.
+   ---------------------------------------------------------------- */
+:host([data-appearance='outline']) {
+  --ui-fill: transparent;
+  --ui-border-paint: var(--ui-line-strong);
+}
+:host([data-appearance='outline']:hover) {
+  --ui-border-paint: color-mix(in oklab, var(--ui-ink) 34%, transparent);
+}
+:host([data-appearance='outline'].is-focused) {
+  --ui-border-paint: var(--ui-tone);
+  --ui-ring: 0 0 0 1px var(--ui-tone);
+  --ui-rule-color: var(--ui-tone);
+  --ui-rule-scale: 1;
+}
+
+/* ── 8 · UNDERLINE ─────────────────────────────────────────────────
+   No box at all. A static hairline plus a tone rule that springs out
+   from the centre on focus. Zero horizontal padding, so it aligns
+   flush with body copy.
+   ---------------------------------------------------------------- */
+:host([data-appearance='underline']) {
+  --ui-fill: transparent;
+  --ui-pad-x: 0px;
+  --ui-radius-base: 0;
+  --ui-glow-blur: 16px;
+
+  .ui-layer--border {
+    padding: 0;
+    background: none;
+    -webkit-mask: none;
+            mask: none;
+    border-bottom: var(--ui-border-w) solid var(--ui-line-strong);
+  }
+  .ui-rule { height: 2px; }
+}
+:host([data-appearance='underline']) .ui-layer--border { transition: border-color var(--ui-t) var(--ui-ease); }
+:host([data-appearance='underline']:hover) .ui-layer--border {
+  border-bottom-color: color-mix(in oklab, var(--ui-ink) 34%, transparent);
+}
+:host([data-appearance='underline'].is-focused) {
+  --ui-rule-color: var(--ui-tone);
+  --ui-rule-scale: 1;
+}
+
+/* ── 9 · HOLO ──────────────────────────────────────────────────────
+   Holographic. A brushed-metal gradient ring over near-black, with a
+   three-hue iridescence that shifts as the pointer moves — the
+   colour you see depends on where you are, like real diffraction.
+   ---------------------------------------------------------------- */
+:host([data-appearance='holo']) {
+  --ui-fill: linear-gradient(180deg, #0c1018, #06080d);
+  --ui-border-paint: linear-gradient(var(--uii-angle),
+    #8fa3b8, #eaf2ff 18%, #7fd8ff 36%, #d9a8ff 52%,
+    #ffd9a8 68%, #eaf2ff 84%, #8fa3b8);
+  --ui-border-o: .7;
+  --ui-tint: radial-gradient(120% 180% at var(--ui-mx) var(--ui-my),
+    color-mix(in oklab, #7fd8ff 22%, transparent) 0%,
+    color-mix(in oklab, #d9a8ff 18%, transparent) 32%,
+    color-mix(in oklab, #ffd9a8 14%, transparent) 56%,
+    transparent 78%);
+  --ui-tint-o: .65;
+  --ui-glow-color: color-mix(in oklab, #7fd8ff 30%, transparent);
+
+  .ui-layer--border {
+    animation: ui-angle 12s linear infinite;
+    animation-play-state: paused;
+  }
+}
+:host([data-appearance='holo']:hover) .ui-layer--border,
+:host([data-appearance='holo'].is-focused) .ui-layer--border { animation-play-state: running; }
+:host([data-appearance='holo'].is-focused) { --ui-tint-o: 1; --ui-border-o: 1; }
+
+/* ── 10 · HUD ──────────────────────────────────────────────────────
+   Futuristic readout. A fine vertical tick grid, a scanline that
+   travels on focus, mono uppercase labels. Designed for
+   shape="notch" + [brackets].
+   ---------------------------------------------------------------- */
+:host([data-appearance='hud']) {
+  --ui-fill: linear-gradient(180deg,
+    color-mix(in oklab, var(--ui-panel-hi) 86%, transparent), var(--ui-bg-0));
+  --ui-border-paint: color-mix(in oklab, var(--ui-tone) 34%, transparent);
+  --ui-tint: repeating-linear-gradient(90deg,
+    color-mix(in oklab, var(--ui-tone) 11%, transparent) 0 1px,
+    transparent 1px 8px);
+  --ui-tint-o: .3;
+  --ui-glow-blur: 18px;
+
+  .ui-label--float,
+  .ui-label--stacked { font-family: var(--ui-font-mono); font-size: calc(var(--ui-label-fs) * .95); }
+  .ui-native { font-family: var(--ui-font-mono); --ui-tracking: .015em; }
+
+  .ui-layer--sheen::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent,
+      color-mix(in oklab, var(--ui-tone) 75%, transparent), transparent);
+    opacity: 0;
+  }
+}
+:host([data-appearance='hud']:hover) { --ui-tint-o: .5; --ui-border-paint: color-mix(in oklab, var(--ui-tone) 58%, transparent); }
+:host([data-appearance='hud'].is-focused) {
+  --ui-tint-o: .7;
+  --ui-border-paint: var(--ui-tone);
+}
+:host([data-appearance='hud'].is-focused) .ui-layer--sheen::after {
+  animation: ui-scan 2.4s var(--ui-ease-in-out) infinite;
+}
