@@ -1,0 +1,106 @@
+// ════════════════════════════════════════════════════════════
+// SEAM · a hairline divider with a light that runs down it once
+//
+// Drop <span class="elv-seam"></span> into any position:relative
+// box. It is absolutely positioned and pointer-events:none, so it
+// never touches layout — it can sit between two flex panels without
+// stealing a single pixel from them.
+//
+// Everything is a custom property, so one class covers every use:
+//
+//   <span class="elv-seam"></span>                                  <!-- centred, 2s, one pass -->
+//   <span class="elv-seam" style="--elv-seam-x:33%"></span>         <!-- move it -->
+//   <span class="elv-seam" style="--elv-seam-runs:infinite"></span> <!-- keep it running -->
+//   <span class="elv-seam" style="--elv-seam-glow:#5bffa6"></span>  <!-- recolour -->
+// ════════════════════════════════════════════════════════════
+
+.elv-seam {
+  --elv-seam-x:     50%;      // where the seam sits in its parent
+  --elv-seam-w:     1px;      // the static hairline
+  --elv-seam-bleed: 28px;     // horizontal room for the bloom to breathe
+  --elv-seam-beam:  3px;      // width of the travelling light
+  --elv-seam-len:   26%;      // its length, as a share of the seam's height
+  // line-strong (22%), not line-soft (7%) — at 1px on a near-black page
+  // anything fainter than this computes to roughly #0d1013 and vanishes.
+  --elv-seam-line:  var(--p-elevator-line-strong, rgba(158, 180, 215, .22));
+  --elv-seam-glow:  var(--p-elevator-accent, #ffd35b);
+  --elv-seam-dur:   2s;
+  --elv-seam-delay: 0s;
+  --elv-seam-runs:  1;        // iteration count — `infinite` also works
+
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--elv-seam-x);
+  translate: -50% 0;          // `translate`, not `transform` — ::after owns transform
+  width: var(--elv-seam-bleed);
+  overflow: hidden;           // clips the beam at both ends of its run
+  pointer-events: none;
+  z-index: 2;
+
+  // ── the hairline ──
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: var(--elv-seam-w);
+    margin-inline: auto;      // centres inside the bleed
+    background: linear-gradient(to bottom,
+      transparent,
+      var(--elv-seam-line) 12%,
+      var(--elv-seam-line) 88%,
+      transparent);
+  }
+
+  // ── the light that runs ──
+  // Box is inset:0, so its height == the seam's. Translating it by ±50%
+  // therefore walks the beam's centre from the very top to the very
+  // bottom — one clean pass, driven by transform alone.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: var(--elv-seam-beam);
+    margin-inline: auto;
+    border-radius: 999px;
+    background: linear-gradient(to bottom,
+      transparent calc(50% - var(--elv-seam-len) / 2),
+      var(--elv-seam-glow) 50%,
+      transparent calc(50% + var(--elv-seam-len) / 2));
+    filter:
+      drop-shadow(0 0 6px  var(--elv-seam-glow))
+      drop-shadow(0 0 20px var(--elv-seam-glow));
+    animation:
+      elv-seam-run var(--elv-seam-dur) cubic-bezier(.45, 0, .35, 1)
+      var(--elv-seam-delay) var(--elv-seam-runs) both;
+  }
+}
+
+@keyframes elv-seam-run {
+  from { transform: translateY(-50%); opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  to   { transform: translateY(50%);  opacity: 0; }
+}
+
+// ── Periodic variant ──────────────────────────────────────────
+// A single run on load is easy to miss — it is over before anyone
+// looks. This packs the travel into the first third of the cycle and
+// rests for the rest, so `--elv-seam-dur: 6s` reads as "2s run, 4s
+// wait". Pair it with --elv-seam-runs: infinite.
+//
+//   <span class="elv-seam elv-seam--scan"
+//         style="--elv-seam-dur:6s; --elv-seam-runs:infinite"></span>
+.elv-seam--scan::after { animation-name: elv-seam-scan; }
+
+@keyframes elv-seam-scan {
+  0%   { transform: translateY(-50%); opacity: 0; }
+  4%   { opacity: 1; }
+  29%  { opacity: 1; }
+  33%  { transform: translateY(50%);  opacity: 0; }
+  100% { transform: translateY(50%);  opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .elv-seam::after { animation: none; opacity: 0; }
+}

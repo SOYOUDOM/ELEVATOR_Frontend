@@ -5,7 +5,10 @@ import { TenantChangeComponent } from './tenant/tenant-change.component';
 import { RouterOutlet } from '@angular/router';
 import { AccountLanguagesComponent } from './layout/account-languages.component';
 import { AccountFooterComponent } from './layout/account-footer.component';
-
+import { HeaderComponent } from '../app/layout/header.component';
+import { HeaderLeftNavbarComponent } from "@app/layout/header-left-navbar.component";
+import { RevealDirective } from "@shared/directives/reveal.directive";
+import { ElvFieldComponent} from '@shared/components/elv-field'
 @Component({
     templateUrl: './account.component.html',
     encapsulation: ViewEncapsulation.None,
@@ -14,12 +17,15 @@ import { AccountFooterComponent } from './layout/account-footer.component';
         style: 'display:block; height:100dvh',
     },
     imports: [
-        AccountHeaderComponent,
-        TenantChangeComponent,
-        RouterOutlet,
-        AccountLanguagesComponent,
-        AccountFooterComponent,
-    ],
+    AccountHeaderComponent,
+    TenantChangeComponent,
+    RouterOutlet,
+    AccountLanguagesComponent,
+    AccountFooterComponent,
+    HeaderComponent,
+    RevealDirective,
+    ElvFieldComponent
+],
 })
 export class AccountComponent extends AppComponentBase implements OnInit, OnDestroy {
     constructor(

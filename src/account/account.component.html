@@ -1,29 +1,61 @@
-﻿<div class="flex h-full w-full bg-white">
-    <!-- <account-header></account-header> -->
-    <!-- <div class="card">
-        @if (showTenantChange()) {
-            <div class="card-header">
-                <tenant-change></tenant-change>
+﻿<app-header></app-header>
+
+<div class="elv-page scene relative flex w-full min-h-0! h-[calc(100dvh-var(--p-elevator-navbar-height))] p-0! w-full!">
+    <!-- ── LEFT · brand panel ─────────────────────────────────── -->
+    <div class="w-1/2 relative overflow-hidden max-mobile:hidden">
+
+        <!-- backdrop -->
+        <div class="absolute inset-0 bg-cover bg-bottom bg-no-repeat"
+            style="background-image: url('./assets/img/earth+star-field.png');">
+        </div>
+
+        <!-- readability veil: keeps the copy legible over the city lights -->
+        <div class="absolute inset-0 bg-gradient-to-r
+                    from-[var(--p-elevator-bg0)]/70 via-[var(--p-elevator-bg0)]/25 to-transparent">
+        </div>
+
+        <!-- ── copy stack ── -->
+        <div class="relative h-full flex flex-col justify-center
+                    gap-[clamp(1.5rem,3vh,2.75rem)]
+                    px-[clamp(2rem,6vw,5rem)] py-[clamp(2rem,5vh,4rem)]">
+            <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                <span class="elv-logo-fx"></span>
             </div>
-        }
-        <div class="card-body login-card-body">
-            <router-outlet></router-outlet>
-        </div>
-        <div class="card-footer">
-            <account-languages></account-languages>
-        </div>
-    </div> -->
-    <!-- <account-footer></account-footer> -->
 
-    <div class="w-1/2 border-r border-gray-300">
-        <div class="flex justify-center items-center h-full">
-            <div class="w-3/4">
-                <router-outlet></router-outlet>
+            <h1 class="elv-reveal uppercase font-semibold
+                       text-[clamp(1.6rem,3.2vw,3rem)] leading-[1.18] tracking-[0.14em]
+                       text-[var(--p-elevator-ink)]" style="animation-delay:.3s">
+                Continue<br />
+                Building<br />
+                Your <span class="text-[var(--p-elevator-accent)]
+                                  drop-shadow-[0_0_18px_var(--p-elevator-accent-glow)]">Future.</span>
+            </h1>
+            <div
+                class="w-[5%] min-w-[36px] h-[3px] shrink-0 drop-shadow-[0_0_18px_var(--p-elevator-accent-glow)] rounded-[5px] bg-[var(--p-elevator-accent)] elv-reveal">
             </div>
+            <p class="elv-reveal max-w-[34ch] leading-relaxed
+                      text-[clamp(.8rem,1.05vw,1rem)] text-[var(--p-elevator-ink2)]" style="animation-delay:.45s">
+                Sign in to access your workspace<br />
+                and keep elevating your career.
+            </p>
         </div>
-
     </div>
-    <div class="w-1/2">
 
+    <!-- seam: hairline divider + a single 2s light run. Absolute, so it
+         costs the two panels nothing. -->
+    <span class="elv-seam elv-seam--scan" style="--elv-seam-dur:6s;  --elv-seam-delay:.35s" aria-hidden="true"></span>
+
+    <!-- ── RIGHT · Sign/Log in panel ─────────────────────────────────── -->
+    <div class="w-1/2 relative overflow-hidden p-10">
+        <p class="uppercase elv-reveal [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)] text-[var(--p-elevator-accent)]" style="animation-delay:.25s" elvReveal="wipe">Welcome back</p>
+        <p class="uppercase elv-reveal text-7xl mt-6!" style="animation-delay:.25s" elvReveal="wipe">Sign In</p>
+        <!-- Input Section -->
+        <div class="mt-10 w-full h-[50%] flex flex-col gap-6 p-6">
+<elv-field label="Email"    icon="pi-user" placeholder="Enter your email"
+           type="email" labelMode="stacked" corner="sharp" />
+
+<elv-field label="Password" icon="pi-lock" placeholder="Enter your password"
+           type="password" [revealable]="true" labelMode="stacked" corner="sharp" />
+
+        </div>
     </div>
-</div>

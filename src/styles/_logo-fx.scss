@@ -1,0 +1,74 @@
+// ════════════════════════════════════════════════════════════
+// LOGO FX · a travelling glow that crawls the logo outline
+//
+// Two mask layers composited with `intersect`: the PNG's ALPHA decides
+// the shape, an feTurbulence tile's LUMINANCE decides where inside that
+// shape light is allowed through — the CSS equivalent of driving an
+// emission mask with a Blender noise texture.
+//
+// Only the noise's POSITION animates. Animating baseFrequency re-runs
+// the filter on the CPU every frame and will tank the page; scrolling a
+// pre-baked tile is a GPU transform and costs nothing.
+// ════════════════════════════════════════════════════════════
+
+// Noise tile edge. Used by mask-size AND the drift keyframe, so it is a
+// Sass variable — the two can never drift apart.
+$elv-noise-tile: 420px;
+
+// Custom properties are strings to the engine until they are typed;
+// without these registrations neither animation interpolates.
+@property --elv-sweep { syntax: '<angle>';  initial-value: 0deg; inherits: false; }
+@property --elv-nx    { syntax: '<length>'; initial-value: 0px;  inherits: false; }
+
+// ── Wrapper ───────────────────────────────────────────────────
+// Deliberately hero-independent: no placement, no size. The consumer
+// sets width (Tailwind is fine), the <img> supplies the height.
+.elv-logo-stack {
+  position: relative;   // anchors .elv-logo-fx's inset:0
+  display: block;
+  isolation: isolate;   // keeps the fx layer's screen blend off the backdrop
+  filter:
+    drop-shadow(0 0 3px  var(--p-elevator-accent))
+    drop-shadow(0 0 26px var(--p-elevator-accent-glow));
+
+  > img { display: block; width: 100%; height: auto; }
+}
+
+// ── The glow layer ────────────────────────────────────────────
+.elv-logo-fx {
+  // Override per instance to reuse this on another mark.
+  --elv-logo-src: url('/assets/img/Logo_outline.png');
+  --elv-logo-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='elv-logo-n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23elv-logo-n)'/%3E%3C/svg%3E");
+
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  // the light itself
+  background: conic-gradient(from var(--elv-sweep),
+    transparent 0deg,
+    var(--p-elevator-accent) 40deg,
+    transparent 110deg);
+
+  // shape × noise → lit only where BOTH pass
+  mask-image:     var(--elv-logo-src), var(--elv-logo-noise);
+  mask-size:      contain, $elv-noise-tile $elv-noise-tile;
+  mask-repeat:    no-repeat, repeat;
+  mask-position:  center, var(--elv-nx) 0;
+  mask-mode:      alpha, luminance;   // PNG gives transparency, noise gives brightness
+  mask-composite: intersect;
+
+  mix-blend-mode: screen;
+  animation:
+    elv-logo-sweep 14s linear infinite,
+    elv-logo-drift 23s linear infinite;   // coprime with 14s so the loop never visibly repeats
+}
+
+@keyframes elv-logo-sweep { to { --elv-sweep: 360deg; } }
+// #{} is required: Sass treats a custom property's value as raw tokens and
+// will NOT substitute a bare $variable there.
+@keyframes elv-logo-drift { to { --elv-nx: #{-$elv-noise-tile}; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .elv-logo-fx { animation: none; }
+}

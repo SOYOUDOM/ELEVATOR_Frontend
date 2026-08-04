@@ -41,6 +41,8 @@
 
 // ── 5 · components ─────────────────────────────────────────────
 @use './styles/header';        // burger toggle + nav links
+@use './styles/logo-fx';       // .elv-logo-stack — noise-masked glow on a logo
+@use './styles/seam';          // .elv-seam — divider with a light that runs down it
 @use './styles/boot';          // elevator-door intro + power-on choreography
 @use './styles/fx';            // film grain + mouse-reactive glow
 

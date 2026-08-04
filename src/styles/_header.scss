@@ -9,6 +9,19 @@
      2. .nav-link — underline sweep, active state, breathing CTA.
    ============================================================ */
 
+// ── 0 · Flow spacer ───────────────────────────────────────────
+// The bar itself is position:fixed, so <app-header> — an unknown
+// element, hence display:inline — collapses to zero height and every
+// page has to invent its own top offset. Give the host a real box and
+// it reserves exactly the nav's height in normal flow, so whatever
+// follows it in the DOM starts below the bar. Driven by the theme
+// token, so `navbarHeight` in my-preset.ts is the only dial.
+app-header {
+  display: block;
+  height: var(--p-elevator-navbar-height);
+  flex: 0 0 auto;   // keep the height when the parent is a flex column
+}
+
 // ── 1 · Hamburger toggle (mobile/tablet) — bars ⇄ X ────────────
 header-left-navbar .hdr-burger {
   --hb: 44px; --hb-bar-w: 20px; --hb-bar: 2px; --hb-gap: 5px; --hb-corner: 7px;

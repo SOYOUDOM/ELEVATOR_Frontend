@@ -7,11 +7,11 @@
   margin: 0 auto;
   position: relative;
   z-index: 1;
-  padding: clamp(36px, 6vw, 76px) 0 70px;   // ← top padding pushes the eyebrow below the fixed navbar
+  padding: clamp(36px, 6vw, 80px) 0 80px;   // ← top padding pushes the eyebrow below the fixed navbar
 }
 
 .elv-section {
-  padding: clamp(60px, 8vw, 120px) 0;
+  padding: clamp(60px, 8vw, 125px) 0;
   position: relative;
 }
 
