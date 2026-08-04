@@ -20,6 +20,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor, NgControl } from '@angular/forms';
 
 import { ELV_ERROR_RESOLVER, ELV_FIELD_DEFAULTS } from './elv-field.config';
+import { ELV_FIELD_PRESETS, type ElvFieldPresetDef, type ElvPreset } from './elv-field.presets';
 import type {
     ElvCorner,
     ElvDensity,
@@ -59,12 +60,14 @@ let seq = 0;
         '[style.--elv-accent]': 'accent()',
         '[style.width]': 'widthVar()',
         '[style.maxWidth]': 'maxWidthVar()',
+        '[style.--elv-h]': 'heightVar()',
     },
 })
 export class ElvFieldComponent implements ControlValueAccessor {
     // ── DI ────────────────────────────────────────────────────────────
     private readonly cfg = inject(ELV_FIELD_DEFAULTS);
     private readonly resolveError = inject(ELV_ERROR_RESOLVER);
+    private readonly presetMap = inject(ELV_FIELD_PRESETS);
     private readonly destroyRef = inject(DestroyRef);
     readonly ngControl = inject(NgControl, { optional: true, self: true });
 
@@ -75,21 +78,44 @@ export class ElvFieldComponent implements ControlValueAccessor {
     readonly msgId = `${this.uid}-msg`;
     readonly countId = `${this.uid}-count`;
 
+    // ── preset ────────────────────────────────────────────────────────
+    /**
+     * Bundle of defaults for one kind of field ('email', 'password', …).
+     * Everything a preset sets is still overridable by writing the property
+     * explicitly — resolution is: input → preset → DI default → built-in.
+     */
+    readonly preset = input<ElvPreset | null>(null);
+
+    /** Empty object when no preset, so every `p().x` read below is safe. */
+    private readonly p = computed<ElvFieldPresetDef>(() => {
+        const key = this.preset();
+        return (key && this.presetMap[key]) || {};
+    });
+
     // ── value ─────────────────────────────────────────────────────────
     /** Two-way bindable for non-Forms usage: [(value)]="query". */
     readonly value = model<ElvValue>('');
 
     // ── content ───────────────────────────────────────────────────────
-    readonly label = input('');
-    readonly placeholder = input('');
-    readonly hint = input('');
+    readonly labelIn = input<string | null>(null, { alias: 'label' });
+    readonly placeholderIn = input<string | null>(null, { alias: 'placeholder' });
+    readonly hintIn = input<string | null>(null, { alias: 'hint' });
     /** Leading PrimeIcon name WITHOUT the `pi ` prefix, e.g. 'pi-envelope'. */
-    readonly icon = input('');
-    readonly prefix = input('');
-    readonly prefixIcon = input('');
-    readonly suffix = input('');
+    readonly iconIn = input<string | null>(null, { alias: 'icon' });
+    readonly prefixIn = input<string | null>(null, { alias: 'prefix' });
+    readonly prefixIconIn = input<string | null>(null, { alias: 'prefixIcon' });
+    readonly suffixIn = input<string | null>(null, { alias: 'suffix' });
+
+    readonly label = computed(() => this.labelIn() ?? this.p().label ?? '');
+    readonly placeholder = computed(() => this.placeholderIn() ?? this.p().placeholder ?? '');
+    readonly hint = computed(() => this.hintIn() ?? this.p().hint ?? '');
+    readonly icon = computed(() => this.iconIn() ?? this.p().icon ?? '');
+    readonly prefix = computed(() => this.prefixIn() ?? this.p().prefix ?? '');
+    readonly prefixIcon = computed(() => this.prefixIconIn() ?? this.p().prefixIcon ?? '');
+    readonly suffix = computed(() => this.suffixIn() ?? this.p().suffix ?? '');
     readonly actionLabel = input('');
-    readonly kbd = input<readonly string[] | null>(null);
+    readonly kbdIn = input<readonly string[] | null>(null, { alias: 'kbd' });
+    readonly kbd = computed(() => this.kbdIn() ?? this.p().kbd ?? null);
 
     /** Manual overrides — bypass the control's own validity entirely. */
     readonly error = input('');
@@ -97,18 +123,24 @@ export class ElvFieldComponent implements ControlValueAccessor {
     readonly success = input('');
 
     // ── native passthrough ────────────────────────────────────────────
-    readonly type = input<ElvFieldType>('text');
+    readonly typeIn = input<ElvFieldType | null>(null, { alias: 'type' });
     readonly name = input<string | null>(null);
-    readonly autocomplete = input<string | null>(null);
-    readonly inputmode = input<string | null>(null);
+    readonly autocompleteIn = input<string | null>(null, { alias: 'autocomplete' });
+    readonly inputmodeIn = input<string | null>(null, { alias: 'inputmode' });
+
+    readonly type = computed(() => this.typeIn() ?? this.p().type ?? 'text');
+    readonly autocomplete = computed(() => this.autocompleteIn() ?? this.p().autocomplete ?? null);
+    readonly inputmode = computed(() => this.inputmodeIn() ?? this.p().inputmode ?? null);
     // Two type args are required whenever a transform is present — the
     // single-arg form resolves to the without-transform overloads.
-    readonly maxlength = input<number | null, unknown>(null, { transform: nullNum });
+    readonly maxlengthIn = input<number | null, unknown>(null, { transform: nullNum, alias: 'maxlength' });
+    readonly maxlength = computed(() => this.maxlengthIn() ?? this.p().maxlength ?? null);
     readonly minlength = input<number | null, unknown>(null, { transform: nullNum });
     readonly min = input<string | number | null>(null);
     readonly max = input<string | number | null>(null);
     readonly step = input<string | number | null>(null);
-    readonly rows = input(3, { transform: numberAttribute });
+    readonly rowsIn = input<number | null, unknown>(null, { transform: nullNum, alias: 'rows' });
+    readonly rows = computed(() => this.rowsIn() ?? this.p().rows ?? 3);
 
     // ── behaviour ─────────────────────────────────────────────────────
     readonly disabled = input(false, { transform: booleanAttribute });
@@ -116,15 +148,23 @@ export class ElvFieldComponent implements ControlValueAccessor {
     readonly required = input(false, { transform: booleanAttribute });
     readonly optional = input(false, { transform: booleanAttribute });
     readonly autofocus = input(false, { transform: booleanAttribute });
-    readonly clearable = input(false, { transform: booleanAttribute });
-    readonly revealable = input(false, { transform: booleanAttribute });
-    readonly copyable = input(false, { transform: booleanAttribute });
+    readonly clearableIn = input<boolean | null, unknown>(null, { transform: nullBool, alias: 'clearable' });
+    readonly revealableIn = input<boolean | null, unknown>(null, { transform: nullBool, alias: 'revealable' });
+    readonly copyableIn = input<boolean | null, unknown>(null, { transform: nullBool, alias: 'copyable' });
     readonly loading = input(false, { transform: booleanAttribute });
-    readonly multiline = input(false, { transform: booleanAttribute });
+    readonly multilineIn = input<boolean | null, unknown>(null, { transform: nullBool, alias: 'multiline' });
     readonly autoGrow = input(true, { transform: booleanAttribute });
-    readonly counter = input(false, { transform: booleanAttribute });
-    readonly mono = input(false, { transform: booleanAttribute });
-    readonly numeric = input(false, { transform: booleanAttribute });
+    readonly counterIn = input<boolean | null, unknown>(null, { transform: nullBool, alias: 'counter' });
+    readonly monoIn = input<boolean | null, unknown>(null, { transform: nullBool, alias: 'mono' });
+    readonly numericIn = input<boolean | null, unknown>(null, { transform: nullBool, alias: 'numeric' });
+
+    readonly clearable = computed(() => this.clearableIn() ?? this.p().clearable ?? false);
+    readonly revealable = computed(() => this.revealableIn() ?? this.p().revealable ?? false);
+    readonly copyable = computed(() => this.copyableIn() ?? this.p().copyable ?? false);
+    readonly multiline = computed(() => this.multilineIn() ?? this.p().multiline ?? false);
+    readonly counter = computed(() => this.counterIn() ?? this.p().counter ?? false);
+    readonly mono = computed(() => this.monoIn() ?? this.p().mono ?? false);
+    readonly numeric = computed(() => this.numericIn() ?? this.p().numeric ?? false);
 
     // ── visual (null ⇒ inherit the DI default) ────────────────────────
     readonly densityIn = input<ElvDensity | null>(null, { alias: 'density' });
@@ -139,16 +179,19 @@ export class ElvFieldComponent implements ControlValueAccessor {
     /** Any CSS length, or a number for px. */
     readonly width = input<string | number | null>(null);
     readonly maxWidth = input<string | number | null>(null);
+    /** Box height. Overrides whatever `density` would have set. */
+    readonly heightIn = input<string | number | null>(null, { alias: 'height' });
 
-    readonly density = computed(() => this.densityIn() ?? this.cfg.density);
-    readonly corner = computed(() => this.cornerIn() ?? this.cfg.corner);
-    readonly labelMode = computed(() => this.labelModeIn() ?? this.cfg.labelMode);
+    readonly density = computed(() => this.densityIn() ?? this.p().density ?? this.cfg.density);
+    readonly corner = computed(() => this.cornerIn() ?? this.p().corner ?? this.cfg.corner);
+    readonly labelMode = computed(() => this.labelModeIn() ?? this.p().labelMode ?? this.cfg.labelMode);
     readonly validateOn = computed(() => this.validateOnIn() ?? this.cfg.validateOn);
     readonly showSuccess = computed(() => this.showSuccessIn() ?? this.cfg.showSuccess);
     readonly shake = computed(() => this.shakeIn() ?? this.cfg.shake);
 
     readonly widthVar = computed(() => cssLen(this.width()));
     readonly maxWidthVar = computed(() => cssLen(this.maxWidth()));
+    readonly heightVar = computed(() => cssLen(this.heightIn() ?? this.p().height ?? null));
 
     // ── outputs ───────────────────────────────────────────────────────
     readonly focused = output<FocusEvent>();
@@ -400,6 +443,32 @@ export class ElvFieldComponent implements ControlValueAccessor {
         }
     }
 
+    /**
+     * Clicking ANYWHERE on the box focuses the field.
+     *
+     * Without this only the input's own ~22px line box is a hit target, so
+     * the padding above and below it, the leading icon and the prefix segment
+     * all swallow the click — you had to aim at the middle of the text. The
+     * CSS stretch in the stylesheet fixes the vertical band; this covers the
+     * icon, the padding and the segment.
+     *
+     * Real controls in the trail (reveal, clear, action) are left alone, and
+     * so is anything projected — those handle their own focus.
+     */
+    handleBoxPointerDown(ev: MouseEvent): void {
+        if (this.isDisabled()) {
+            return;
+        }
+        const target = ev.target as HTMLElement | null;
+        if (target?.closest('button, a, input, textarea, select, [contenteditable], [tabindex]')) {
+            return;
+        }
+        // Suppress the browser's own focus pass so the caret lands where we
+        // put it rather than wherever the click happened to be.
+        ev.preventDefault();
+        this.focus();
+    }
+
     // ── public API ────────────────────────────────────────────────────
     focus(): void {
         this.fieldRef()?.nativeElement.focus();
@@ -453,6 +522,11 @@ export class ElvFieldComponent implements ControlValueAccessor {
 }
 
 // ── helpers ───────────────────────────────────────────────────────────
+/** Distinguishes "not written" (null) from an explicit `[x]="false"`. */
+function nullBool(v: unknown): boolean | null {
+    return v === null || v === undefined ? null : booleanAttribute(v);
+}
+
 function nullNum(v: unknown): number | null {
     return v == null || v === '' ? null : numberAttribute(v);
 }

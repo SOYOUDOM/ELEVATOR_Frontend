@@ -16,7 +16,7 @@
     </label>
 }
 
-<div class="fld__box">
+<div class="fld__box" (mousedown)="handleBoxPointerDown($event)">
     @if (prefix()) {
         <span class="fld__seg">
             @if (prefixIcon()) {
