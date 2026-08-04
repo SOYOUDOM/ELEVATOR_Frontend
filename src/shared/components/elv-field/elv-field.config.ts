@@ -1,6 +1,7 @@
 import { EnvironmentProviders, InjectionToken, makeEnvironmentProviders } from '@angular/core';
 import type { ValidationErrors } from '@angular/forms';
 import type { ElvFieldDefaults } from './elv-field.types';
+import { ELV_BUILTIN_PRESETS, ELV_FIELD_PRESETS, type ElvFieldPresetDef } from './elv-field.presets';
 
 /** Shipped defaults, tuned for the ELEVATOR dark shell. */
 export const ELV_FIELD_DEFAULT_CONFIG: ElvFieldDefaults = {
@@ -83,18 +84,33 @@ export const ELV_ERROR_RESOLVER = new InjectionToken<ElvErrorResolver>('ELV_ERRO
 export interface ElvFieldProviderConfig {
     defaults?: Partial<ElvFieldDefaults>;
     errors?: ElvErrorResolver;
+    /** Merged over the built-ins: same key replaces, new key extends. */
+    presets?: Record<string, ElvFieldPresetDef>;
 }
 
 /**
  * Set app-wide field defaults once, at bootstrap.
  *
  *   providers: [
- *     provideElvField({ defaults: { density: 'compact', corner: 'sharp' } }),
+ *     provideElvField({
+ *       defaults: { density: 'compact', corner: 'sharp' },
+ *       presets: {
+ *         password: { icon: 'pi-key' },        // tweak a built-in
+ *         'cv-headline': { label: 'Headline', maxlength: 60, counter: true },
+ *       },
+ *     }),
  *   ]
  *
- * Per-instance props always beat these.
+ * Per-instance props always beat presets, which always beat these defaults.
  */
 export function provideElvField(config: ElvFieldProviderConfig = {}): EnvironmentProviders {
+    // Shallow-merge per key so overriding one property of a built-in preset
+    // doesn't wipe the rest of that preset.
+    const presets: Record<string, ElvFieldPresetDef> = { ...ELV_BUILTIN_PRESETS };
+    for (const [key, def] of Object.entries(config.presets ?? {})) {
+        presets[key] = { ...presets[key], ...def };
+    }
+
     return makeEnvironmentProviders([
         {
             provide: ELV_FIELD_DEFAULTS,
@@ -104,5 +120,6 @@ export function provideElvField(config: ElvFieldProviderConfig = {}): Environmen
             provide: ELV_ERROR_RESOLVER,
             useValue: config.errors ?? ELV_DEFAULT_ERRORS,
         },
+        { provide: ELV_FIELD_PRESETS, useValue: presets },
     ]);
 }
