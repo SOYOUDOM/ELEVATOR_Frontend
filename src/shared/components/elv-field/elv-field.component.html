@@ -118,6 +118,9 @@
             <i class="pi {{ statusIcon() }} fld__status" aria-hidden="true"></i>
         }
 
+        <!-- Icon reflects STATE, not action: crossed-out eye means "hidden
+             right now", clicking it reveals. Swap the two class bindings to
+             flip to the action convention. -->
         @if (showReveal()) {
             <button
                 class="fld__act"
@@ -128,8 +131,8 @@
                 (click)="toggleReveal()">
                 <i
                     class="pi"
-                    [class.pi-eye]="!revealedState()"
-                    [class.pi-eye-slash]="revealedState()"
+                    [class.pi-eye-slash]="!revealedState()"
+                    [class.pi-eye]="revealedState()"
                     aria-hidden="true"></i>
             </button>
         }

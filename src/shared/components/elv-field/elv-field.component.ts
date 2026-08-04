@@ -26,6 +26,7 @@ import type {
     ElvDensity,
     ElvFieldType,
     ElvLabelMode,
+    ElvSkin,
     ElvStatus,
     ElvValidateOn,
     ElvValue,
@@ -55,6 +56,7 @@ let seq = 0;
         '[class]': 'hostClass()',
         '[attr.data-density]': 'density()',
         '[attr.data-corner]': 'corner()',
+        '[attr.data-skin]': 'skin()',
         '[attr.data-status]': 'status()',
         '[attr.data-label-mode]': 'labelMode()',
         '[style.--elv-accent]': 'accent()',
@@ -169,6 +171,7 @@ export class ElvFieldComponent implements ControlValueAccessor {
     // ── visual (null ⇒ inherit the DI default) ────────────────────────
     readonly densityIn = input<ElvDensity | null>(null, { alias: 'density' });
     readonly cornerIn = input<ElvCorner | null>(null, { alias: 'corner' });
+    readonly skinIn = input<ElvSkin | null>(null, { alias: 'skin' });
     readonly labelModeIn = input<ElvLabelMode | null>(null, { alias: 'labelMode' });
     readonly validateOnIn = input<ElvValidateOn | null>(null, { alias: 'validateOn' });
     readonly showSuccessIn = input<boolean | null>(null, { alias: 'showSuccess' });
@@ -184,6 +187,7 @@ export class ElvFieldComponent implements ControlValueAccessor {
 
     readonly density = computed(() => this.densityIn() ?? this.p().density ?? this.cfg.density);
     readonly corner = computed(() => this.cornerIn() ?? this.p().corner ?? this.cfg.corner);
+    readonly skin = computed(() => this.skinIn() ?? this.p().skin ?? this.cfg.skin);
     readonly labelMode = computed(() => this.labelModeIn() ?? this.p().labelMode ?? this.cfg.labelMode);
     readonly validateOn = computed(() => this.validateOnIn() ?? this.cfg.validateOn);
     readonly showSuccess = computed(() => this.showSuccessIn() ?? this.cfg.showSuccess);

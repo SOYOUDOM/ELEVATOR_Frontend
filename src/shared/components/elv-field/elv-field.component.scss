@@ -125,12 +125,14 @@
     --elv-amb-s: 0px;
     --elv-amb-c: transparent;
     --elv-fill: linear-gradient(180deg, #10141c, #0b0e15);
+    --elv-shade: rgba(0, 0, 0, 0.34); /* L4 gloss bottom  */
+    --elv-contact: rgba(0, 0, 0, 0.45); /* contact shadow  */
 
     position: relative;
     isolation: isolate;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--elv-gap, 10px);
     min-height: var(--elv-h);
     padding: 0 var(--elv-pad-x);
     border-radius: var(--elv-radius);
@@ -138,8 +140,8 @@
     box-shadow:
         inset 0 0 0 1px var(--elv-bd),
         inset 0 1px 0 var(--elv-gloss),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.34),
-        0 1px 2px rgba(0, 0, 0, 0.45),
+        inset 0 -1px 0 var(--elv-shade),
+        0 1px 2px var(--elv-contact),
         0 0 0 var(--elv-ring-w) var(--elv-ring-c),
         0 0 var(--elv-amb-b) var(--elv-amb-s) var(--elv-amb-c);
     cursor: text;
@@ -610,6 +612,85 @@
 }
 :host(.is-shake-2) .fld__box {
     animation: elv-shake-b 0.42s var(--elv-ease);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SKIN · MINIMAL
+   ----------------------------------------------------------------------
+   A hairline outline on the page's own black — no fill, no gloss, no
+   contact shadow. Where `raised` reads as a lit panel sitting ON the
+   page, this reads as an aperture cut INTO it.
+
+   The palette shifts cool -> warm here on purpose. `raised` uses a
+   blue-biased slate that reads as glass; on a flat surface that same
+   blue reads as cold, so minimal runs a warm neutral instead. It is a
+   different material, not a dimmer version of the same one.
+
+   Focus still uses the shared ring mechanism, just tuned down: with no
+   fill for a bloom to sit against, the border does more of the work.
+   ══════════════════════════════════════════════════════════════════════ */
+:host([data-skin='minimal']) {
+    --elv-ink: #f0ece4;
+    --elv-ink-2: #b9b2a7;
+    --elv-ink-3: #8b857c;
+    --elv-ink-4: #6d675f;
+    --elv-line: rgba(232, 226, 212, 0.08);
+    --elv-line-hi: rgba(232, 226, 212, 0.15);
+    --elv-line-max: rgba(232, 226, 212, 0.3);
+
+    --elv-radius: 8px;
+    --elv-gap: 13px;
+    --elv-pad-x: 16px;
+    --elv-fs: 15px;
+}
+
+/* Every lighting slot the raised skin uses, switched off. */
+:host([data-skin='minimal']) .fld__box {
+    --elv-fill: transparent;
+    --elv-gloss: transparent;
+    --elv-shade: transparent;
+    --elv-contact: transparent;
+}
+:host([data-skin='minimal']) .fld__box:hover {
+    --elv-fill: transparent;
+    --elv-bd: var(--elv-line-max);
+}
+:host([data-skin='minimal']) .fld__box:focus-within,
+:host([data-skin='minimal'].is-focus) .fld__box {
+    --elv-fill: transparent;
+    --elv-gloss: transparent;
+    --elv-bd: color-mix(in oklab, var(--elv-tone) 62%, transparent);
+    --elv-ring-w: 3px;
+    --elv-ring-c: color-mix(in oklab, var(--elv-tone) 9%, transparent);
+    --elv-amb-b: 14px;
+    --elv-amb-s: -10px;
+}
+
+/* Wider tracking and a bigger gap: the label has to hold its own without
+   a filled box marking where the field starts. */
+:host([data-skin='minimal']) .fld__label {
+    margin-bottom: 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--elv-ink-2);
+}
+:host([data-skin='minimal']) .fld__icon {
+    font-size: 17px;
+    color: var(--elv-ink-3);
+}
+:host([data-skin='minimal'].is-focus) .fld__icon {
+    color: var(--elv-ink-2);
+}
+:host([data-skin='minimal']) .fld__input::placeholder {
+    color: var(--elv-ink-3);
+}
+:host([data-skin='minimal']) .fld__act {
+    color: var(--elv-ink-3);
+}
+:host([data-skin='minimal']) .fld__act:hover {
+    color: var(--elv-ink);
+    background: rgba(232, 226, 212, 0.07);
 }
 
 /* ── touch ───────────────────────────────────────────────────────────── */
