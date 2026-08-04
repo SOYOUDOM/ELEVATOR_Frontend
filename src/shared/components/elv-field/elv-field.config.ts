@@ -7,6 +7,7 @@ import { ELV_BUILTIN_PRESETS, ELV_FIELD_PRESETS, type ElvFieldPresetDef } from '
 export const ELV_FIELD_DEFAULT_CONFIG: ElvFieldDefaults = {
     density: 'default',
     corner: 'soft',
+    skin: 'raised',
     labelMode: 'stacked',
     validateOn: 'touched',
     showSuccess: true,

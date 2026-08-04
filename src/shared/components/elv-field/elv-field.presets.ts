@@ -1,5 +1,5 @@
 import { InjectionToken } from '@angular/core';
-import type { ElvCorner, ElvDensity, ElvFieldType, ElvLabelMode } from './elv-field.types';
+import type { ElvCorner, ElvDensity, ElvFieldType, ElvLabelMode, ElvSkin } from './elv-field.types';
 
 /**
  * A preset is a bundle of sensible defaults for one KIND of field.
@@ -35,6 +35,7 @@ export interface ElvFieldPresetDef {
     maxlength?: number;
     rows?: number;
     labelMode?: ElvLabelMode;
+    skin?: ElvSkin;
     corner?: ElvCorner;
     density?: ElvDensity;
     height?: string | number;
@@ -55,7 +56,9 @@ export type ElvPresetName =
     | 'job-title'
     | 'location'
     | 'amount'
-    | 'bio';
+    | 'bio'
+    | 'auth-email'
+    | 'auth-password';
 
 /** `& {}` keeps IntelliSense on the known keys while still allowing custom ones. */
 export type ElvPreset = ElvPresetName | (string & {});
@@ -160,6 +163,31 @@ export const ELV_BUILTIN_PRESETS: Record<ElvPresetName, ElvFieldPresetDef> = {
         inputmode: 'decimal',
     },
 
+    /* ── auth pair ──────────────────────────────────────────────────
+       The sign-in look: minimal skin, roomier box, person icon rather
+       than an envelope. Same overridability as any other preset. */
+    'auth-email': {
+        label: 'Email',
+        placeholder: 'Enter your email',
+        icon: 'pi-user',
+        type: 'email',
+        autocomplete: 'email',
+        inputmode: 'email',
+        skin: 'minimal',
+        height: 56,
+    },
+
+    'auth-password': {
+        label: 'Password',
+        placeholder: 'Enter your password',
+        icon: 'pi-lock',
+        type: 'password',
+        autocomplete: 'current-password',
+        revealable: true,
+        skin: 'minimal',
+        height: 56,
+    },
+
     bio: {
         label: 'Summary',
         placeholder: 'Three sentences is the sweet spot.',
@@ -175,7 +203,7 @@ export const ELV_BUILTIN_PRESETS: Record<ElvPresetName, ElvFieldPresetDef> = {
  * The live preset registry. provideElvField({ presets }) merges custom
  * entries over these — same key replaces, new key extends.
  */
-export const ELV_FIELD_PRESETS = new InjectionToken<Record<string, ElvFieldPresetDef>>(
-    'ELV_FIELD_PRESETS',
-    { providedIn: 'root', factory: () => ELV_BUILTIN_PRESETS }
-);
+export const ELV_FIELD_PRESETS = new InjectionToken<Record<string, ElvFieldPresetDef>>('ELV_FIELD_PRESETS', {
+    providedIn: 'root',
+    factory: () => ELV_BUILTIN_PRESETS,
+});
