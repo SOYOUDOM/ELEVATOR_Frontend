@@ -117,12 +117,15 @@
    the left edge (raised only, below) is the single flourish; everything else
    stays quiet on purpose. */
 :host(.is-open) {
-    --elv-bd: color-mix(in oklab, var(--elv-tone) 30%, var(--elv-line-max));
+    /* Only 14% tone in the border. Open must stay visibly QUIETER than focus
+     (50% + a 3px ring), or the two states compete and the ring stops reading
+     as the focus signal. The left accent rule carries "open" instead. */
+    --elv-bd: color-mix(in oklab, var(--elv-tone) 14%, var(--elv-line-max));
     --elv-gloss: rgba(255, 255, 255, 0.055);
     --elv-fill: linear-gradient(180deg, #141924, #0c1017);
-    --elv-amb-b: 18px;
-    --elv-amb-s: -10px;
-    --elv-amb-c: color-mix(in oklab, var(--elv-tone) 22%, transparent);
+    --elv-amb-b: 16px;
+    --elv-amb-s: -12px;
+    --elv-amb-c: color-mix(in oklab, var(--elv-tone) 14%, transparent);
 }
 
 /* focus — the crisp ring does the work. 3px, 11% alpha, ZERO blur; the
