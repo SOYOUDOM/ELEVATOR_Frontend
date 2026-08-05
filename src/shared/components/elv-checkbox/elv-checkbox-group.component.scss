@@ -1,0 +1,131 @@
+/* ══════════════════════════════════════════════════════════════════════
+   ELEVATOR — elv-checkbox-group
+
+   No lighting of its own: every lit surface in here belongs to a child
+   elv-checkbox. This file only handles the legend, the rhythm between
+   rows and the shared assist line, so the two components can never drift
+   apart on the shadow stack.
+   ══════════════════════════════════════════════════════════════════════ */
+
+:host {
+    --elv-accent: var(--p-elevator-accent, #ffd35b);
+    --elv-ink-2: var(--p-elevator-ink2, #9ba6ba);
+    --elv-ink-3: var(--p-elevator-ink3, #6a7488);
+    --elv-ink-4: var(--p-elevator-ink4, #4b5468);
+    --elv-line: rgba(158, 180, 215, 0.085);
+    --elv-danger: #fb7185;
+    --elv-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+    --elv-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+    --elv-row-gap: 10px;
+    --elv-col-gap: 22px;
+
+    --elv-font: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+
+    display: block;
+    font-family: var(--elv-font);
+    -webkit-tap-highlight-color: transparent;
+}
+:host,
+:host *,
+:host *::before,
+:host *::after {
+    box-sizing: border-box;
+}
+
+/* A fieldset carries the grouping semantics and nothing else — its default
+   chrome is UA-specific and never matches a design system. min-width:0
+   is the fix for the legacy fieldset rule that refuses to shrink inside a
+   flex or grid parent. */
+.cbg__set {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+}
+
+/* Matches elv-field's stacked label exactly: 11px, 600, wide tracking,
+   uppercase. The ROW labels are body copy; the legend is a field label. */
+.cbg__legend {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    float: left; /* a legend ignores flex/grid layout in some engines */
+    width: 100%;
+    margin: 0 0 11px;
+    padding: 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.085em;
+    text-transform: uppercase;
+    color: var(--elv-ink-3);
+    user-select: none;
+}
+.cbg__req {
+    color: var(--elv-danger);
+    font-size: 13px;
+    line-height: 0;
+}
+
+/* `float` on the legend takes it out of flow, so the rows need to clear it. */
+.cbg__rows {
+    clear: both;
+    display: flex;
+    flex-direction: column;
+    gap: var(--elv-row-gap);
+}
+:host([data-orientation='horizontal']) .cbg__rows {
+    flex-direction: row;
+    flex-wrap: wrap;
+    column-gap: var(--elv-col-gap);
+    row-gap: var(--elv-row-gap);
+}
+
+.cbg__msg {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin: 11px 0 0;
+    font-size: 12.5px;
+    font-weight: 400;
+    line-height: 1.42;
+    color: var(--elv-ink-4);
+    animation: elv-rise 0.32s var(--elv-expo) both;
+}
+.cbg__msg i {
+    font-size: 12px;
+    line-height: 1.42;
+    flex: none;
+}
+.cbg__msg--err {
+    color: var(--elv-danger);
+}
+
+@media (forced-colors: active) {
+    .cbg__legend,
+    .cbg__msg {
+        color: CanvasText;
+    }
+}
+
+@keyframes elv-rise {
+    from {
+        opacity: 0;
+        transform: translateY(-3px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :host,
+    :host *,
+    :host *::before,
+    :host *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 1ms !important;
+    }
+}
