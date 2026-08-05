@@ -1,0 +1,117 @@
+<!--
+  Header row. The <button> is the real control — never a div with a click
+  handler — and it is wrapped in a heading element whose level is configurable,
+  per the WAI-ARIA accordion pattern.
+
+  The button does NOT contain the actions or the chevron: a <button> may not
+  nest interactive descendants, so those sit beside it and the row-level click
+  handler makes the whole strip a hit target anyway.
+-->
+<ng-template #triggerTpl>
+    <button
+        #trigger
+        class="acc__trigger"
+        type="button"
+        [id]="headerId"
+        [attr.aria-expanded]="isOpen()"
+        [attr.aria-controls]="bodyId"
+        [attr.aria-disabled]="isDisabled() ? 'true' : null"
+        (keydown)="handleKeydown($event)"
+        (focus)="handleHeaderFocus($event)"
+        (blur)="handleHeaderBlur()">
+        @if (showIcon()) {
+            <i class="pi {{ icon() }} acc__icon" aria-hidden="true"></i>
+        }
+
+        <span class="acc__titles">
+            <!-- Projected rich header. When it holds anything, the stylesheet
+                 hides .acc__text via :has(.acc__slot:not(:empty)) — that is how
+                 [elvPanelHeader] overrides [header] without needing the consumer
+                 to import a marker directive. -->
+            <span class="acc__slot"><ng-content select="[elvPanelHeader]" /></span>
+
+            <span class="acc__text">
+                @if (header()) {
+                    <span class="acc__title">{{ header() }}</span>
+                }
+                @if (subtitle()) {
+                    <span class="acc__sub">{{ subtitle() }}</span>
+                }
+            </span>
+        </span>
+
+        @if (badgeText(); as b) {
+            <span class="acc__badge">{{ b }}</span>
+        }
+    </button>
+</ng-template>
+
+<div class="acc__head" (click)="handleRowClick($event)">
+    <!-- `as` is only legal on a primary @if, so this is a @switch; the trigger
+         template is referenced six times but instantiated exactly once. -->
+    @switch (headingLevel()) {
+        @case (1) {
+            <h1 class="acc__heading"><ng-container [ngTemplateOutlet]="triggerTpl" /></h1>
+        }
+        @case (2) {
+            <h2 class="acc__heading"><ng-container [ngTemplateOutlet]="triggerTpl" /></h2>
+        }
+        @case (4) {
+            <h4 class="acc__heading"><ng-container [ngTemplateOutlet]="triggerTpl" /></h4>
+        }
+        @case (5) {
+            <h5 class="acc__heading"><ng-container [ngTemplateOutlet]="triggerTpl" /></h5>
+        }
+        @case (6) {
+            <h6 class="acc__heading"><ng-container [ngTemplateOutlet]="triggerTpl" /></h6>
+        }
+        @default {
+            <h3 class="acc__heading"><ng-container [ngTemplateOutlet]="triggerTpl" /></h3>
+        }
+    }
+
+    <!-- stopPropagation is the contract: a button in here must never toggle
+         the panel. handleRowClick re-checks, for controls that forget. -->
+    <span class="acc__actions" (click)="$event.stopPropagation()">
+        <ng-content select="[elvPanelActions]" />
+    </span>
+
+    <span class="acc__chev" aria-hidden="true">
+        <i class="pi pi-chevron-down"></i>
+    </span>
+</div>
+
+<!--
+  grid-template-rows 0fr → 1fr animates to intrinsic height: no magic number,
+  no JS measurement, and nothing to outgrow. `min-height: 0` on .acc__clip is
+  mandatory or the row never collapses.
+
+  Collapsed content stays in the DOM (state, scroll position and un-submitted
+  form values survive), so `inert` is what actually hides it from Tab and from
+  assistive tech. overflow:hidden is a paint detail and must never be relied on
+  for that.
+-->
+<div
+    #body
+    class="acc__body"
+    [class.is-open]="isOpen()"
+    [class.is-unclipped]="isUnclipped()"
+    (transitionend)="handleTransitionEnd($event)">
+    <div class="acc__clip">
+        <div
+            class="acc__region"
+            role="region"
+            [id]="bodyId"
+            [attr.aria-labelledby]="headerId"
+            [attr.inert]="isOpen() ? null : ''">
+            <div class="acc__content">
+                <ng-content />
+                @if (bodyTpl(); as bt) {
+                    @if (shouldRenderBody()) {
+                        <ng-container [ngTemplateOutlet]="bt.tpl" />
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>

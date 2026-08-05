@@ -1,0 +1,566 @@
+/* ══════════════════════════════════════════════════════════════════════
+   ELEVATOR — elv-accordion-panel
+   ----------------------------------------------------------------------
+   Sibling of elv-field, same rule: the lighting layers share ONE
+   box-shadow declaration, and the focus signal is carried by a CRISP 3px
+   ring at 11% alpha — zero blur. That frees the ambient bloom to stay a
+   whisper (18px blur, -8px spread) instead of a blurred slab. There is
+   deliberately no large soft glow anywhere in this file.
+
+     inset 0 0 0 1px                L3 · border, always 1px, never thicker
+     inset 0 1px 0                  L4 · gloss top    ┐ the glass read
+     inset 0 -1px 0                 L4 · gloss bottom ┘
+     0 1px 2px                      ——  contact shadow, neutral black
+     0 0 0 var(--elv-ring-w)        L2 · focus ring, crisp, offset
+     0 0 var(--elv-amb-b) …         L1 · ambient, low alpha, tone-tinted
+
+   State classes and data-* attributes change only the custom properties,
+   never the declaration, so the cascade stays flat and predictable.
+   --elv-tone is the single dial: border, ring, chevron, accent rule and
+   title colour all derive from it.
+
+   The stack sits on :host — the panel card — rather than on the header
+   row, so an open panel rings and lights as ONE object. When collapsed,
+   the card and the header row are the same box anyway.
+
+   ⚠ SPECIFICITY — :host is (0,1,0); a bare `elv-accordion-panel` selector
+   is (0,0,1) and loses to everything declared here. To override from a
+   parent, use `.parent elv-accordion-panel` (0,1,1), an inline style, or
+   retune the upstream --p-elevator-* token.
+   ══════════════════════════════════════════════════════════════════════ */
+
+:host {
+    /* Bridged to src/app/theme/my-preset.ts, with the literal fallback baked
+     in so the component is correct even if the preset never loads. */
+    --elv-accent: var(--p-elevator-accent, #ffd35b);
+    --elv-ink: var(--p-elevator-ink, #e9edf5);
+    --elv-ink-2: var(--p-elevator-ink2, #9ba6ba);
+    --elv-ink-3: var(--p-elevator-ink3, #6a7488);
+    --elv-ink-4: var(--p-elevator-ink4, #4b5468);
+    --elv-line: rgba(158, 180, 215, 0.085);
+    --elv-line-hi: rgba(158, 180, 215, 0.145);
+    --elv-line-max: rgba(158, 180, 215, 0.26);
+
+    --elv-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+    --elv-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --elv-spring: cubic-bezier(0.34, 1.5, 0.64, 1);
+
+    --elv-radius: 10px;
+    --elv-h: 56px;
+    --elv-fs: 14.5px;
+    --elv-pad-x: 16px;
+    --elv-rule-w: 2px;
+
+    --elv-font: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+    --elv-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+    /* ── the one shadow stack, six slots ────────────────────────────── */
+    --elv-tone: var(--elv-accent);
+    --elv-bd: var(--elv-line-hi);
+    --elv-gloss: rgba(255, 255, 255, 0.042);
+    --elv-shade: rgba(0, 0, 0, 0.34);
+    --elv-contact: rgba(0, 0, 0, 0.45);
+    --elv-ring-w: 0px;
+    --elv-ring-c: transparent;
+    --elv-amb-b: 0px;
+    --elv-amb-s: 0px;
+    --elv-amb-c: transparent;
+    --elv-fill: linear-gradient(180deg, #10141c, #0b0e15);
+
+    position: relative;
+    display: block;
+    border-radius: var(--elv-radius);
+    background: var(--elv-fill);
+    box-shadow:
+        inset 0 0 0 1px var(--elv-bd),
+        inset 0 1px 0 var(--elv-gloss),
+        inset 0 -1px 0 var(--elv-shade),
+        0 1px 2px var(--elv-contact),
+        0 0 0 var(--elv-ring-w) var(--elv-ring-c),
+        0 0 var(--elv-amb-b) var(--elv-amb-s) var(--elv-amb-c);
+    font-family: var(--elv-font);
+    color: var(--elv-ink);
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        box-shadow 0.26s var(--elv-ease),
+        background 0.26s var(--elv-ease);
+}
+:host,
+:host *,
+:host *::before,
+:host *::after {
+    box-sizing: border-box;
+}
+
+:host([data-density='compact']) {
+    --elv-h: 44px;
+    --elv-fs: 13.5px;
+    --elv-pad-x: 13px;
+}
+:host([data-density='roomy']) {
+    --elv-h: 68px;
+    --elv-fs: 15.5px;
+    --elv-pad-x: 18px;
+}
+
+:host([data-corner='sharp']) {
+    --elv-radius: 0;
+}
+
+/* hover — the border lifts one step. Nothing blooms; that is a focus signal. */
+:host(:hover) {
+    --elv-bd: var(--elv-line-max);
+    --elv-fill: linear-gradient(180deg, #131822, #0d1118);
+}
+
+/* open — a subtle tone tint, and one step more border. The accent rule down
+   the left edge (raised only, below) is the single flourish; everything else
+   stays quiet on purpose. */
+:host(.is-open) {
+    --elv-bd: color-mix(in oklab, var(--elv-tone) 30%, var(--elv-line-max));
+    --elv-gloss: rgba(255, 255, 255, 0.055);
+    --elv-fill: linear-gradient(180deg, #141924, #0c1017);
+    --elv-amb-b: 18px;
+    --elv-amb-s: -10px;
+    --elv-amb-c: color-mix(in oklab, var(--elv-tone) 22%, transparent);
+}
+
+/* focus — the crisp ring does the work. 3px, 11% alpha, ZERO blur; the
+   ambient stays subordinate to it. (0,2,0) so it beats the open rule. */
+:host(.is-focus) {
+    --elv-bd: color-mix(in oklab, var(--elv-tone) 50%, transparent);
+    --elv-gloss: rgba(255, 255, 255, 0.07);
+    --elv-ring-w: 3px;
+    --elv-ring-c: color-mix(in oklab, var(--elv-tone) 11%, transparent);
+    --elv-amb-b: 18px;
+    --elv-amb-s: -8px;
+    --elv-amb-c: color-mix(in oklab, var(--elv-tone) 42%, transparent);
+}
+
+/* disabled = not applicable, dim it. The header stays focusable so a
+   keyboard user can still read it — that is aria-disabled, not [disabled]. */
+:host(.is-disabled) {
+    --elv-tone: var(--elv-ink-3);
+    --elv-fill: #0a0d13;
+    --elv-bd: var(--elv-line);
+    --elv-amb-b: 0px;
+    --elv-amb-c: transparent;
+    opacity: 0.45;
+}
+:host(.is-disabled) .acc__head,
+:host(.is-disabled) .acc__trigger {
+    cursor: not-allowed;
+}
+
+/* ── header row ──────────────────────────────────────────────────────
+   The WHOLE row is the hit target. The <button> covers everything except
+   the actions and the chevron, and the row-level click handler in the
+   component picks up the rest. */
+.acc__head {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: var(--elv-h);
+    padding: 0 var(--elv-pad-x);
+    border-radius: inherit;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.26s var(--elv-ease);
+}
+:host(.is-open) .acc__head {
+    /* Tone tint, not a second fill: it rides on top of the card gradient so
+     the open header reads a half-step brighter than its own body. */
+    background-color: color-mix(in oklab, var(--elv-tone) 5%, transparent);
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+}
+
+/* The one flourish: a 2px accent rule down the left edge of an open header.
+   raised only — on the flush minimal list it would read as a stray tick. */
+:host([data-skin='raised']) .acc__head::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--elv-rule-w);
+    border-start-start-radius: inherit;
+    background: var(--elv-tone);
+    transform: scaleY(0);
+    transform-origin: 50% 50%;
+    opacity: 0;
+    transition:
+        transform 0.34s var(--elv-expo),
+        opacity 0.2s var(--elv-ease);
+}
+:host([data-skin='raised'].is-open) .acc__head::before {
+    transform: scaleY(1);
+    opacity: 1;
+}
+
+/* The heading element is structural only — every visual is on the button.
+   Global styles bold heading text, so weight is set explicitly here and on
+   .acc__title rather than inherited. */
+.acc__heading {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    font-weight: 400;
+    letter-spacing: inherit;
+}
+
+.acc__trigger {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    min-height: var(--elv-h);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-weight: 400;
+    text-align: left;
+    cursor: pointer;
+    /* The ring is painted by the host stack, so the button must not draw a
+     second one. Removing it is safe ONLY because .is-focus is driven off this
+     element's own :focus-visible. */
+    outline: none;
+}
+
+.acc__icon {
+    flex: none;
+    font-size: 16px;
+    color: var(--elv-ink-4);
+    transition: color 0.22s var(--elv-ease);
+}
+:host(.is-open) .acc__icon {
+    color: var(--elv-tone);
+}
+
+.acc__titles {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+}
+
+/* A projected [elvPanelHeader] overrides [header]/[subtitle] entirely. No
+   marker directive to import: if the slot holds anything at all, the plain
+   text block is switched off. Browsers without :has() render both — degraded,
+   never broken. */
+.acc__slot:empty {
+    display: none;
+}
+.acc__titles:has(.acc__slot:not(:empty)) .acc__text {
+    display: none;
+}
+
+.acc__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.acc__title {
+    font-size: var(--elv-fs);
+    font-weight: 550;
+    letter-spacing: -0.006em;
+    line-height: 1.35;
+    color: var(--elv-ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 0.22s var(--elv-ease);
+}
+:host(.is-open) .acc__title {
+    color: var(--elv-ink);
+}
+
+.acc__sub {
+    font-size: 12.5px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--elv-ink-4);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Metadata, not status: ink-3 on a low-alpha neutral fill, never toned. */
+.acc__badge {
+    flex: none;
+    margin-left: auto;
+    display: inline-grid;
+    place-items: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 7px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.055);
+    box-shadow: inset 0 0 0 1px var(--elv-line);
+    color: var(--elv-ink-3);
+    font-family: var(--elv-mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+    line-height: 1;
+}
+
+.acc__actions {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    /* Sits outside the <button> — a button may not nest interactive
+     descendants — and stops its own clicks so nothing here toggles. */
+    cursor: auto;
+}
+.acc__actions:empty {
+    display: none;
+}
+
+.acc__chev {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    color: var(--elv-ink-4);
+    font-size: 12px;
+    transform: rotate(0deg);
+    transition:
+        transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+        color 0.22s var(--elv-ease);
+}
+:host(.is-open) .acc__chev {
+    transform: rotate(180deg);
+    color: var(--elv-tone);
+}
+
+/* ── body ────────────────────────────────────────────────────────────
+   0fr → 1fr animates to INTRINSIC height: no magic max-height to outgrow,
+   no JS measurement, and no snap at the end. */
+.acc__body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.34s var(--elv-expo);
+}
+.acc__body.is-open {
+    grid-template-rows: 1fr;
+}
+
+/* min-height: 0 is MANDATORY — a grid item's automatic minimum size is its
+   content, so without it the row can never resolve to zero and the panel
+   simply never collapses. */
+.acc__clip {
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* overflow: hidden shears focus rings, tooltips and dropdowns. The component
+   drops it once the open transition has ENDED (filtered on propertyName ===
+   'grid-template-rows', and on the event target, so a nested accordion's own
+   transition cannot trip it) and restores it before any collapse begins. */
+.acc__body.is-open.is-unclipped .acc__clip {
+    overflow: visible;
+}
+
+.acc__region {
+    min-height: 0;
+}
+
+/* Rises 4px and fades, ~80ms behind the height so the text does not appear to
+   stretch with the box. On close it leads instead, clearing before the
+   collapse finishes. */
+.acc__content {
+    padding: 2px var(--elv-pad-x) calc(var(--elv-pad-x) - 2px);
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--elv-ink-2);
+    opacity: 0;
+    transform: translateY(-4px);
+    transition:
+        opacity 0.2s var(--elv-ease),
+        transform 0.26s var(--elv-expo);
+}
+.acc__body.is-open .acc__content {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0.08s;
+}
+
+/* _base.scss forces every <a> to ink with !important. Out-specify it here so
+   a link inside panel content is legible as a link. */
+:host .acc__content a,
+:host .acc__content a:hover,
+:host .acc__content a:focus {
+    color: var(--elv-tone) !important;
+    text-decoration: underline !important;
+    text-underline-offset: 2px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SKIN · MINIMAL
+   ----------------------------------------------------------------------
+   No card, no gap, no fill — a flush list on the page's own black with a
+   single hairline between neighbours. Where `raised` reads as panels
+   sitting ON the page, this reads as rows cut INTO it.
+
+   The palette shifts cool -> warm here, exactly as it does in elv-field.
+   `raised` uses a blue-biased slate that reads as glass; on a flat
+   surface that same blue reads as cold, so minimal runs a warm neutral
+   instead. It is a different material, not a dimmer version of one.
+   ══════════════════════════════════════════════════════════════════════ */
+:host([data-skin='minimal']) {
+    --elv-ink: #f0ece4;
+    --elv-ink-2: #b9b2a7;
+    --elv-ink-3: #8b857c;
+    --elv-ink-4: #6d675f;
+    --elv-line: rgba(232, 226, 212, 0.08);
+    --elv-line-hi: rgba(232, 226, 212, 0.15);
+    --elv-line-max: rgba(232, 226, 212, 0.3);
+
+    --elv-radius: 0;
+    --elv-pad-x: 2px;
+
+    /* Every lighting slot the raised skin uses, switched off. The border slot
+     goes with them: the separation here is the divider below, not an outline
+     around each row. */
+    --elv-fill: transparent;
+    --elv-bd: transparent;
+    --elv-gloss: transparent;
+    --elv-shade: transparent;
+    --elv-contact: transparent;
+
+    /* The hairline BETWEEN panels — never above the first, and because it is
+     a top border on each row, never below the last either. */
+    border-top: 1px solid var(--elv-line);
+}
+:host([data-skin='minimal'].is-first) {
+    border-top: 0;
+}
+
+:host([data-skin='minimal']:hover) {
+    --elv-fill: transparent;
+    --elv-bd: transparent;
+}
+:host([data-skin='minimal']:hover) .acc__title {
+    color: var(--elv-ink);
+}
+:host([data-skin='minimal']) .acc__title {
+    color: var(--elv-ink-2);
+    font-weight: 500;
+}
+
+:host([data-skin='minimal'].is-open) {
+    --elv-fill: transparent;
+    --elv-bd: transparent;
+    --elv-amb-b: 0px;
+    --elv-amb-c: transparent;
+}
+:host([data-skin='minimal'].is-open) .acc__head {
+    background-color: transparent;
+}
+:host([data-skin='minimal'].is-open) .acc__title {
+    color: var(--elv-ink);
+}
+
+/* Focus still uses the shared ring mechanism, just tuned: with no fill for a
+   bloom to sit against, the border does more of the work. */
+:host([data-skin='minimal'].is-focus) {
+    --elv-bd: transparent;
+    --elv-gloss: transparent;
+    --elv-ring-w: 3px;
+    --elv-ring-c: color-mix(in oklab, var(--elv-tone) 9%, transparent);
+    --elv-amb-b: 14px;
+    --elv-amb-s: -10px;
+    --elv-amb-c: color-mix(in oklab, var(--elv-tone) 34%, transparent);
+}
+
+:host([data-skin='minimal']) .acc__content {
+    padding-left: 2px;
+    padding-right: 2px;
+    color: var(--elv-ink-2);
+}
+
+/* ── touch ───────────────────────────────────────────────────────────── */
+@media (pointer: coarse) {
+    .acc__head,
+    .acc__trigger {
+        min-height: max(var(--elv-h), 44px);
+    }
+    .acc__chev {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* ── forced colours ───────────────────────────────────────────────────
+   Every decorative layer is dropped; none of the shadow machinery renders
+   here, so focus has to survive as a real outline. */
+@media (forced-colors: active) {
+    :host {
+        background: Canvas;
+        box-shadow: none;
+        border: 1px solid ButtonBorder;
+    }
+    :host([data-skin='minimal']) {
+        border: 0;
+        border-top: 1px solid ButtonBorder;
+    }
+    :host([data-skin='raised']) .acc__head::before {
+        background: Highlight;
+    }
+    :host(.is-open) .acc__head {
+        background-color: Canvas;
+    }
+    :host(.is-focus) .acc__trigger,
+    .acc__trigger:focus-visible {
+        outline: 2px solid Highlight;
+        outline-offset: 2px;
+    }
+    .acc__title,
+    .acc__sub,
+    .acc__icon,
+    .acc__chev {
+        color: ButtonText;
+    }
+    .acc__badge {
+        background: ButtonFace;
+        box-shadow: none;
+        border: 1px solid ButtonBorder;
+        color: ButtonText;
+    }
+    :host(.is-disabled) {
+        opacity: 1;
+    }
+    :host(.is-disabled) .acc__title,
+    :host(.is-disabled) .acc__sub {
+        color: GrayText;
+    }
+}
+
+/* Collapse durations rather than disabling animations outright, so final
+   states still apply, transitionend still fires, and nothing ends up stuck
+   mid-transition with overflow in the wrong state. */
+@media (prefers-reduced-motion: reduce) {
+    :host,
+    :host *,
+    :host *::before,
+    :host *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 1ms !important;
+        transition-delay: 0ms !important;
+    }
+}
