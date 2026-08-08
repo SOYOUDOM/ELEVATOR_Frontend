@@ -35,7 +35,13 @@ export class AppAuthService {
         }
     }
 
-    authenticate(finallyCallback?: () => void): void {
+    /**
+     * @param finallyCallback runs on both branches, after the request settles.
+     * @param errorCallback   receives the failure so a caller can render it
+     *        inline. Omit it and the error stays unhandled exactly as before —
+     *        swallowing it silently would hide auth failures from old callers.
+     */
+    authenticate(finallyCallback?: () => void, errorCallback?: (error: unknown) => void): void {
         finallyCallback = finallyCallback || (() => {});
 
         this._tokenAuthService
@@ -45,8 +51,16 @@ export class AppAuthService {
                     finallyCallback();
                 })
             )
-            .subscribe((result: AuthenticateResultModel) => {
-                this.processAuthenticateResult(result);
+            .subscribe({
+                next: (result: AuthenticateResultModel) => {
+                    this.processAuthenticateResult(result);
+                },
+                error: (error: unknown) => {
+                    if (!errorCallback) {
+                        throw error;
+                    }
+                    errorCallback(error);
+                },
             });
     }
 

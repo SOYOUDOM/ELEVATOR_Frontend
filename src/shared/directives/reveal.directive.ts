@@ -79,30 +79,19 @@ export class RevealDirective implements OnInit, OnDestroy {
         }
 
         this.io = new IntersectionObserver(
-  entries => {
-    entries.forEach(entry => {
-      console.log(
-        'RV',
-        node.className,
-        entry.isIntersecting,
-        entry.intersectionRatio
-      );
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        node.classList.add('seen');
+                    } else if (!this.revealOnce) {
+                        node.classList.remove('seen');
+                    }
+                });
+            },
+            { threshold: 0 }
+        );
 
-      if (entry.isIntersecting) {
-        node.classList.add('seen');
-        console.log('ADDED', node.className);
-      } else if(!this.revealOnce) {
-        node.classList.remove('seen');
-        console.log('REMOVED', node.className);
-      }
-    });
-  },
-  {
-    threshold: 0
-  }
-);
-
-this.io.observe(node);
+        this.io.observe(node);
     }
 
     ngOnDestroy(): void {

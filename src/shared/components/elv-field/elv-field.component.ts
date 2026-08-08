@@ -371,10 +371,20 @@ export class ElvFieldComponent implements ControlValueAccessor {
         // AbstractControl.events (v18+) emits value, status, touched AND
         // pristine changes. A statusChanges subscription alone would miss
         // markAsTouched(), which is exactly what validateOn:'touched' needs.
-        queueMicrotask(() => {
+        //
+        // afterNextRender, NOT queueMicrotask: formControlName only assigns
+        // NgControl.control in its own ngOnChanges, which has not run by the
+        // time a microtask queued from this constructor fires. `control` was
+        // therefore still undefined, the optional chain short-circuited, and
+        // the subscription was silently never created — leaving status stuck
+        // on 'idle' so no field ever showed a validation message.
+        afterNextRender(() => {
             this.ngControl?.control?.events
                 .pipe(takeUntilDestroyed(this.destroyRef))
                 .subscribe(() => this.tick.update((n) => n + 1));
+            // The control may already be touched/dirty by now (a parent can
+            // patch or mark it during init), so settle the visuals once.
+            this.tick.update((n) => n + 1);
         });
 
         // Shake restarts by alternating two identically-defined keyframes —

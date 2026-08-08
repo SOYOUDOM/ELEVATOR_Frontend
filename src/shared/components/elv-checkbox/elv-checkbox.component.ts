@@ -1,4 +1,5 @@
 import {
+    afterNextRender,
     booleanAttribute,
     ChangeDetectionStrategy,
     Component,
@@ -217,10 +218,16 @@ export class ElvCheckboxComponent implements ControlValueAccessor {
         // AbstractControl.events (v18+) emits value, status, touched AND
         // pristine changes. A statusChanges subscription alone would miss
         // markAsTouched(), which is exactly what the touched gate needs.
-        queueMicrotask(() => {
+        //
+        // afterNextRender, NOT queueMicrotask — see the same note in
+        // elv-field: formControlName has not assigned NgControl.control yet
+        // when a constructor-queued microtask runs, so the subscription was
+        // silently never created and `invalid` never became true.
+        afterNextRender(() => {
             this.ngControl?.control?.events
                 .pipe(takeUntilDestroyed(this.destroyRef))
                 .subscribe(() => this.tick.update((n) => n + 1));
+            this.tick.update((n) => n + 1);
         });
 
         // `indeterminate` has no HTML attribute — it is a DOM property only,

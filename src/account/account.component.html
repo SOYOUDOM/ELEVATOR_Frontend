@@ -1,85 +1,196 @@
-﻿<app-header></app-header>
+<app-header></app-header>
 
-<div class="elv-page scene relative flex w-full min-h-0! h-[calc(100dvh-var(--p-elevator-navbar-height))] p-0! w-full!">
-    <!-- ── LEFT · brand panel ─────────────────────────────────── -->
-    <div class="w-1/2 relative overflow-hidden max-mobile:hidden">
+<div
+    class="elv-auth scene"
+    #stage
+    [class.is-launching]="phase() === 'launching'"
+    (pointermove)="onPointerMove($event)"
+    (pointerleave)="onPointerLeave()">
+    <!-- ── LEFT · brand stage ──────────────────────────────────────────
+         Stacked layers, each multiplying the shared --elv-px/--elv-py by its
+         own depth. The parallax comes out of `translate` alone, so the whole
+         stack stays on the compositor. -->
+    <section class="elv-auth__brand">
+        <div class="elv-auth__layer elv-auth__sky" aria-hidden="true"></div>
+        <div class="elv-auth__layer elv-auth__earth" aria-hidden="true"></div>
+        <div class="elv-auth__layer elv-auth__aurora" aria-hidden="true"></div>
+        <div class="elv-auth__layer elv-auth__dawn" aria-hidden="true"></div>
+        <div class="elv-auth__vignette" aria-hidden="true"></div>
 
-        <!-- backdrop -->
-        <div class="absolute inset-0 bg-cover bg-bottom bg-no-repeat"
-            style="background-image: url('./assets/img/earth+star-field.png');">
+        <div class="elv-auth__mark" aria-hidden="true">
+            <span class="elv-logo-fx"></span>
         </div>
 
-        <!-- ── copy stack ── -->
-        <div class="relative h-full flex flex-col justify-center
-                    gap-[clamp(1.5rem,3vh,2.75rem)]
-                    px-[clamp(2rem,6vw,5rem)] py-[clamp(2rem,5vh,4rem)]">
-            <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                <span class="elv-logo-fx"></span>
-            </div>
+        <div class="elv-auth__copy">
+            <p class="elv-auth__eyebrow" elvReveal="wipe" [revealDelay]="0.1">
+                <span class="elv-auth__pulse" aria-hidden="true"></span>
+                Free · AI-powered · ATS-ready
+            </p>
 
-            <h1 class="elv-reveal uppercase font-semibold
-                       text-[clamp(1.6rem,3.2vw,3rem)] leading-[1.18] tracking-[0.14em]
-                       text-[var(--p-elevator-ink)]" style="animation-delay:.3s">
-                Continue<br />
-                Building<br />
-                Your <span class="text-[var(--p-elevator-accent)]
-                                  drop-shadow-[0_0_18px_var(--p-elevator-accent-glow)]">Future.</span>
-            </h1>
-            <div
-                class="w-[5%] min-w-[36px] h-[3px] shrink-0 drop-shadow-[0_0_18px_var(--p-elevator-accent-glow)] rounded-[5px] bg-[var(--p-elevator-accent)] elv-reveal">
-            </div>
-            <p class="elv-reveal max-w-[34ch] leading-relaxed
-                      text-[clamp(.8rem,1.05vw,1rem)] text-[var(--p-elevator-ink2)]" style="animation-delay:.45s">
+            <!-- Display copy, not the page's heading — the <h1> is "Sign In",
+                 which is what this page is actually for. -->
+            <p class="elv-auth__headline">
+                <span class="elv-auth__line" elvReveal="rise" [revealDelay]="0.18">Continue</span>
+                <span class="elv-auth__line" elvReveal="rise" [revealDelay]="0.28">Building</span>
+                <span class="elv-auth__line" elvReveal="rise" [revealDelay]="0.38">Your <em>Future.</em></span>
+            </p>
+
+            <div class="elv-auth__rule" elvReveal="left" [revealDelay]="0.5" aria-hidden="true"></div>
+
+            <p class="elv-auth__lede" elvReveal="rise" [revealDelay]="0.58">
                 Sign in to access your workspace<br />
                 and keep elevating your career.
             </p>
+
+            <ul class="elv-auth__perks">
+                @for (perk of perks; track perk.label; let i = $index) {
+                    <li class="elv-auth__perk" elvReveal="rise" [revealDelay]="0.7 + i * 0.09">
+                        <i class="pi {{ perk.icon }}" aria-hidden="true"></i>
+                        <span>{{ perk.label }}</span>
+                    </li>
+                }
+            </ul>
         </div>
 
-        <p class="absolute bottom-6 left-6 elv-reveal max-w-[34ch] leading-relaxed
-                      text-[clamp(.8rem,1.05vw,1rem)] text-[var(--p-elevator-ink2)]" style="animation-delay:.6s">© 2026 ELEVATOR. All rights reserved.</p>
-    </div>
+        <p class="elv-auth__legal">© {{ year }} ELEVATOR. All rights reserved.</p>
+    </section>
 
-    <!-- seam: hairline divider + a single 2s light run. Absolute, so it
-         costs the two panels nothing. -->
-    <span class="elv-seam elv-seam--scan" style="--elv-seam-dur:6s;  --elv-seam-delay:.35s" aria-hidden="true"></span>
+    <!-- Hairline divider with a light that runs down it. Absolutely
+         positioned, so it costs the two columns nothing. -->
+    <span class="elv-seam elv-seam--scan" style="--elv-seam-dur: 6s; --elv-seam-delay: 0.35s" aria-hidden="true"></span>
 
-    <!-- ── RIGHT · Sign/Log in panel ─────────────────────────────────── -->
-    <div class="w-1/2 relative overflow-hidden p-10">
-        <p class="uppercase elv-reveal [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)] text-[var(--p-elevator-accent)]"
-            style="animation-delay:.25s" elvReveal="wipe">Welcome back</p>
-        <p class="uppercase elv-reveal text-7xl mt-6!" style="animation-delay:.25s" elvReveal="wipe">Sign In</p>
-        <!-- Input Section -->
-        <div class="mt-10 w-full h-[50%] flex flex-col gap-6 p-6">
-            <!-- <elv-field label="Email"    icon="pi pi-user" placeholder="Enter your email"
-           type="email" labelMode="stacked" corner="sharp" />
+    <!-- ── RIGHT · the console ─────────────────────────────────────── -->
+    <section class="elv-auth__panel">
+        <!-- The reveal lives on a WRAPPER: .rv-rise.seen ends on
+             `transform: none`, which would otherwise cancel the card's tilt.
+             The wrapper also owns the perspective, so the card stays a direct
+             child of it and actually rotates in 3D. -->
+        <div class="elv-auth__riser" elvReveal="rise" [revealDelay]="0.12">
+            <div class="elv-auth__card" #card>
+            <!-- lighting + chrome, all inert -->
+            <span class="elv-auth__spot" aria-hidden="true"></span>
+            <span class="elv-auth__edge" aria-hidden="true"></span>
+            <span class="elv-auth__tick elv-auth__tick--tl" aria-hidden="true"></span>
+            <span class="elv-auth__tick elv-auth__tick--tr" aria-hidden="true"></span>
+            <span class="elv-auth__tick elv-auth__tick--bl" aria-hidden="true"></span>
+            <span class="elv-auth__tick elv-auth__tick--br" aria-hidden="true"></span>
 
-<elv-field label="Password" icon="pi pi-lock" placeholder="Enter your password"
-           type="password" [revealable]="true" labelMode="stacked" corner="sharp" /> -->
-            <elv-field preset="auth-email" class="elv-reveal" [height]="70" skin="raised" skin="minimal"
-                elvReveal="wipe" /> <!-- opt back out -->
-            <elv-field preset="auth-password" class="elv-reveal" [height]="70" corner="sharp" elvReveal="glitch" />
-            <!-- still tunable -->
-            <div class="flex justify-between items-center gap-2 flex">
-                <elv-checkbox label="Remember me" [(checked)]="rememberMe" [inputClass]="'border-4 border-white!'"
-                    labelClass="text-white text-[var(--p-elevator-ink2)] uppercase font-semibold!" />
-                <a class="text-[var(--p-elevator-accent)]! hover:[text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)]! text-[var(--p-elevator-ink2)] uppercase font-semibold transition-colors duration-300"
-                    href="#forgotpassword">Forgot password?</a>
-            </div>
-            <app-elv-button elvReveal="left" variant="neon" icon="pi pi-arrow-right" iconPos="right" [iconGap]="28" [size]="'large'"
-                customClass="elv-btn--scan w-full " [corner]="'round'" [title]="'Sign In'" (click)="onSignInClick()">
-            </app-elv-button>
-            <div class="flex items-center gap-3 text-sm text-[var(--p-elevator-ink2)] uppercase font-semibold
-            before:flex-1 before:h-px before:bg-white/20
-            after:flex-1 after:h-px after:bg-white/20">
-                <span elvReveal="wipe">or</span>
-            </div>
-            <div class="grid grid-cols-2 gap-3 w-full">
-                <app-elv-button icon="fa-brands fa-google" [iconGap]="28" [size]="'large'"
-                    customClass="elv-btn--scan w-full uppercase font-semibold!" [corner]="'round'" [title]="'Continue With Google'" (click)="onSignInClick()" elvReveal="doors">
-                </app-elv-button>
+            <header class="elv-auth__head">
+                <p class="elv-auth__kicker" elvReveal="wipe" [revealDelay]="0.2">Welcome back</p>
+                <h1 class="elv-auth__title" elvReveal="wipe" [revealDelay]="0.26">Sign In</h1>
+            </header>
 
-                <app-elv-button icon="fa-brands fa-github fa-float" iconPos="right" [iconGap]="28" [size]="'large'"
-                    customClass="elv-btn--scan w-full uppercase font-semibold!" [corner]="'notch'" [title]="'Continue With GitHub'" elvReveal="zoom" (click)="onSignInClick()">
-                </app-elv-button>
+            <form class="elv-auth__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+                <div class="elv-auth__field" elvReveal="rise" [revealDelay]="0.34">
+                    <elv-field
+                        preset="auth-email"
+                        formControlName="email"
+                        name="email"
+                        [required]="true"
+                        [clearable]="true"
+                        skin="raised"
+                        corner="soft"
+                        [height]="62"
+                        (focused)="onFieldFocus()"
+                        (blurred)="onFieldBlur()" />
+                </div>
+
+                <div class="elv-auth__field" elvReveal="rise" [revealDelay]="0.42">
+                    <elv-field
+                        preset="auth-password"
+                        formControlName="password"
+                        name="password"
+                        [required]="true"
+                        skin="raised"
+                        corner="soft"
+                        [height]="62"
+                        (focused)="onFieldFocus()"
+                        (blurred)="onFieldBlur()"
+                        (keyup)="onPasswordKey($event)"
+                        (keydown)="onPasswordKey($event)" />
+
+                    <!-- Caps Lock is the commonest cause of a "wrong" password,
+                         and nothing else in the browser warns about it. -->
+                    <p class="elv-auth__caps" [class.is-on]="capsLock()" role="status">
+                        <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+                        Caps Lock is on
+                    </p>
+                </div>
+
+                <div class="elv-auth__row" elvReveal="rise" [revealDelay]="0.5">
+                    <elv-checkbox label="Remember me" size="sm" [(checked)]="rememberMe" />
+                    <button class="elv-auth__link" type="button" (click)="onUnavailable('Password reset')">
+                        Forgot password?
+                    </button>
+                </div>
+
+                @if (authError()) {
+                    <p class="elv-auth__alert" role="alert">
+                        <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+                        <span>{{ authError() }}</span>
+                    </p>
+                }
+                @if (notice()) {
+                    <p class="elv-auth__alert elv-auth__alert--info" role="status">
+                        <i class="pi pi-info-circle" aria-hidden="true"></i>
+                        <span>{{ notice() }}</span>
+                    </p>
+                }
+
+                <div class="elv-auth__cta" [class.is-armed]="armed()" elvReveal="rise" [revealDelay]="0.58">
+                    <app-elv-button
+                        variant="neon"
+                        type="submit"
+                        size="large"
+                        corner="round"
+                        icon="pi pi-arrow-right"
+                        iconPos="right"
+                        [iconGap]="24"
+                        [block]="true"
+                        [glow]="armed()"
+                        [loading]="busy()"
+                        [title]="phase() === 'launching' ? 'Signing you in…' : 'Sign In'"
+                        customClass="elv-auth__submit" />
+                </div>
+
+                <div class="elv-auth__or" elvReveal="rise" [revealDelay]="0.64"><span>or</span></div>
+
+                <div class="elv-auth__social" elvReveal="rise" [revealDelay]="0.7">
+                    <app-elv-button
+                        variant="neon-soft"
+                        size="large"
+                        corner="round"
+                        icon="fa-brands fa-google"
+                        [iconGap]="14"
+                        [block]="true"
+                        [disabled]="busy()"
+                        title="Google"
+                        ariaLabel="Continue with Google"
+                        customClass="elv-auth__oauth"
+                        (clicked)="onSocial('Google')" />
+
+                    <app-elv-button
+                        variant="neon-soft"
+                        size="large"
+                        corner="round"
+                        icon="fa-brands fa-github"
+                        [iconGap]="14"
+                        [block]="true"
+                        [disabled]="busy()"
+                        title="GitHub"
+                        ariaLabel="Continue with GitHub"
+                        customClass="elv-auth__oauth"
+                        (clicked)="onSocial('GitHub')" />
+                </div>
+
+                <p class="elv-auth__foot" elvReveal="rise" [revealDelay]="0.76">
+                    New to ELEVATOR?
+                    <button class="elv-auth__link" type="button" (click)="onUnavailable('Account creation')">
+                        Create a free account
+                    </button>
+                </p>
+            </form>
             </div>
         </div>
+    </section>
+</div>
