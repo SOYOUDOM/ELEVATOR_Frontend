@@ -13,6 +13,7 @@ import { RegisterComponent } from './register/register.component';
 import { AccountLanguagesComponent } from './layout/account-languages.component';
 import { AccountHeaderComponent } from './layout/account-header.component';
 import { AccountFooterComponent } from './layout/account-footer.component';
+import { CheckboxModule } from 'primeng/checkbox';
 
 // tenants
 import { TenantChangeComponent } from './tenant/tenant-change.component';
@@ -28,6 +29,7 @@ import { TenantChangeDialogComponent } from './tenant/tenant-change-dialog.compo
         ServiceProxyModule,
         AccountRoutingModule,
         ModalModule.forChild(),
+        CheckboxModule,
         AccountComponent,
         LoginComponent,
         RegisterComponent,

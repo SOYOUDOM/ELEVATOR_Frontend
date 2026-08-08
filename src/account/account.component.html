@@ -51,11 +51,18 @@
         <p class="uppercase elv-reveal text-7xl mt-6!" style="animation-delay:.25s" elvReveal="wipe">Sign In</p>
         <!-- Input Section -->
         <div class="mt-10 w-full h-[50%] flex flex-col gap-6 p-6">
-<elv-field label="Email"    icon="pi-user" placeholder="Enter your email"
+<!-- <elv-field label="Email"    icon="pi-user" placeholder="Enter your email"
            type="email" labelMode="stacked" corner="sharp" />
 
 <elv-field label="Password" icon="pi-lock" placeholder="Enter your password"
-           type="password" [revealable]="true" labelMode="stacked" corner="sharp" />
-
-        </div>
+           type="password" [revealable]="true" labelMode="stacked" corner="sharp" /> -->
+<elv-field preset="auth-email" class="elv-reveal" skin="raised" skin="minimal" elvReveal="wipe"/>                   <!-- opt back out -->
+<elv-field preset="auth-password" class="elv-reveal"  [height]="52" corner="sharp"  elvReveal="glitch"/>  <!-- still tunable -->
+<form class="flex align-items-center gap-1">
+    <p-checkbox 
+        formControlName="city" 
+        value="New York" 
+        inputId="ny" />
+    <label for="ny">New York</label>
+</form>
     </div>

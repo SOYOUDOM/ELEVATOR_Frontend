@@ -6,9 +6,13 @@ import { RouterOutlet } from '@angular/router';
 import { AccountLanguagesComponent } from './layout/account-languages.component';
 import { AccountFooterComponent } from './layout/account-footer.component';
 import { HeaderComponent } from '../app/layout/header.component';
-import { HeaderLeftNavbarComponent } from "@app/layout/header-left-navbar.component";
-import { RevealDirective } from "@shared/directives/reveal.directive";
-import { ElvFieldComponent} from '@shared/components/elv-field'
+import { HeaderLeftNavbarComponent } from '@app/layout/header-left-navbar.component';
+import { RevealDirective } from '@shared/directives/reveal.directive';
+import { ElvFieldComponent } from '@shared/components/elv-field';
+import { CheckboxModule } from 'primeng/checkbox';
+import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+
 @Component({
     templateUrl: './account.component.html',
     encapsulation: ViewEncapsulation.None,
@@ -17,17 +21,23 @@ import { ElvFieldComponent} from '@shared/components/elv-field'
         style: 'display:block; height:100dvh',
     },
     imports: [
-    AccountHeaderComponent,
-    TenantChangeComponent,
-    RouterOutlet,
-    AccountLanguagesComponent,
-    AccountFooterComponent,
-    HeaderComponent,
-    RevealDirective,
-    ElvFieldComponent
-],
+        AccountHeaderComponent,
+        TenantChangeComponent,
+        RouterOutlet,
+        AccountLanguagesComponent,
+        AccountFooterComponent,
+        HeaderComponent,
+        RevealDirective,
+        ElvFieldComponent,
+        CheckboxModule,
+        FormsModule,
+        ReactiveFormsModule,
+    ],
 })
 export class AccountComponent extends AppComponentBase implements OnInit, OnDestroy {
+    checked: any;
+    formGroup: FormGroup | undefined;
+
     constructor(
         injector: Injector,
         private renderer: Renderer2
@@ -41,6 +51,9 @@ export class AccountComponent extends AppComponentBase implements OnInit, OnDest
 
     ngOnInit(): void {
         // this.renderer.addClass(document.body, 'login-page');
+        this.formGroup = new FormGroup({
+            city: new FormControl<string | null>(null),
+        });
     }
 
     ngOnDestroy(): void {
