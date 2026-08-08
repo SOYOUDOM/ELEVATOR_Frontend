@@ -16,6 +16,12 @@ import { AppComponent } from './app.component';
                         canActivate: [AppRouteGuard],
                     },
                     {
+                        path: 'get-started',
+                        loadChildren: () =>
+                            import('./get-started/get-started.module').then((m) => m.GetStartedModule),
+                        canActivate: [AppRouteGuard],
+                    },
+                    {
                         path: 'about',
                         loadChildren: () => import('./about/about.module').then((m) => m.AboutModule),
                         canActivate: [AppRouteGuard],

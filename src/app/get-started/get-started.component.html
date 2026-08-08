@@ -1,0 +1,437 @@
+<!-- ============================================================
+     GET STARTED — "the boarding sequence"
+
+     Reads top to bottom as one guided flow:
+       hero (call panel) → 01 entrance → 02 prep kit →
+       03 the ascent → boarding pass → questions → footer
+
+     Reveal effects follow the landing page's vocabulary so the two
+     pages feel like one product:
+       section heads → wipe      picker cards → scan
+       stat band     → doors     boarding pass → doors
+       shaft stops   → left      closing band → zoom
+     ============================================================ -->
+<div [@routerTransition]>
+  <div class="elv-page scene gs">
+
+    <!-- ══ HERO · GROUND FLOOR ═══════════════════════════════════ -->
+    <section id="gs-top" class="gs-hero elv-hero elv-container">
+
+      <div class="elv-hero-glow" aria-hidden="true"></div>
+
+      <div class="elv-eyebrow elv-reveal" style="animation-delay:.05s">
+        GROUND FLOOR &nbsp;·&nbsp; BOARDING NOW
+      </div>
+
+      <div class="elv-reveal" style="animation-delay:.15s; margin-top:20px">
+        <app-elv-chip
+          variant="badge"
+          size="small"
+          icon="pi pi-bolt"
+          title="NO CARD · NO TRIAL · NO LOCKED FEATURES"
+          elvReveal="wipe" />
+      </div>
+
+      <h1 class="gs-hero__h1">
+        THREE STEPS<br />
+        <span class="elv-glow-text">TO A CV THAT MOVES</span>
+      </h1>
+
+      <p class="elv-lede elv-reveal" style="animation-delay:.35s">
+        You do not need a plan, a template, or a finished CV to begin. Press the
+        call button, pick the door that matches what you already have, and the
+        studio does the rest of the climbing.
+      </p>
+
+      <!-- the call panel — the page's single loudest affordance -->
+      <div class="gs-call elv-reveal" style="animation-delay:.45s">
+        <div class="gs-call__indicator elv-mono" aria-hidden="true">
+          <i class="pi pi-angle-up gs-call__arrow"></i>
+          <span class="gs-call__digits">{{ stepLabel() }}</span>
+        </div>
+
+        <button
+          type="button"
+          class="gs-call__btn"
+          (click)="scrollTo('gs-entrance')"
+          aria-label="Start — go to step one, choose an entrance">
+          <span class="gs-call__ring" aria-hidden="true"></span>
+          <span class="gs-call__ring gs-call__ring--2" aria-hidden="true"></span>
+          <span class="gs-call__core" aria-hidden="true">
+            <i class="pi pi-chevron-up"></i>
+          </span>
+        </button>
+
+        <span class="gs-call__label elv-mono">PRESS TO BOARD</span>
+      </div>
+
+      <div class="gs-hero__stats" elvReveal="doors" [revealDelay]="0.2">
+        <app-stats
+          [stats]="heroStats"
+          skin="ghost"
+          size="medium"
+          corner="round"
+          [valueGlow]="true" />
+      </div>
+    </section>
+
+
+    <!-- ══ STEP 01 · CHOOSE AN ENTRANCE ══════════════════════════ -->
+    <section id="gs-entrance" class="elv-section elv-container gs-section">
+
+      <div class="elv-section-head" elvReveal="wipe">
+        <div class="elv-eyebrow">STEP 01 &nbsp;·&nbsp; CHOOSE AN ENTRANCE</div>
+        <h2>Three doors.<br />Same floor at the top.</h2>
+        <p class="elv-lede">
+          Pick the one that matches what you have in front of you right now —
+          not what you wish you had. You can switch later without losing a word.
+        </p>
+      </div>
+
+      <div class="gs-picker">
+        @for (e of entrances; track e.id) {
+          <app-elv-card
+            variant="feature"
+            corner="round"
+            hover="border"
+            [interactive]="true"
+            [num]="e.num"
+            [icon]="e.icon"
+            [title]="e.title"
+            [text]="e.text"
+            [titleGlow]="isPicked(e.id)"
+            [customClass]="'gs-pick' + (isPicked(e.id) ? ' is-picked' : '')"
+            [ariaLabel]="'Choose: ' + e.title"
+            (activated)="pick(e.id)"
+            elvReveal="scan"
+            [revealDelay]="$index * 0.09">
+
+            <p class="gs-pick__best">{{ e.best }}</p>
+
+            <div card-actions class="gs-pick__actions">
+              <app-elv-chip variant="badge" size="small" [title]="e.tag" />
+              <app-elv-chip variant="badge" size="small" icon="pi pi-clock" [title]="e.eta" />
+
+              <span class="gs-pick__mark elv-mono" aria-hidden="true">
+                @if (isPicked(e.id)) {
+                  <i class="pi pi-check"></i> SELECTED
+                } @else {
+                  CHOOSE
+                }
+              </span>
+            </div>
+          </app-elv-card>
+        }
+      </div>
+
+      <div class="gs-picker__note" aria-live="polite">
+        @if (pickedEntrance(); as e) {
+          <app-elv-alert
+            tone="success"
+            skin="soft"
+            corner="round"
+            [bar]="true"
+            icon="pi-check-circle"
+            title="Entrance locked in"
+            [text]="e.title + ' — about ' + e.eta + '. ' + e.best">
+            <div alert-actions>
+              <app-elv-button
+                size="small"
+                corner="sharp"
+                title="NEXT: THE PREP KIT"
+                icon="pi pi-arrow-right"
+                iconPos="right"
+                (clicked)="scrollTo('gs-prep')" />
+            </div>
+          </app-elv-alert>
+        } @else {
+          <app-elv-alert
+            tone="neutral"
+            skin="outline"
+            corner="round"
+            icon="pi-info-circle"
+            text="Tap a door above to lock it in. The rest of this page adapts to whichever one you choose." />
+        }
+      </div>
+    </section>
+
+
+    <!-- ══ STEP 02 · THE PREP KIT ════════════════════════════════ -->
+    <section id="gs-prep" class="elv-section elv-container gs-section">
+
+      <div class="elv-section-head" elvReveal="wipe">
+        <div class="elv-eyebrow">STEP 02 &nbsp;·&nbsp; THE PREP KIT</div>
+        <h2>Four things worth<br />having open.</h2>
+        <p class="elv-lede">{{ prepIntro() }}</p>
+      </div>
+
+      <div class="gs-prep">
+        <!-- the divider between the two panels costs zero layout -->
+        <span
+          class="elv-seam elv-seam--scan gs-prep__seam"
+          style="--elv-seam-dur:7s; --elv-seam-runs:infinite"
+          aria-hidden="true"></span>
+
+        <!-- left: the checklist -->
+        <ul class="gs-prep__list" elvReveal="left">
+          @for (p of prep; track p.id) {
+            <li class="gs-prep__row" [class.is-done]="isReady(p.id)">
+              <elv-checkbox
+                size="lg"
+                skin="minimal"
+                corner="sharp"
+                tone="accent"
+                [label]="p.label"
+                [hint]="p.hint"
+                [checked]="isReady(p.id)"
+                (checkedChange)="setReady(p.id, $event)" />
+            </li>
+          }
+        </ul>
+
+        <!-- right: live readiness -->
+        <div class="gs-prep__gauge" elvReveal="right" [revealDelay]="0.1">
+          <app-elv-progress
+            shape="ring"
+            size="large"
+            tone="accent"
+            [value]="readyPct()"
+            [showValue]="true"
+            [glow]="true"
+            [label]="readyState().tag"
+            ariaLabel="Prep kit readiness" />
+
+          <p class="gs-prep__note">{{ readyState().note }}</p>
+
+          <div class="gs-prep__cta">
+            @if (readyCount() < prep.length) {
+              <app-elv-button
+                size="small"
+                corner="sharp"
+                variant="ghost"
+                title="I HAVE ALL OF IT"
+                icon="pi pi-check"
+                (clicked)="readyForAll()" />
+            } @else {
+              <app-elv-button
+                size="small"
+                corner="sharp"
+                variant="neon"
+                [glow]="true"
+                title="SEE WHAT HAPPENS NEXT"
+                icon="pi pi-arrow-right"
+                iconPos="right"
+                (clicked)="scrollTo('gs-ascent')" />
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ══ STEP 03 · THE ASCENT ══════════════════════════════════ -->
+    <section id="gs-ascent" class="elv-section elv-container gs-section">
+
+      <div class="elv-section-head" elvReveal="wipe">
+        <div class="elv-eyebrow">STEP 03 &nbsp;·&nbsp; THE ASCENT</div>
+        <h2>What happens once<br />the doors close.</h2>
+        <p class="elv-lede">
+          Four stops between an empty page and a file a recruiter can actually
+          read. You never leave the car, and nothing here costs anything.
+        </p>
+      </div>
+
+      <div class="gs-ascent">
+        <!-- the shaft: hairline, travelling light, growing fill, riding car -->
+        <div class="gs-rail" aria-hidden="true">
+          <span class="gs-rail__fill"></span>
+          <span
+            class="elv-seam elv-seam--scan"
+            style="--elv-seam-dur:6s; --elv-seam-runs:infinite; --elv-seam-bleed:26px"></span>
+          <span class="gs-car"><i class="pi pi-angle-double-up"></i></span>
+        </div>
+
+        <ol class="gs-stops">
+          @for (s of stops; track s.num) {
+            <li class="gs-stop">
+              <span class="gs-stop__dot" aria-hidden="true"></span>
+
+              <div class="gs-stop__body">
+                <div class="gs-stop__head">
+                  <span class="gs-stop__num elv-mono">{{ s.num }}</span>
+                  <i class="pi {{ s.icon }} gs-stop__icon" aria-hidden="true"></i>
+                </div>
+                <h3 class="gs-stop__title">{{ s.title }}</h3>
+                <p class="gs-stop__text">{{ s.text }}</p>
+                <span class="gs-stop__meta elv-mono">{{ s.meta }}</span>
+              </div>
+            </li>
+          }
+        </ol>
+      </div>
+    </section>
+
+
+    <!-- ══ THE BOARDING PASS ═════════════════════════════════════ -->
+    <section id="gs-launch" class="elv-section elv-container gs-section">
+
+      <div class="gs-pass" elvReveal="doors">
+        <div class="gs-pass__stub">
+          <span class="gs-pass__stub-label elv-mono">BOARDING PASS</span>
+          <span class="gs-pass__stub-mark">E</span>
+          <span class="gs-pass__stub-foot elv-mono">CV STUDIO</span>
+        </div>
+
+        <div class="gs-pass__body">
+          <div class="gs-pass__grid">
+            <div class="gs-pass__cell">
+              <span class="gs-pass__k elv-mono">ENTRANCE</span>
+              <strong class="gs-pass__v">{{ pickedEntrance()?.title ?? 'NOT CHOSEN YET' }}</strong>
+            </div>
+            <div class="gs-pass__cell">
+              <span class="gs-pass__k elv-mono">PREP KIT</span>
+              <strong class="gs-pass__v">{{ readyCount() }} / {{ prep.length }} READY</strong>
+            </div>
+            <div class="gs-pass__cell">
+              <span class="gs-pass__k elv-mono">ETA</span>
+              <strong class="gs-pass__v">{{ pickedEntrance()?.eta ?? '~6 MIN' }}</strong>
+            </div>
+            <div class="gs-pass__cell">
+              <span class="gs-pass__k elv-mono">FARE</span>
+              <strong class="gs-pass__v elv-glow-text">$0.00</strong>
+            </div>
+          </div>
+
+          <app-elv-progress
+            size="small"
+            corner="pill"
+            tone="accent"
+            [value]="progress()"
+            [showValue]="true"
+            label="BOARDING PROGRESS"
+            ariaLabel="Boarding progress" />
+
+          <h2 class="gs-pass__h2">
+            Your next role is<br /><span class="elv-glow-text">one upload away.</span>
+          </h2>
+
+          <div class="gs-pass__cta">
+            <app-elv-button
+              size="large"
+              corner="sharp"
+              variant="neon"
+              [glow]="true"
+              title="CREATE MY FREE ACCOUNT"
+              icon="pi pi-arrow-right"
+              iconPos="right"
+              url="/account/register"
+              elvReveal="wipe"
+              [revealDelay]="0.35" />
+
+            <app-elv-button
+              size="large"
+              corner="sharp"
+              variant="ghost"
+              title="I ALREADY HAVE ONE"
+              url="/account/login" />
+          </div>
+
+          @if (!picked()) {
+            <button type="button" class="gs-pass__back elv-mono" (click)="scrollTo('gs-entrance')">
+              <i class="pi pi-arrow-up"></i> You have not picked an entrance yet — take ten seconds
+            </button>
+          }
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ══ QUESTIONS ═════════════════════════════════════════════ -->
+    <section id="gs-faq" class="elv-section elv-container gs-section">
+
+      <div class="elv-section-head" elvReveal="wipe">
+        <div class="elv-eyebrow">BEFORE YOU STEP IN</div>
+        <h2>The questions<br />everyone asks.</h2>
+      </div>
+
+      <div elvReveal="rise" [revealDelay]="0.05">
+        <elv-accordion preset="faq" [headingLevel]="3">
+          @for (f of faqs; track f.id) {
+            <elv-accordion-panel [panelId]="f.id" [header]="f.q">
+              <p class="gs-faq__a">{{ f.a }}</p>
+            </elv-accordion-panel>
+          }
+        </elv-accordion>
+      </div>
+    </section>
+
+
+    <!-- ══ CLOSING BAND ══════════════════════════════════════════ -->
+    <section class="elv-section elv-container gs-section gs-closing" elvReveal="zoom">
+      <div class="gs-closing__inner elv-center">
+        <div class="elv-eyebrow">DOORS CLOSING</div>
+        <h2 class="gs-closing__h2">
+          Everything above is free.<br />
+          <span class="elv-glow-text">Including the part that matters.</span>
+        </h2>
+        <div class="elv-hero-cta">
+          <app-elv-button
+            size="large"
+            corner="sharp"
+            [glow]="true"
+            title="START THE CLIMB"
+            icon="fa-utility fa-semibold fa-angle-right"
+            iconPos="right"
+            url="/account/register" />
+          <app-elv-button
+            size="large"
+            corner="notch"
+            variant="ghost"
+            title="BACK TO THE TOP"
+            icon="pi pi-chevron-up"
+            (clicked)="scrollTo('gs-top')" />
+        </div>
+      </div>
+    </section>
+
+    <app-footer></app-footer>
+
+    <!-- ══ STICKY HUD — the one thing left to do, always in reach ══
+         Sticky, NOT fixed: the app shell's .route-shell keeps a
+         transform + filter after its boot animation (routeIn runs with
+         fill-mode both, so the final `transform: none` computes to a real
+         matrix), and a transformed ancestor becomes the containing block
+         for position:fixed. A zero-height sticky dock sidesteps that
+         entirely — sticky resolves against the scrollport, which no
+         ancestor transform can move.
+         ══════════════════════════════════════════════════════════ -->
+    <div class="gs-hud-dock">
+      <div class="gs-hud" [class.is-up]="hudUp()">
+        <div class="gs-hud__inner">
+          <span class="gs-hud__floor elv-mono" aria-hidden="true">{{ stepLabel() }}</span>
+
+          <div class="gs-hud__meter" role="status" aria-live="polite">
+            <span class="gs-hud__note">{{ nextAction().note }}</span>
+            <app-elv-progress
+              size="small"
+              corner="pill"
+              tone="accent"
+              [value]="progress()"
+              [showValue]="false"
+              ariaLabel="Boarding progress" />
+          </div>
+
+          <app-elv-button
+            size="small"
+            corner="sharp"
+            variant="neon"
+            [glow]="true"
+            [title]="nextAction().cta"
+            icon="pi pi-arrow-right"
+            iconPos="right"
+            (clicked)="scrollTo(nextAction().anchor)" />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
