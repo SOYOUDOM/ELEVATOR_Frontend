@@ -1,0 +1,49 @@
+<!-- ────────────────────────────────────────────────────────────
+     STEP 01 · choose a path
+
+     Each card is one real <button>, not a div with a role and a
+     nested button inside it. That gives the whole card as the hit
+     target with exactly one tab stop, native Enter/Space, and no
+     second control that does the same thing. The titles are spans
+     rather than headings for the same reason — the frame's <h3>
+     is the heading here; these are button labels.
+     ──────────────────────────────────────────────────────────── -->
+<app-wizard-step-frame
+  [title]="step().title"
+  [subtitle]="step().subtitle">
+
+  <div class="cp__grid">
+    @for (path of paths; track path.id) {
+      <button
+        type="button"
+        class="cp__card"
+        [class.is-recommended]="!!path.badge"
+        [class.is-busy]="busyPath() === path.id"
+        [disabled]="!!busyPath()"
+        (click)="choose(path)"
+        elvReveal="rise"
+        [revealDelay]="$index * 0.08">
+
+        @if (path.badge) {
+          <span class="cp__badge elv-mono">{{ path.badge }}</span>
+        }
+
+        <span class="cp__icon" aria-hidden="true">
+          <i class="{{ path.icon }}"></i>
+        </span>
+
+        <span class="cp__title">{{ path.title }}</span>
+        <span class="cp__text">{{ path.text }}</span>
+
+        <span class="cp__cta elv-mono">
+          <span class="cp__cta-label">{{ path.cta }}</span>
+          @if (busyPath() === path.id) {
+            <span class="cp__spinner" aria-hidden="true"></span>
+          } @else {
+            <i class="pi pi-arrow-right" aria-hidden="true"></i>
+          }
+        </span>
+      </button>
+    }
+  </div>
+</app-wizard-step-frame>

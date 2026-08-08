@@ -1,0 +1,57 @@
+<!-- ────────────────────────────────────────────────────────────
+     The track is an <ol>: markers and connectors are both list
+     items, so the rules can flex to fill the leftover space and
+     the markers stay evenly spread at any width.
+
+     Connectors carry aria-hidden — they are pure decoration and
+     would otherwise be announced as empty list items.
+     ──────────────────────────────────────────────────────────── -->
+
+@if (showCounter()) {
+  <p class="elv-stepper__counter elv-mono">{{ counterLabel() }}</p>
+}
+
+<ol class="elv-stepper__track" [attr.aria-label]="ariaLabel()">
+  @for (step of steps(); track step.item.id) {
+
+    @if (!$first) {
+      <li class="elv-stepper__connector"
+          [attr.data-state]="step.state === 'upcoming' || step.state === 'disabled' ? 'upcoming' : 'done'"
+          aria-hidden="true"></li>
+    }
+
+    <li class="elv-stepper__step"
+        [attr.data-state]="step.state"
+        [attr.aria-current]="step.state === 'active' ? 'step' : null">
+
+      @if (step.selectable) {
+        <button type="button"
+                class="elv-stepper__hit"
+                [attr.aria-label]="step.item.ariaLabel || step.item.label"
+                (click)="onSelect(step)">
+          <ng-container [ngTemplateOutlet]="body" [ngTemplateOutletContext]="{ $implicit: step }" />
+        </button>
+      } @else {
+        <span class="elv-stepper__hit elv-stepper__hit--static">
+          <ng-container [ngTemplateOutlet]="body" [ngTemplateOutletContext]="{ $implicit: step }" />
+        </span>
+      }
+    </li>
+  }
+</ol>
+
+<!-- Marker + caption. Shared so the button and the static span never drift. -->
+<ng-template #body let-step>
+  <span class="elv-stepper__marker">
+    <span class="elv-stepper__pulse" aria-hidden="true"></span>
+    @if (step.icon) {
+      <i class="{{ step.icon }}" aria-hidden="true"></i>
+    } @else {
+      <span class="elv-stepper__num">{{ step.marker }}</span>
+    }
+  </span>
+
+  @if (showLabels()) {
+    <span class="elv-stepper__label elv-mono">{{ step.item.label }}</span>
+  }
+</ng-template>

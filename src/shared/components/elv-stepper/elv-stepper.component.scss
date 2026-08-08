@@ -1,0 +1,309 @@
+// ════════════════════════════════════════════════════════════
+// ELV-STEPPER
+//
+// Every colour and metric routes through a local custom property
+// that falls back to a theme token, so a host can retune one
+// instance (--elv-stepper-dot, --elv-stepper-accent, …) without
+// forking the component.
+//
+// State lives entirely in [data-state] on the step and the
+// connector. No :not() chains, no specificity ladders.
+// ════════════════════════════════════════════════════════════
+
+:host {
+  --elv-stepper-dot: 34px;
+  --elv-stepper-gap: 12px;
+  --elv-stepper-track-gap: 10px;
+  --elv-stepper-num: 13px;
+  --elv-stepper-label: 10px;
+
+  --elv-stepper-accent: var(--p-elevator-accent);
+  --elv-stepper-glow: var(--p-elevator-accent-glow);
+  --elv-stepper-line: var(--p-elevator-line-strong);
+  --elv-stepper-line-done: var(--p-elevator-accent);
+  --elv-stepper-ink: var(--p-elevator-ink2);
+  --elv-stepper-ink-dim: var(--p-elevator-ink4);
+  --elv-stepper-surface: var(--p-elevator-panel);
+
+  display: block;
+  width: 100%;
+}
+
+// ── Sizes ─────────────────────────────────────────────────────
+:host([data-size='small']) {
+  --elv-stepper-dot: 26px;
+  --elv-stepper-gap: 9px;
+  --elv-stepper-num: 11px;
+  --elv-stepper-label: 9px;
+}
+
+:host([data-size='large']) {
+  --elv-stepper-dot: 44px;
+  --elv-stepper-gap: 15px;
+  --elv-stepper-num: 16px;
+  --elv-stepper-label: 11px;
+}
+
+// ── Counter line ──────────────────────────────────────────────
+.elv-stepper__counter {
+  margin: 0 0 18px;
+  font-size: 11px;
+  color: var(--elv-stepper-ink-dim);
+  text-align: center;
+}
+
+// ── Track ─────────────────────────────────────────────────────
+.elv-stepper__track {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--elv-stepper-track-gap);
+}
+
+.elv-stepper__step {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+// The rule between two markers. It flexes, so seven steps spread
+// evenly across whatever width the host gives us. The top margin
+// parks it on the marker's centre line.
+.elv-stepper__connector {
+  flex: 1 1 auto;
+  min-width: 18px;
+  height: 0;
+  margin-top: calc(var(--elv-stepper-dot) / 2);
+  border-top: 1px dashed var(--elv-stepper-line);
+  transition: border-color .35s ease;
+
+  &[data-state='done'] {
+    border-top-color: color-mix(in oklch, var(--elv-stepper-line-done) 55%, transparent);
+  }
+}
+
+:host([data-connector='solid']) .elv-stepper__connector { border-top-style: solid; }
+:host([data-connector='none'])  .elv-stepper__connector { border-top-style: none; }
+
+// ── Hit area ──────────────────────────────────────────────────
+// One layout for both the <button> and the static <span>, so a
+// clickable step never shifts by a pixel against a locked one.
+.elv-stepper__hit {
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--elv-stepper-gap);
+  width: 100%;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: none;
+
+    .elv-stepper__marker {
+      box-shadow:
+        0 0 0 2px var(--p-elevator-bg0),
+        0 0 0 4px var(--elv-stepper-accent);
+    }
+  }
+}
+
+.elv-stepper__hit--static { cursor: default; }
+
+// ── Marker ────────────────────────────────────────────────────
+.elv-stepper__marker {
+  position: relative;
+  flex: none;
+  width: var(--elv-stepper-dot);
+  height: var(--elv-stepper-dot);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+
+  background: var(--elv-stepper-surface);
+  border: 1px solid var(--elv-stepper-line);
+  color: var(--elv-stepper-ink-dim);
+  font-family: 'Share Tech Mono', ui-monospace, monospace;
+  font-size: var(--elv-stepper-num);
+  line-height: 1;
+
+  transition:
+    background-color .3s ease,
+    border-color .3s ease,
+    color .3s ease,
+    box-shadow .3s ease;
+
+  i { font-size: calc(var(--elv-stepper-num) * .95); }
+}
+
+.elv-stepper__num { display: block; }
+
+// The soft ring that only the active marker shows.
+.elv-stepper__pulse {
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  opacity: 0;
+  transition: opacity .3s ease;
+  pointer-events: none;
+}
+
+// ── Label ─────────────────────────────────────────────────────
+.elv-stepper__label {
+  font-size: var(--elv-stepper-label);
+  line-height: 1.25;
+  letter-spacing: .16em;
+  text-align: center;
+  color: var(--elv-stepper-ink-dim);
+  transition: color .3s ease;
+  max-width: 12ch;
+  text-wrap: balance;
+}
+
+// ── States ────────────────────────────────────────────────────
+.elv-stepper__step[data-state='done'] {
+  .elv-stepper__marker {
+    border-color: color-mix(in oklch, var(--elv-stepper-accent) 55%, transparent);
+    color: var(--elv-stepper-accent);
+  }
+
+  .elv-stepper__label { color: var(--elv-stepper-ink); }
+}
+
+.elv-stepper__step[data-state='active'] {
+  .elv-stepper__marker {
+    background: var(--elv-stepper-accent);
+    border-color: var(--elv-stepper-accent);
+    color: var(--p-elevator-bg0);
+    box-shadow: 0 0 18px var(--elv-stepper-glow);
+  }
+
+  .elv-stepper__pulse {
+    opacity: 1;
+    border-color: color-mix(in oklch, var(--elv-stepper-accent) 35%, transparent);
+    animation: elv-stepper-pulse 2.6s ease-out infinite;
+  }
+
+  .elv-stepper__label {
+    color: var(--elv-stepper-accent);
+    text-shadow: 0 0 14px var(--elv-stepper-glow);
+  }
+}
+
+.elv-stepper__step[data-state='disabled'] {
+  opacity: .4;
+
+  .elv-stepper__hit { cursor: not-allowed; }
+}
+
+// Hover only where a click actually does something.
+.elv-stepper__hit:not(.elv-stepper__hit--static):hover {
+  .elv-stepper__marker {
+    border-color: var(--elv-stepper-accent);
+    color: var(--elv-stepper-accent);
+  }
+
+  .elv-stepper__label { color: var(--elv-stepper-ink); }
+}
+
+.elv-stepper__step[data-state='active'] .elv-stepper__hit:hover .elv-stepper__marker {
+  color: var(--p-elevator-bg0);
+}
+
+@keyframes elv-stepper-pulse {
+  0%   { transform: scale(1);    opacity: .9; }
+  70%  { transform: scale(1.35); opacity: 0;  }
+  100% { transform: scale(1.35); opacity: 0;  }
+}
+
+// ── Vertical ──────────────────────────────────────────────────
+:host([data-orientation='vertical']) {
+  .elv-stepper__track {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .elv-stepper__connector {
+    width: 0;
+    min-width: 0;
+    min-height: 22px;
+    height: auto;
+    align-self: flex-start;
+    margin: 0 0 0 calc(var(--elv-stepper-dot) / 2);
+    border-top: 0;
+    border-left: 1px dashed var(--elv-stepper-line);
+
+    &[data-state='done'] {
+      border-left-color: color-mix(in oklch, var(--elv-stepper-line-done) 55%, transparent);
+    }
+  }
+
+  .elv-stepper__hit {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .elv-stepper__label {
+    text-align: left;
+    max-width: none;
+  }
+}
+
+:host([data-orientation='vertical'][data-connector='solid']) .elv-stepper__connector {
+  border-left-style: solid;
+}
+:host([data-orientation='vertical'][data-connector='none']) .elv-stepper__connector {
+  border-left-style: none;
+}
+
+// ── Narrow screens ────────────────────────────────────────────
+// Seven captions do not fit in 390px. Rather than truncate them,
+// the track scrolls and the component keeps the active marker
+// centred (see keepActiveInView in the class).
+@media (max-width: 900px) {
+  :host([data-orientation='horizontal']) {
+    --elv-stepper-dot: 30px;
+    --elv-stepper-label: 9px;
+
+    .elv-stepper__track {
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+      // Lets the first and last markers reach the middle of the viewport.
+      scroll-padding-inline: 40%;
+
+      &::-webkit-scrollbar { display: none; }
+    }
+
+    .elv-stepper__step { scroll-snap-align: center; }
+
+    .elv-stepper__label {
+      max-width: 9ch;
+      white-space: normal;
+    }
+
+    .elv-stepper__connector { min-width: 26px; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .elv-stepper__pulse { animation: none; }
+
+  .elv-stepper__marker,
+  .elv-stepper__label,
+  .elv-stepper__connector {
+    transition: none;
+  }
+}
