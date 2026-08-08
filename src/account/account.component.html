@@ -9,11 +9,6 @@
             style="background-image: url('./assets/img/earth+star-field.png');">
         </div>
 
-        <!-- readability veil: keeps the copy legible over the city lights -->
-        <div class="absolute inset-0 bg-gradient-to-r
-                    from-[var(--p-elevator-bg0)]/70 via-[var(--p-elevator-bg0)]/25 to-transparent">
-        </div>
-
         <!-- ── copy stack ── -->
         <div class="relative h-full flex flex-col justify-center
                     gap-[clamp(1.5rem,3vh,2.75rem)]
@@ -39,6 +34,9 @@
                 and keep elevating your career.
             </p>
         </div>
+
+        <p class="absolute bottom-6 left-6 elv-reveal max-w-[34ch] leading-relaxed
+                      text-[clamp(.8rem,1.05vw,1rem)] text-[var(--p-elevator-ink2)]" style="animation-delay:.6s">© 2026 ELEVATOR. All rights reserved.</p>
     </div>
 
     <!-- seam: hairline divider + a single 2s light run. Absolute, so it
@@ -47,22 +45,41 @@
 
     <!-- ── RIGHT · Sign/Log in panel ─────────────────────────────────── -->
     <div class="w-1/2 relative overflow-hidden p-10">
-        <p class="uppercase elv-reveal [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)] text-[var(--p-elevator-accent)]" style="animation-delay:.25s" elvReveal="wipe">Welcome back</p>
+        <p class="uppercase elv-reveal [text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)] text-[var(--p-elevator-accent)]"
+            style="animation-delay:.25s" elvReveal="wipe">Welcome back</p>
         <p class="uppercase elv-reveal text-7xl mt-6!" style="animation-delay:.25s" elvReveal="wipe">Sign In</p>
         <!-- Input Section -->
         <div class="mt-10 w-full h-[50%] flex flex-col gap-6 p-6">
-<!-- <elv-field label="Email"    icon="pi-user" placeholder="Enter your email"
+            <!-- <elv-field label="Email"    icon="pi pi-user" placeholder="Enter your email"
            type="email" labelMode="stacked" corner="sharp" />
 
-<elv-field label="Password" icon="pi-lock" placeholder="Enter your password"
+<elv-field label="Password" icon="pi pi-lock" placeholder="Enter your password"
            type="password" [revealable]="true" labelMode="stacked" corner="sharp" /> -->
-<elv-field preset="auth-email" class="elv-reveal" skin="raised" skin="minimal" elvReveal="wipe"/>                   <!-- opt back out -->
-<elv-field preset="auth-password" class="elv-reveal"  [height]="52" corner="sharp"  elvReveal="glitch"/>  <!-- still tunable -->
-<form class="flex align-items-center gap-1">
-    <p-checkbox 
-        formControlName="city" 
-        value="New York" 
-        inputId="ny" />
-    <label for="ny">New York</label>
-</form>
-    </div>
+            <elv-field preset="auth-email" class="elv-reveal" [height]="70" skin="raised" skin="minimal"
+                elvReveal="wipe" /> <!-- opt back out -->
+            <elv-field preset="auth-password" class="elv-reveal" [height]="70" corner="sharp" elvReveal="glitch" />
+            <!-- still tunable -->
+            <div class="flex justify-between items-center gap-2 flex">
+                <elv-checkbox label="Remember me" [(checked)]="rememberMe" [inputClass]="'border-4 border-white!'"
+                    labelClass="text-white text-[var(--p-elevator-ink2)] uppercase font-semibold!" />
+                <a class="text-[var(--p-elevator-accent)]! hover:[text-shadow:0_0_8px_var(--p-elevator-accent-glow),0_0_20px_var(--p-elevator-accent-glow),0_0_45px_var(--p-elevator-accent-glow)]! text-[var(--p-elevator-ink2)] uppercase font-semibold transition-colors duration-300"
+                    href="#forgotpassword">Forgot password?</a>
+            </div>
+            <app-elv-button elvReveal="left" variant="neon" icon="pi pi-arrow-right" iconPos="right" [iconGap]="28" [size]="'large'"
+                customClass="elv-btn--scan w-full " [corner]="'round'" [title]="'Sign In'" (click)="onSignInClick()">
+            </app-elv-button>
+            <div class="flex items-center gap-3 text-sm text-[var(--p-elevator-ink2)] uppercase font-semibold
+            before:flex-1 before:h-px before:bg-white/20
+            after:flex-1 after:h-px after:bg-white/20">
+                <span elvReveal="wipe">or</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3 w-full">
+                <app-elv-button icon="fa-brands fa-google" [iconGap]="28" [size]="'large'"
+                    customClass="elv-btn--scan w-full uppercase font-semibold!" [corner]="'round'" [title]="'Continue With Google'" (click)="onSignInClick()" elvReveal="doors">
+                </app-elv-button>
+
+                <app-elv-button icon="fa-brands fa-github fa-float" iconPos="right" [iconGap]="28" [size]="'large'"
+                    customClass="elv-btn--scan w-full uppercase font-semibold!" [corner]="'notch'" [title]="'Continue With GitHub'" elvReveal="zoom" (click)="onSignInClick()">
+                </app-elv-button>
+            </div>
+        </div>

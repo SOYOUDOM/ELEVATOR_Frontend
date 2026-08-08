@@ -8,16 +8,16 @@
   DOM order is always control-then-text; `labelPosition: 'start'` flips it in
   CSS, so the tab order and the accname never depend on the visual side.
 -->
-<label class="cbx__row" (click)="handleClick($event)">
+<label class="cbx__row {{customClass()}}" (click)="handleClick($event)">
     <span class="cbx__control">
         <!--
           Visually hidden, NOT display:none and NOT hidden — it has to stay
           focusable and in tab order. It sits directly before .cbx__box so
           `:focus-visible ~ .cbx__box` can drive the ring.
         -->
-        <input
+        <input 
             #box
-            class="cbx__input"
+            class="cbx__input {{inputClass()}}"
             type="checkbox"
             [id]="inputId"
             [checked]="checked()"
@@ -46,8 +46,8 @@
         </span>
     </span>
 
-    <span class="cbx__text">
-        <span class="cbx__label" [id]="labelId">
+    <span class="cbx__text ">
+        <span class="cbx__label {{labelClass()}}" [id]="labelId">
             {{ label() }}
             <!-- Rich labels go here: "I agree to the <a href>Terms</a>".
                  A real anchor, not string-injected HTML. -->

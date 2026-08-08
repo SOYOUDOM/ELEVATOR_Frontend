@@ -74,6 +74,9 @@ export class ElvCheckboxComponent implements ControlValueAccessor {
     readonly labelId = `${this.uid}-label`;
     readonly hintId = `${this.uid}-hint`;
     readonly errId = `${this.uid}-err`;
+    readonly customClass = input('', { alias: 'class' });
+    readonly labelClass = input('', { alias: 'labelClass' });
+    readonly inputClass = input('', { alias: 'inputClass' });
 
     // ── preset ────────────────────────────────────────────────────────
     readonly preset = input<ElvCheckboxPreset | null>(null);
