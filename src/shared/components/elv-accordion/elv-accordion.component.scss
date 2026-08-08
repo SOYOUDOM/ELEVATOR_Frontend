@@ -1,0 +1,92 @@
+/* ══════════════════════════════════════════════════════════════════════
+   ELEVATOR — elv-accordion (container)
+   ----------------------------------------------------------------------
+   Deliberately thin. A projected <elv-accordion-panel> carries the
+   CONSUMER's _ngcontent attribute, not this component's, so nothing here
+   can reach inside a panel — the whole lighting stack lives in
+   elv-accordion-panel.component.scss instead. What is left is genuinely
+   the container's job: the axis between panels, and scroll anchoring.
+
+   The tokens are still declared here. Custom properties inherit through
+   the DOM regardless of view encapsulation, so a consumer retuning
+   --elv-line on the container reaches every panel underneath. The one
+   exception is --elv-accent, which each panel re-declares in its own
+   :host — that is why [accent] is forwarded as an inline style rather
+   than left to cascade.
+
+   ⚠ SPECIFICITY — :host is (0,1,0); a bare `elv-accordion` selector is
+   (0,0,1) and loses to everything declared here. To override from a
+   parent, use `.parent elv-accordion` (0,1,1), an inline style, or
+   retune the upstream --p-elevator-* token.
+   ══════════════════════════════════════════════════════════════════════ */
+
+:host {
+    /* Bridged to src/app/theme/my-preset.ts, with the literal fallback baked
+     in so the component is correct even if the preset never loads. */
+    --elv-accent: var(--p-elevator-accent, #ffd35b);
+    --elv-ink: var(--p-elevator-ink, #e9edf5);
+    --elv-ink-2: var(--p-elevator-ink2, #9ba6ba);
+    --elv-ink-3: var(--p-elevator-ink3, #6a7488);
+    --elv-ink-4: var(--p-elevator-ink4, #4b5468);
+    --elv-line: rgba(158, 180, 215, 0.085);
+    --elv-line-hi: rgba(158, 180, 215, 0.145);
+    --elv-line-max: rgba(158, 180, 215, 0.26);
+
+    --elv-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+    --elv-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+    --elv-font: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+
+    display: flex;
+    flex-direction: column;
+    font-family: var(--elv-font);
+    color: var(--elv-ink);
+    -webkit-tap-highlight-color: transparent;
+
+    /* Expanding a panel above the viewport otherwise pushes everything down
+     and the reader loses their place. Scroll anchoring pins the visible
+     content instead; stated explicitly so an ancestor that switched it off
+     does not silently take it away here. */
+    overflow-anchor: auto;
+}
+:host,
+:host *,
+:host *::before,
+:host *::after {
+    box-sizing: border-box;
+}
+
+/* raised — separate cards, so they need air between them.
+   minimal — one flush list; the hairline between panels IS the separation,
+   and a gap would break the run of it. */
+:host([data-skin='raised']) {
+    gap: 10px;
+}
+:host([data-skin='minimal']) {
+    gap: 0;
+}
+
+:host([data-density='compact'][data-skin='raised']) {
+    gap: 8px;
+}
+:host([data-density='roomy'][data-skin='raised']) {
+    gap: 12px;
+}
+
+/* The container itself never dims — a disabled accordion is still readable,
+   and each panel dims its own header. Doing it here as well would double the
+   opacity multiplier on nested panels. */
+:host(.is-disabled) {
+    cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :host,
+    :host *,
+    :host *::before,
+    :host *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 1ms !important;
+    }
+}
