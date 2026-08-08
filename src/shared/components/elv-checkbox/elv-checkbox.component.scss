@@ -1,0 +1,519 @@
+/* ══════════════════════════════════════════════════════════════════════
+   ELEVATOR — elv-checkbox
+   ----------------------------------------------------------------------
+   Sibling of elv-field, same rule: five lighting layers share ONE
+   box-shadow declaration, and the focus signal is carried by a CRISP 3px
+   ring at 11% alpha — zero blur. That frees the ambient bloom to stay a
+   whisper (18px blur, -8px spread) instead of a blurred slab.
+
+     inset 0 0 0 1px                L3 · border, always 1px, never thicker
+     inset 0 1px 0                  L4 · gloss top    ┐ the glass read
+     inset 0 -1px 0                 L4 · gloss bottom ┘
+     0 1px 2px                      ——  contact shadow, neutral black
+     0 0 0 var(--elv-ring-w)        L2 · focus ring, crisp, offset
+     0 0 var(--elv-amb-b) …         L1 · ambient, low alpha, tone-tinted
+
+   State classes and data-* attributes change only the custom properties,
+   never the declaration, so the cascade stays flat and predictable.
+
+   ⚠ SPECIFICITY — :host is (0,1,0); a bare `elv-checkbox` selector is
+   (0,0,1) and loses to everything declared here. To override from a
+   parent, use `.parent elv-checkbox` (0,1,1), an inline style, or retune
+   the upstream --p-elevator-* token.
+   ══════════════════════════════════════════════════════════════════════ */
+
+:host {
+    /* Bridged to src/app/theme/my-preset.ts, with the literal fallback baked
+     in so the component is correct even if the preset never loads. */
+    --elv-accent: var(--p-elevator-accent, #ffd35b);
+    --elv-ink: var(--p-elevator-ink, #e9edf5);
+    --elv-ink-2: var(--p-elevator-ink2, #9ba6ba);
+    --elv-ink-3: var(--p-elevator-ink3, #6a7488);
+    --elv-ink-4: var(--p-elevator-ink4, #4b5468);
+    /* The tick is cut OUT of the fill, so it is painted in the page's own
+     black rather than white. */
+    --elv-bg: var(--p-elevator-bg0, #04060a);
+    --elv-line: rgba(158, 180, 215, 0.085);
+    --elv-line-hi: rgba(158, 180, 215, 0.145);
+    --elv-line-max: rgba(158, 180, 215, 0.26);
+
+    --elv-success: #35d6a0;
+    --elv-danger: #fb7185;
+    --elv-warning: #fb923c; /* orange, not amber — amber is the brand accent */
+    --elv-info: #60a5fa;
+
+    --elv-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+    --elv-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --elv-spring: cubic-bezier(0.34, 1.5, 0.64, 1);
+
+    --elv-box: 20px;
+    --elv-radius: 5px;
+    --elv-fs: 14.5px;
+    --elv-lh: 1.45;
+    --elv-gap: 11px;
+    --elv-pad-y: 6px;
+    --elv-pad-x: 2px;
+
+    --elv-font: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+
+    display: block;
+    font-family: var(--elv-font);
+    color: var(--elv-ink);
+    -webkit-tap-highlight-color: transparent;
+}
+:host,
+:host *,
+:host *::before,
+:host *::after {
+    box-sizing: border-box;
+}
+
+:host([data-size='sm']) {
+    --elv-box: 16px;
+    --elv-radius: 4px;
+    --elv-fs: 13.5px;
+    --elv-gap: 9px;
+}
+:host([data-size='lg']) {
+    --elv-box: 24px;
+    --elv-radius: 6px;
+    --elv-fs: 15.5px;
+    --elv-gap: 13px;
+}
+
+:host([data-corner='sharp']) {
+    --elv-radius: 0;
+}
+:host([data-corner='round']) {
+    --elv-radius: 50%;
+}
+
+/* ── the row — the whole thing is the hit target ──────────────────────
+   A flex child collapses to its content box, so a bare 20px box inside a
+   taller row leaves dead bands that swallow clicks. The <label> IS this
+   row: its padding, the gap, the hint line and the text all activate the
+   input, because that is what wrapping a control in a label does. */
+.cbx__row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--elv-gap);
+    padding: var(--elv-pad-y) var(--elv-pad-x);
+    margin: calc(var(--elv-pad-y) * -1) calc(var(--elv-pad-x) * -1);
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+:host([data-label-position='start']) .cbx__row {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+:host(.is-disabled) .cbx__row {
+    cursor: not-allowed;
+}
+:host(.is-readonly) .cbx__row {
+    cursor: default;
+}
+
+/* Optical centring on the FIRST line of the label, not on the whole text
+   block — a two-line label must not push the box down with it. */
+.cbx__control {
+    position: relative;
+    flex: none;
+    width: var(--elv-box);
+    height: var(--elv-box);
+    margin-top: calc((1em * var(--elv-lh) - var(--elv-box)) / 2);
+    font-size: var(--elv-fs);
+}
+
+/* Visually hidden, but NOT display:none and NOT [hidden] — it has to keep
+   its place in the tab order and stay focusable. Stretched over the box so
+   a direct click on the box hits the real control. */
+.cbx__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: inherit;
+    z-index: 1;
+}
+.cbx__input:disabled {
+    cursor: not-allowed;
+}
+
+/* ── the box: one shadow stack, five slots ───────────────────────────── */
+.cbx__box {
+    --elv-tone: var(--elv-accent);
+    --elv-bd: var(--elv-line-hi);
+    --elv-gloss: rgba(255, 255, 255, 0.042);
+    --elv-shade: rgba(0, 0, 0, 0.34); /* L4 gloss bottom */
+    --elv-contact: rgba(0, 0, 0, 0.45); /* contact shadow */
+    --elv-ring-w: 0px;
+    --elv-ring-c: transparent;
+    --elv-amb-b: 0px;
+    --elv-amb-s: 0px;
+    --elv-amb-c: transparent;
+    --elv-fill: linear-gradient(180deg, #10141c, #0b0e15);
+
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--elv-radius);
+    background: var(--elv-fill);
+    box-shadow:
+        inset 0 0 0 1px var(--elv-bd),
+        inset 0 1px 0 var(--elv-gloss),
+        inset 0 -1px 0 var(--elv-shade),
+        0 1px 2px var(--elv-contact),
+        0 0 0 var(--elv-ring-w) var(--elv-ring-c),
+        0 0 var(--elv-amb-b) var(--elv-amb-s) var(--elv-amb-c);
+    transition:
+        box-shadow 0.26s var(--elv-ease),
+        background 0.26s var(--elv-ease),
+        transform 0.18s var(--elv-spring);
+}
+
+/* hover — the border lifts one step. Nothing blooms; that is a focus signal.
+   ⚠ The states that own --elv-fill are excluded here by :not() rather than
+   left to out-rank this rule. `.cbx__row:hover .cbx__box` is (0,5,0) and
+   would beat `:host(.is-checked) .cbx__box` at (0,2,0) — a checked box
+   would drop back to the empty gradient while the pointer rested on it.
+   Mutually exclusive selectors mean specificity never gets a vote. */
+:host(:hover:not(.is-checked):not(.is-indeterminate):not(.is-disabled):not(.is-error)) .cbx__box {
+    --elv-bd: var(--elv-line-max);
+    --elv-fill: linear-gradient(180deg, #131822, #0d1118);
+}
+
+/* hover on a box that is already filled or already toned: lift the border
+   only, never the fill. */
+:host(:hover.is-checked:not(.is-disabled)) .cbx__box,
+:host(:hover.is-indeterminate:not(.is-disabled)) .cbx__box {
+    --elv-bd: color-mix(in oklab, var(--elv-tone) 92%, transparent);
+}
+:host(:hover.is-error:not(.is-checked):not(.is-disabled)) .cbx__box {
+    --elv-bd: color-mix(in oklab, var(--elv-danger) 74%, transparent);
+}
+
+/* press — spring, and only where a press does something */
+:host(:not(.is-disabled):not(.is-readonly)) .cbx__row:active .cbx__box {
+    transform: scale(0.92);
+}
+
+/* ── tone — only --elv-tone changes; border, ring, bloom, fill follow ── */
+:host([data-tone='success']) .cbx__box {
+    --elv-tone: var(--elv-success);
+}
+:host([data-tone='danger']) .cbx__box {
+    --elv-tone: var(--elv-danger);
+}
+:host([data-tone='warning']) .cbx__box {
+    --elv-tone: var(--elv-warning);
+}
+:host([data-tone='info']) .cbx__box {
+    --elv-tone: var(--elv-info);
+}
+
+/* ── checked / indeterminate — the box fills with the tone ───────────── */
+:host(.is-checked) .cbx__box,
+:host(.is-indeterminate) .cbx__box {
+    --elv-fill: linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--elv-tone) 92%, #fff),
+        color-mix(in oklab, var(--elv-tone) 96%, #000)
+    );
+    --elv-bd: color-mix(in oklab, var(--elv-tone) 78%, transparent);
+    --elv-gloss: rgba(255, 255, 255, 0.22);
+    --elv-shade: rgba(0, 0, 0, 0.16);
+    --elv-amb-b: 16px;
+    --elv-amb-s: -9px;
+    --elv-amb-c: color-mix(in oklab, var(--elv-tone) 40%, transparent);
+}
+
+/* error — the tone is already danger via data-tone, so only the resting
+   border needs lifting to make an untouched empty box read as wrong. */
+:host(.is-error) .cbx__box {
+    --elv-bd: color-mix(in oklab, var(--elv-danger) 52%, transparent);
+    --elv-amb-b: 16px;
+    --elv-amb-s: -10px;
+    --elv-amb-c: color-mix(in oklab, var(--elv-danger) 34%, transparent);
+}
+
+/* focus — the crisp ring does the work, the bloom stays subordinate.
+   :focus-visible only, so a mouse click does not leave a ring behind. */
+.cbx__input:focus-visible ~ .cbx__box {
+    --elv-bd: color-mix(in oklab, var(--elv-tone) 62%, transparent);
+    --elv-ring-w: 3px;
+    --elv-ring-c: color-mix(in oklab, var(--elv-tone) 11%, transparent);
+    --elv-amb-b: 18px;
+    --elv-amb-s: -8px;
+    --elv-amb-c: color-mix(in oklab, var(--elv-tone) 42%, transparent);
+}
+
+/* disabled = not applicable, dim everything.
+   readonly = still matters, keep the state legible. */
+:host(.is-disabled) {
+    opacity: 0.42;
+}
+:host(.is-disabled) .cbx__box {
+    --elv-fill: #0a0d13;
+    --elv-bd: var(--elv-line);
+    --elv-amb-b: 0px;
+    --elv-amb-c: transparent;
+}
+:host(.is-disabled.is-checked) .cbx__box,
+:host(.is-disabled.is-indeterminate) .cbx__box {
+    --elv-fill: linear-gradient(180deg, #2a2b28, #1e2020);
+    --elv-bd: var(--elv-line-hi);
+}
+
+/* ── the mark ─────────────────────────────────────────────────────────
+   One <svg> holding both shapes. The bar collapses along its own length
+   as the tick draws on, so the two read as one mark changing shape
+   rather than two marks swapping places. */
+.cbx__mark {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    fill: none;
+    stroke: var(--elv-bg);
+    stroke-width: 2.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* 26 ≈ the tick's path length, so the dash covers it exactly. */
+.cbx__tick {
+    stroke-dasharray: 26;
+    stroke-dashoffset: 26;
+    transition: stroke-dashoffset 0.28s var(--elv-expo);
+}
+:host(.is-checked) .cbx__tick {
+    animation: elv-draw 0.28s var(--elv-expo) forwards;
+}
+/* Checked wins: the mixed state is not a thing once a value is definite. */
+:host(.is-indeterminate:not(.is-checked)) .cbx__tick {
+    stroke-dashoffset: 26;
+    animation: none;
+}
+
+.cbx__bar {
+    transform: scaleX(0);
+    transform-origin: center;
+    transform-box: fill-box;
+    transition: transform 0.28s var(--elv-expo);
+}
+:host(.is-indeterminate:not(.is-checked)) .cbx__bar {
+    transform: scaleX(1);
+}
+
+/* ── text ─────────────────────────────────────────────────────────────
+   font-weight is explicit: something global bolds label text, and an
+   inherited 600 here would fight the body copy it sits next to. */
+.cbx__text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+.cbx__label {
+    font-size: var(--elv-fs);
+    font-weight: 400;
+    line-height: var(--elv-lh);
+    letter-spacing: -0.006em;
+    color: var(--elv-ink-2);
+    text-transform: none;
+    transition: color 0.22s var(--elv-ease);
+}
+/* Kept at (0,2,0) — same weight as the error rule below, which comes later
+   and therefore wins on a hovered invalid row. */
+:host(.is-checked) .cbx__label,
+:host(:hover) .cbx__label {
+    color: var(--elv-ink);
+}
+:host(.is-error) .cbx__label {
+    color: color-mix(in oklab, var(--elv-danger) 34%, var(--elv-ink));
+}
+
+.cbx__req {
+    color: var(--elv-danger);
+    margin-left: 2px;
+}
+
+/* Projected content is stamped with the PARENT's encapsulation attribute,
+   so a scoped `.cbx__label a` would never match it — hence ::ng-deep,
+   fenced behind :host so it cannot leak. !important is required to beat
+   src/styles/_base.scss, which paints every <a> in the app with one. */
+:host ::ng-deep .cbx__label a {
+    color: var(--elv-accent) !important;
+    font-weight: 500;
+    text-decoration: underline !important;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
+    text-decoration-color: color-mix(in oklab, var(--elv-accent) 45%, transparent);
+    border-radius: 3px;
+    transition: text-decoration-color 0.2s var(--elv-ease);
+}
+:host ::ng-deep .cbx__label a:hover {
+    text-decoration-color: var(--elv-accent) !important;
+}
+:host ::ng-deep .cbx__label a:focus-visible {
+    outline: 2px solid var(--elv-accent);
+    outline-offset: 2px;
+}
+
+.cbx__msg {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    font-size: 12.5px;
+    line-height: 1.42;
+    font-weight: 400;
+    color: var(--elv-ink-4);
+    animation: elv-rise 0.32s var(--elv-expo) both;
+}
+.cbx__msg i {
+    font-size: 12px;
+    line-height: 1.42;
+    flex: none;
+}
+.cbx__msg--err {
+    color: var(--elv-danger);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SKIN · MINIMAL
+   ----------------------------------------------------------------------
+   A hairline outline on the page's own black — no fill, no gloss, no
+   contact shadow. Where `raised` reads as a lit panel sitting ON the
+   page, this reads as an aperture cut INTO it.
+
+   The palette shifts cool → warm here on purpose, exactly as it does on
+   elv-field: `raised` uses a blue-biased slate that reads as glass; on a
+   flat surface that same blue reads as cold, so minimal runs a warm
+   neutral instead. A different material, not a dimmer version of one.
+   ══════════════════════════════════════════════════════════════════════ */
+:host([data-skin='minimal']) {
+    --elv-ink: #f0ece4;
+    --elv-ink-2: #b9b2a7;
+    --elv-ink-3: #8b857c;
+    --elv-ink-4: #6d675f;
+    --elv-line: rgba(232, 226, 212, 0.08);
+    --elv-line-hi: rgba(232, 226, 212, 0.15);
+    --elv-line-max: rgba(232, 226, 212, 0.3);
+
+    --elv-radius: 4px;
+    --elv-fs: 15px;
+}
+
+/* Every lighting slot the raised skin uses, switched off. */
+:host([data-skin='minimal']) .cbx__box {
+    --elv-fill: transparent;
+    --elv-gloss: transparent;
+    --elv-shade: transparent;
+    --elv-contact: transparent;
+}
+:host([data-skin='minimal']:hover:not(.is-checked):not(.is-indeterminate):not(.is-disabled)) .cbx__box {
+    --elv-fill: transparent;
+    --elv-bd: var(--elv-line-max);
+}
+/* Still fills when checked — an unfilled tick on a flat surface reads as
+   an icon rather than a control. The gloss stays off. */
+:host([data-skin='minimal'].is-checked) .cbx__box,
+:host([data-skin='minimal'].is-indeterminate) .cbx__box {
+    --elv-fill: var(--elv-tone);
+    --elv-gloss: transparent;
+    --elv-shade: transparent;
+    --elv-amb-b: 14px;
+    --elv-amb-s: -10px;
+}
+:host([data-skin='minimal']) .cbx__input:focus-visible ~ .cbx__box {
+    --elv-ring-w: 3px;
+    --elv-ring-c: color-mix(in oklab, var(--elv-tone) 9%, transparent);
+    --elv-bd: color-mix(in oklab, var(--elv-tone) 62%, transparent);
+    --elv-amb-b: 14px;
+    --elv-amb-s: -10px;
+}
+
+/* ── touch ───────────────────────────────────────────────────────────── */
+@media (pointer: coarse) {
+    .cbx__row {
+        min-height: 44px;
+        padding-top: max(var(--elv-pad-y), 11px);
+        padding-bottom: max(var(--elv-pad-y), 11px);
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+}
+
+/* ── forced colours ───────────────────────────────────────────────────
+   Every decorative layer is dropped; focus and the checked state must
+   survive as real system colours, since none of the shadow machinery
+   renders here. */
+@media (forced-colors: active) {
+    .cbx__box {
+        border: 1px solid ButtonBorder;
+        background: Field;
+        box-shadow: none;
+        forced-color-adjust: none;
+    }
+    :host(.is-checked) .cbx__box,
+    :host(.is-indeterminate) .cbx__box {
+        background: Highlight;
+        border-color: Highlight;
+    }
+    .cbx__mark {
+        stroke: Canvas;
+    }
+    .cbx__input:focus-visible ~ .cbx__box {
+        outline: 2px solid Highlight;
+        outline-offset: 2px;
+    }
+    :host(.is-error) .cbx__box {
+        border-color: LinkText;
+    }
+    :host(.is-disabled) {
+        opacity: 1;
+    }
+    :host(.is-disabled) .cbx__label,
+    :host(.is-disabled) .cbx__msg {
+        color: GrayText;
+    }
+}
+
+/* ── motion ──────────────────────────────────────────────────────────── */
+@keyframes elv-draw {
+    from {
+        stroke-dashoffset: 26;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+@keyframes elv-rise {
+    from {
+        opacity: 0;
+        transform: translateY(-3px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* Collapse durations rather than disabling animations outright, so final
+   states still apply and nothing ends up stuck mid-transition. */
+@media (prefers-reduced-motion: reduce) {
+    :host,
+    :host *,
+    :host *::before,
+    :host *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 1ms !important;
+    }
+}

@@ -1,0 +1,75 @@
+<!--
+  The <label> IS the row, and it wraps the real input. That single decision
+  buys three things the div-and-aria version has to hand-build: the whole row
+  becomes a hit target (padding included — a bare 20px box is not enough),
+  the accessible name comes from the label content for free (projected markup
+  included), and Space / Tab / autofill / AT behaviour stays the browser's.
+
+  DOM order is always control-then-text; `labelPosition: 'start'` flips it in
+  CSS, so the tab order and the accname never depend on the visual side.
+-->
+<label class="cbx__row" (click)="handleClick($event)">
+    <span class="cbx__control">
+        <!--
+          Visually hidden, NOT display:none and NOT hidden — it has to stay
+          focusable and in tab order. It sits directly before .cbx__box so
+          `:focus-visible ~ .cbx__box` can drive the ring.
+        -->
+        <input
+            #box
+            class="cbx__input"
+            type="checkbox"
+            [id]="inputId"
+            [checked]="checked()"
+            [disabled]="isDisabled()"
+            [attr.name]="name()"
+            [attr.required]="required() || null"
+            [attr.aria-describedby]="describedBy()"
+            [attr.aria-invalid]="invalid() || null"
+            [attr.aria-required]="required() || null"
+            (change)="handleChange($event)"
+            (keydown)="handleKeydown($event)"
+            (focus)="handleFocus($event)"
+            (blur)="handleBlur($event)" />
+
+        <!-- Decorative twin. Every lighting layer lives here; the input above
+             carries the semantics. -->
+        <span class="cbx__box" aria-hidden="true">
+            <svg class="cbx__mark" viewBox="0 0 24 24" focusable="false">
+                <!-- The bar is the indeterminate state. It collapses along its
+                     own length as the tick draws on, so the two read as one
+                     mark changing shape rather than two marks swapping. -->
+                <path class="cbx__bar" d="M5.5 12 H18.5" />
+                <!-- 26 ≈ the tick's path length, so the dash covers it exactly. -->
+                <path class="cbx__tick" d="M4 12.5 9.5 18 20 6.5" />
+            </svg>
+        </span>
+    </span>
+
+    <span class="cbx__text">
+        <span class="cbx__label" [id]="labelId">
+            {{ label() }}
+            <!-- Rich labels go here: "I agree to the <a href>Terms</a>".
+                 A real anchor, not string-injected HTML. -->
+            <ng-content />
+            @if (required()) {
+                <span class="cbx__req" aria-hidden="true">*</span>
+            }
+        </span>
+
+        <!--
+          aria-hidden keeps this out of the label's accessible NAME (it is
+          inside the <label>, so it would otherwise be read as part of it),
+          while aria-describedby above still picks it up as the DESCRIPTION —
+          a directly referenced node is included even when hidden.
+        -->
+        @if (error()) {
+            <span class="cbx__msg cbx__msg--err" [id]="errId" role="alert" aria-hidden="true">
+                <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+                <span>{{ error() }}</span>
+            </span>
+        } @else if (hint()) {
+            <span class="cbx__msg" [id]="hintId" aria-hidden="true">{{ hint() }}</span>
+        }
+    </span>
+</label>
