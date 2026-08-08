@@ -1,0 +1,242 @@
+// ── ELEVATOR Empty state ───────────────────────────────────────
+// The "nothing to show" surface: tables, search results, failed loads.
+:host {
+    display: block;
+}
+
+.elv-empty {
+    // per-instance accent (overridable via [style.--_accent] / accentColor)
+    --_accent: var(--p-elevator-accent);
+    // tone colour — the presets rebind this one variable
+    --_tone: var(--p-elevator-ink3);
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--p-elevator-ink2);
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 40px 28px;
+}
+
+// ── tones ──────────────────────────────────────────────────────
+.elv-empty--tone-accent {
+    --_tone: var(--_accent);
+}
+.elv-empty--tone-danger {
+    --_tone: #ff5b6e;
+}
+.elv-empty--tone-neutral {
+    --_tone: var(--p-elevator-ink3);
+}
+
+// ── skins ──────────────────────────────────────────────────────
+.elv-empty--panel {
+    border-color: var(--p-elevator-line);
+    background: var(--p-elevator-panel, #0a0e15);
+}
+
+.elv-empty--outline {
+    border-color: var(--p-elevator-line-strong);
+}
+
+.elv-empty--dashed {
+    border-style: dashed;
+    border-color: var(--p-elevator-line-strong);
+}
+
+.elv-empty--ghost {
+    border-color: transparent;
+}
+
+.elv-empty--glass {
+    border-color: var(--p-elevator-line);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+}
+
+// ── ambient glow behind the icon ───────────────────────────────
+.elv-empty--glow::before {
+    content: '';
+    position: absolute;
+    top: 12%;
+    left: 50%;
+    width: 14em;
+    height: 14em;
+    transform: translateX(-50%);
+    pointer-events: none;
+    background: radial-gradient(circle, color-mix(in oklch, var(--_tone) 18%, transparent), transparent 70%);
+}
+
+// ── icon ───────────────────────────────────────────────────────
+.elv-empty__icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    color: var(--_tone);
+    margin-bottom: 1.2em;
+    i {
+        font-size: 1.6em;
+        line-height: 1;
+    }
+}
+// framed icon (circle / round / square): fixed box + hairline ring
+.elv-empty--frame-circle .elv-empty__icon,
+.elv-empty--frame-round .elv-empty__icon,
+.elv-empty--frame-square .elv-empty__icon {
+    width: 3.6em;
+    height: 3.6em;
+    border: 1px solid color-mix(in oklch, var(--_tone) 30%, transparent);
+    background: color-mix(in oklch, var(--_tone) 6%, transparent);
+}
+.elv-empty--frame-circle .elv-empty__icon {
+    border-radius: 999px;
+}
+.elv-empty--frame-round .elv-empty__icon {
+    border-radius: 0.7em;
+}
+.elv-empty--frame-square .elv-empty__icon {
+    border-radius: 0;
+}
+// unframed glyphs carry the whole visual weight, so make them bigger
+.elv-empty--frame-none .elv-empty__icon i {
+    font-size: 2.4em;
+}
+
+// ── copy ───────────────────────────────────────────────────────
+.elv-empty__eyebrow {
+    margin: 0 0 0.7em;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--p-elevator-ink3);
+}
+
+.elv-empty__title {
+    margin: 0;
+    font-size: 1.25em;
+    font-weight: bold;
+    letter-spacing: 0.02em;
+    color: var(--p-elevator-ink);
+}
+
+.elv-empty__text {
+    margin: 0.6em 0 0;
+    max-width: 46ch;
+    color: var(--p-elevator-ink3);
+}
+
+.elv-empty__body:not(:empty) {
+    margin-top: 1em;
+}
+
+.elv-empty__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7em;
+    margin-top: 1.6em;
+}
+// no built-in action and nothing projected → no footer row at all
+.elv-empty__actions:empty {
+    display: none;
+}
+
+// ── built-in action button ─────────────────────────────────────
+.elv-empty__action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--p-elevator-ink);
+    border: 1px solid var(--p-elevator-line-strong);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 9px 18px;
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    transition:
+        color 0.25s,
+        border-color 0.25s,
+        background-color 0.25s;
+}
+.elv-empty__action:hover {
+    color: var(--_accent);
+    border-color: var(--p-elevator-accent-soft);
+}
+.elv-empty__action:focus-visible {
+    outline: 2px solid var(--_accent);
+    outline-offset: 2px;
+}
+
+// ── corner ticks ───────────────────────────────────────────────
+.elv-empty__tick {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    border-color: var(--_tone);
+}
+.elv-empty__tick--tl {
+    top: -1px;
+    left: -1px;
+    border-top: 1px solid;
+    border-left: 1px solid;
+}
+.elv-empty__tick--br {
+    right: -1px;
+    bottom: -1px;
+    border-right: 1px solid;
+    border-bottom: 1px solid;
+}
+
+// ── corners ────────────────────────────────────────────────────
+.elv-empty--notch {
+    clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
+.elv-empty--round {
+    border-radius: 14px;
+}
+.elv-empty--sharp {
+    border-radius: 0;
+}
+// the notch clip cuts the corner ticks off — drop them together
+.elv-empty--notch .elv-empty__tick {
+    display: none;
+}
+
+// ── sizes ──────────────────────────────────────────────────────
+.elv-empty--sm {
+    font-size: 12px;
+    padding: 24px 18px;
+}
+.elv-empty--sm .elv-empty__icon {
+    margin-bottom: 0.9em;
+}
+.elv-empty--md {
+    font-size: 13px;
+    padding: 40px 28px;
+}
+.elv-empty--lg {
+    font-size: 14px;
+    padding: 64px 36px;
+}
+.elv-empty--lg .elv-empty__icon {
+    margin-bottom: 1.4em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .elv-empty__action {
+        transition: none;
+    }
+}

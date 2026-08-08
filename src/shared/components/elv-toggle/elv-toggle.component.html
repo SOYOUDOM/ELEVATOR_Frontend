@@ -1,0 +1,30 @@
+<label [class]="classes" [style.--_accent]="accentColor || null" [attr.for]="inputId">
+    <input
+        type="checkbox"
+        class="elv-toggle__input"
+        role="switch"
+        [id]="inputId"
+        [checked]="checked"
+        [disabled]="disabled"
+        [attr.aria-label]="resolvedAriaLabel"
+        [attr.aria-describedby]="description ? inputId + '-desc' : null"
+        (change)="onNativeChange($event)" />
+
+    <span class="elv-toggle__track" aria-hidden="true">
+        @if (showState) {
+            <span class="elv-toggle__state">{{ stateText }}</span>
+        }
+        <span class="elv-toggle__thumb"></span>
+    </span>
+
+    @if (hasText) {
+        <span class="elv-toggle__text">
+            @if (label) {
+                <span class="elv-toggle__label">{{ label }}</span>
+            }
+            @if (description) {
+                <span class="elv-toggle__desc" [id]="inputId + '-desc'">{{ description }}</span>
+            }
+        </span>
+    }
+</label>

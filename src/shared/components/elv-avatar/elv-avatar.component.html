@@ -1,0 +1,22 @@
+<span
+    [class]="classes"
+    [style.--_accent]="resolvedAccent"
+    [attr.role]="hostRole"
+    [attr.tabindex]="interactive ? 0 : null"
+    [attr.aria-label]="resolvedAriaLabel"
+    (click)="onActivate($event)"
+    (keydown)="onKeydown($event)">
+    @if (showImage) {
+        <img class="elv-avatar__face elv-avatar__img" [src]="image" [alt]="name" (error)="onImageError()" />
+    } @else if (resolvedInitials) {
+        <span class="elv-avatar__face elv-avatar__initials" aria-hidden="true">{{ resolvedInitials }}</span>
+    } @else if (showIcon) {
+        <span class="elv-avatar__face elv-avatar__icon" aria-hidden="true"><i class="pi {{ icon }}"></i></span>
+    } @else {
+        <span class="elv-avatar__face" aria-hidden="true"></span>
+    }
+
+    @if (status !== 'none') {
+        <span class="elv-avatar__status elv-avatar__status--{{ status }}" [attr.title]="status"></span>
+    }
+</span>
