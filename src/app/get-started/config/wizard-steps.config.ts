@@ -39,6 +39,7 @@ export const CV_WIZARD_STEPS: readonly CvWizardStep[] = [
         icon: 'pi pi-user',
         optional: true,
         showsHero: false,
+        loadComponent: () => import('../steps/basic-info/basic-info.component').then((m) => m.BasicInfoComponent),
     },
     {
         id: 'experience',

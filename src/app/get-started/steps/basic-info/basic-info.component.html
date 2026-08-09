@@ -1,0 +1,139 @@
+<!-- ────────────────────────────────────────────────────────────
+     STEP 02 · basic info
+
+     Left-aligned header (not centred) — this is a form to fill,
+     not a choice to make. Fields are grouped: photo + identity,
+     then contact, then the summary. Every field is optional, so
+     the frame offers Skip alongside Continue.
+     ──────────────────────────────────────────────────────────── -->
+<app-wizard-step-frame
+  [title]="step().title"
+  [subtitle]="step().subtitle"
+  [centered]="false"
+  [showBack]="!wizard.isFirst()"
+  [showSkip]="true"
+  [showContinue]="true"
+  continueLabel="Save & continue"
+  footnote="Everything on this page is optional — fill in what you have and leave the rest blank."
+  (back)="wizard.previous()"
+  (skip)="wizard.skip()"
+  (continue)="wizard.next()">
+
+  <form [formGroup]="form" class="bi">
+
+    <!-- ── Identity: photo + name/headline ── -->
+    <section class="bi__group">
+      <h4 class="bi__group-title elv-mono">Identity</h4>
+
+      <div class="bi__identity">
+
+        <!-- Photo — optional. Drag a file in, or click to browse. -->
+        <div class="bi__photo">
+          <label
+            class="bi__drop"
+            [class.is-dragging]="dragging()"
+            [class.has-photo]="hasPhoto()"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave()"
+            (drop)="onDrop($event)">
+
+            @if (hasPhoto()) {
+              <img class="bi__preview" [src]="photo()" alt="Your selected photo" />
+              <span class="bi__drop-hint elv-mono">Change</span>
+            } @else {
+              <span class="bi__drop-icon" aria-hidden="true"><i class="pi pi-camera"></i></span>
+              <span class="bi__drop-label">Add a photo</span>
+              <span class="bi__drop-sub">Drag &amp; drop or browse</span>
+            }
+
+            <input
+              type="file"
+              class="bi__file"
+              accept="image/*"
+              (change)="onFileInput($event)"
+              aria-label="Upload a photo" />
+          </label>
+
+          @if (hasPhoto()) {
+            <button type="button" class="bi__photo-remove elv-mono" (click)="removePhoto()">
+              <i class="pi pi-times" aria-hidden="true"></i> Remove
+            </button>
+          }
+
+          @if (photoError()) {
+            <p class="bi__photo-error">{{ photoError() }}</p>
+          }
+        </div>
+
+        <!-- Name + headline stack beside the photo. -->
+        <div class="bi__identity-fields">
+          <elv-field
+            preset="name"
+            formControlName="fullName"
+            label="Full name"
+            placeholder="Jane Doe"
+            hint="The name that sits at the top of your CV." />
+
+          <elv-field
+            preset="job-title"
+            formControlName="headline"
+            label="Headline"
+            placeholder="Senior Product Designer"
+            hint="One line under your name — your role, not a paragraph." />
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Contact ── -->
+    <section class="bi__group">
+      <h4 class="bi__group-title elv-mono">Contact</h4>
+
+      <div class="bi__grid">
+        <elv-field
+          preset="email"
+          formControlName="email"
+          label="Email"
+          [clearable]="true"
+          hint="How recruiters reach you." />
+
+        <elv-field
+          preset="phone"
+          formControlName="phone"
+          label="Phone" />
+
+        <elv-field
+          preset="location"
+          formControlName="location"
+          label="Location"
+          placeholder="Phnom Penh, Cambodia" />
+
+        <elv-field
+          preset="url"
+          formControlName="website"
+          label="Website / portfolio"
+          placeholder="oudom.design" />
+
+        <elv-field
+          class="bi__span-2"
+          formControlName="linkedIn"
+          label="LinkedIn"
+          icon="pi-linkedin"
+          prefix="linkedin.com/in/"
+          placeholder="your-handle"
+          hint="Optional — leave blank if you would rather not link it." />
+      </div>
+    </section>
+
+    <!-- ── Summary ── -->
+    <section class="bi__group">
+      <h4 class="bi__group-title elv-mono">Summary</h4>
+
+      <elv-field
+        preset="bio"
+        formControlName="summary"
+        label="Professional summary"
+        placeholder="Two or three sentences on who you are and what you do best."
+        hint="Not sure what to write? Leave it — the AI can draft one from the rest of your CV later." />
+    </section>
+  </form>
+</app-wizard-step-frame>
