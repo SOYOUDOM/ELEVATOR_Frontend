@@ -13,6 +13,12 @@ const routes: Routes = [
         loadChildren: () => import('app/app.module').then((m) => m.AppModule), // Lazy load account module
         data: { preload: true },
     },
+    {
+        // The CV builder is a full-screen tool and mounts at the ROOT, outside
+        // /app — it must not inherit the AdminLTE dashboard chrome.
+        path: 'create',
+        loadChildren: () => import('app/create-cv/create-cv.routes').then((m) => m.CREATE_CV_ROUTES),
+    },
 ];
 
 @NgModule({

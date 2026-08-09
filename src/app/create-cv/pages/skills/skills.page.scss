@@ -1,0 +1,95 @@
+// ════════════════════════════════════════════════════════════
+// SKILLS — floor 04
+// ViewEncapsulation.None; everything prefixed .elv-skills.
+// ════════════════════════════════════════════════════════════
+
+.elv-skills {
+  display: block;
+}
+
+.elv-skills__scan {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: clamp(16px, 2vw, 22px);
+  border: 1px solid color-mix(in oklch, var(--p-elevator-accent) 26%, transparent);
+  background: color-mix(in oklch, var(--p-elevator-accent) 4%, transparent);
+}
+
+.elv-skills__scan-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.elv-skills__scan-note {
+  margin: 8px 0 0;
+  max-width: 56ch;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--p-elevator-ink3);
+}
+
+.elv-skills__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.elv-skills__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+}
+
+.elv-skills__lang-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: start;
+}
+
+// The dashed output area from the spec — reads as a holding tray.
+.elv-skills__output {
+  padding: 15px;
+  border: 1px dashed var(--p-elevator-line-strong);
+  background: color-mix(in oklch, var(--p-elevator-panel-hi) 24%, transparent);
+  min-height: 64px;
+}
+
+// Native select, themed. PrimeNG's would be a heavier dependency than the
+// control warrants here.
+.elv-skills__select {
+  appearance: none;
+  font: inherit;
+  font-size: 13px;
+  padding: 0 32px 0 12px;
+  height: 44px;
+  color: var(--p-elevator-ink);
+  background:
+    linear-gradient(45deg, transparent 50%, var(--p-elevator-ink3) 50%) calc(100% - 16px) 50% / 5px 5px no-repeat,
+    linear-gradient(135deg, var(--p-elevator-ink3) 50%, transparent 50%) calc(100% - 11px) 50% / 5px 5px no-repeat,
+    color-mix(in oklch, var(--p-elevator-panel-hi) 60%, transparent);
+  border: 1px solid var(--p-elevator-line-strong);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 1px solid var(--p-elevator-accent);
+    outline-offset: 2px;
+  }
+
+  option {
+    background: var(--p-elevator-panel);
+    color: var(--p-elevator-ink);
+  }
+}
+
+@media (max-width: 900px) {
+  .elv-skills__row,
+  .elv-skills__lang-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,0 +1,147 @@
+<app-wizard-floor
+  [wide]="true"
+  footnote="No experience to list is a perfectly normal starting point — skip this floor and lean on projects and education instead.">
+
+  <elv-repeater
+    [items]="entries()"
+    [factory]="newEntry"
+    [cardTitle]="cardTitle"
+    itemNoun="Role"
+    addLabel="Add a role"
+    emptyIcon="pi-briefcase"
+    emptyTitle="No experience yet?"
+    emptyText="That is fine — plenty of strong CVs lead with projects, coursework or volunteering. Add a role if you have one, or skip this floor."
+    emptyActionLabel="Add my first role"
+    (itemsChange)="setEntries($any($event))"
+    (emptyAction)="setEntries([newEntry()])">
+
+    <ng-template elvRepeaterItem let-entry let-i="index">
+
+      <div class="elv-floor__grid-2">
+        <elv-field
+          preset="job-title"
+          label="Role"
+          placeholder="Senior Product Designer"
+          [value]="entry.role"
+          (valueChange)="patchEntry(i, { role: $any($event) })" />
+
+        <elv-field
+          preset="company"
+          label="Company"
+          placeholder="Northwind Logistics"
+          [value]="entry.company"
+          (valueChange)="patchEntry(i, { company: $any($event) })" />
+
+        <elv-field
+          preset="location"
+          label="Location"
+          placeholder="Phnom Penh"
+          [value]="entry.location"
+          (valueChange)="patchEntry(i, { location: $any($event) })" />
+
+        <div class="elv-exp__dates">
+          <elv-field
+            label="From"
+            placeholder="2021"
+            [value]="entry.startDate"
+            (valueChange)="patchEntry(i, { startDate: $any($event) })" />
+
+          <elv-field
+            label="To"
+            placeholder="2024"
+            [disabled]="entry.current"
+            [value]="entry.current ? 'Present' : entry.endDate"
+            (valueChange)="patchEntry(i, { endDate: $any($event) })" />
+        </div>
+
+        <div class="elv-exp__current elv-floor__span-2">
+          <app-elv-toggle
+            size="small"
+            corner="sharp"
+            label="I currently work here"
+            [checked]="entry.current"
+            (checkedChange)="patchEntry(i, { current: $event })" />
+        </div>
+      </div>
+
+      <!-- ── Plain-language on-ramp ── -->
+      <div class="elv-exp__seed">
+        <elv-field
+          label="Describe it in plain language"
+          placeholder="I did customer support at a bank, mostly phone and email, and trained the new starters."
+          hint="Write it how you would say it out loud. The AI turns it into proper CV bullets you can then edit."
+          [multiline]="true"
+          [rows]="2"
+          [value]="entry.plainLanguage"
+          (valueChange)="patchEntry(i, { plainLanguage: $any($event) })" />
+
+        <app-elv-button
+          variant="neon-soft"
+          size="small"
+          corner="sharp"
+          icon="pi pi-sparkles"
+          [iconGap]="12"
+          title="Generate bullets"
+          [disabled]="!entry.plainLanguage"
+          [loading]="isGenerating(entry.id)"
+          (clicked)="generateBullets(i)" />
+      </div>
+
+      <!-- ── Bullets: individual rows, never one blob ── -->
+      <div class="elv-exp__bullets">
+        <h3 class="elv-floor__group-title">What you did</h3>
+
+        @if (isGenerating(entry.id)) {
+          <app-elv-skeleton shape="text" [lines]="4" ariaLabel="Writing your bullets" />
+        } @else {
+          <elv-repeater
+            [items]="entry.bullets"
+            [factory]="newBullet"
+            itemNoun="Bullet"
+            addLabel="Add a bullet"
+            [reorderable]="true"
+            emptyIcon="pi-list"
+            emptyTitle="No bullets yet"
+            emptyText="Describe the job above and let the AI draft them, or write your own."
+            (itemsChange)="setBullets(i, $any($event))">
+
+            <ng-template elvRepeaterItem let-bullet let-b="index">
+              <elv-field
+                label="Bullet"
+                labelMode="hidden"
+                placeholder="Led the redesign of the dispatch console used by 400 operators."
+                [multiline]="true"
+                [rows]="2"
+                [value]="bullet.text"
+                (valueChange)="patchBullet(i, b, $any($event))">
+
+                <div ai>
+                  <elv-ai-action
+                    label="Rewrite"
+                    icon="pi pi-refresh"
+                    [task]="bulletTask('rewrite', i, b)"
+                    [disabled]="!bullet.text"
+                    (generated)="patchBullet(i, b, $event)" />
+
+                  <elv-ai-action
+                    label="Add metric"
+                    icon="pi pi-chart-line"
+                    [task]="bulletTask('metric', i, b)"
+                    [disabled]="!bullet.text"
+                    (generated)="patchBullet(i, b, $event)" />
+
+                  <elv-ai-action
+                    label="Stronger verb"
+                    icon="pi pi-bolt"
+                    [task]="bulletTask('verb', i, b)"
+                    [disabled]="!bullet.text"
+                    (generated)="patchBullet(i, b, $event)" />
+                </div>
+              </elv-field>
+            </ng-template>
+          </elv-repeater>
+        }
+      </div>
+    </ng-template>
+  </elv-repeater>
+</app-wizard-floor>

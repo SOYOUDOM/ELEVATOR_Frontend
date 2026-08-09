@@ -1,0 +1,152 @@
+<app-wizard-floor
+  [wide]="true"
+  continueLabel="Open the editor"
+  footnote="Every section here is optional. A focused CV beats a padded one — add only what genuinely helps.">
+
+  <!-- AI suggestion, based on the target job title. -->
+  @if (suggestionText()) {
+    <app-elv-alert
+      tone="accent"
+      skin="soft"
+      corner="sharp"
+      [bar]="true"
+      icon="pi-sparkles"
+      title="Worth adding"
+      [text]="suggestionText()" />
+  }
+
+  <!-- Opt-in chips: tapping expands the panel below, rather than showing
+       five empty forms nobody asked for. -->
+  <div class="elv-boost__picker">
+    @for (s of sections; track s.id) {
+      <app-elv-chip
+        variant="badge"
+        corner="sharp"
+        [tone]="isOn(s.id) ? 'success' : 'neutral'"
+        [icon]="isOn(s.id) ? 'pi pi-check' : 'pi pi-plus'"
+        [title]="s.label"
+        [description]="s.blurb"
+        [interactive]="true"
+        (clicked)="toggle(s.id)" />
+    }
+  </div>
+
+  @if (boost().enabled.length) {
+    <elv-accordion preset="cv-section" [multiple]="true" [value]="openPanels()" [headingLevel]="3">
+
+      @if (isOn('projects')) {
+        <elv-accordion-panel panelId="projects" header="Projects" icon="pi pi-folder">
+          <elv-repeater
+            [items]="boost().projects"
+            [factory]="newProject"
+            itemNoun="Project"
+            addLabel="Add project"
+            emptyIcon="pi-folder"
+            emptyTitle="No projects yet"
+            emptyText="Side work, coursework, anything you built and can talk about."
+            (itemsChange)="setList('projects', $any($event))">
+            <ng-template elvRepeaterItem let-item let-i="index">
+              <div class="elv-floor__grid-2">
+                <elv-field label="Name" placeholder="Dispatch console redesign"
+                  [value]="item.name" (valueChange)="patchIn('projects', i, { name: $any($event) })" />
+                <elv-field label="Link" placeholder="github.com/you/project"
+                  [value]="item.url" (valueChange)="patchIn('projects', i, { url: $any($event) })" />
+                <elv-field class="elv-floor__span-2" label="What it was"
+                  placeholder="One or two lines on what you built and why."
+                  [multiline]="true" [rows]="2"
+                  [value]="item.description" (valueChange)="patchIn('projects', i, { description: $any($event) })" />
+              </div>
+            </ng-template>
+          </elv-repeater>
+        </elv-accordion-panel>
+      }
+
+      @if (isOn('awards')) {
+        <elv-accordion-panel panelId="awards" header="Awards" icon="pi pi-trophy">
+          <elv-repeater
+            [items]="boost().awards"
+            [factory]="newAward"
+            itemNoun="Award"
+            addLabel="Add award"
+            emptyIcon="pi-trophy"
+            emptyTitle="No awards yet"
+            emptyText="Recognition worth naming."
+            (itemsChange)="setList('awards', $any($event))">
+            <ng-template elvRepeaterItem let-item let-i="index">
+              <div class="elv-floor__grid-2">
+                <elv-field label="Award" placeholder="Employee of the year"
+                  [value]="item.name" (valueChange)="patchIn('awards', i, { name: $any($event) })" />
+                <elv-field label="Issuer" placeholder="Northwind Logistics"
+                  [value]="item.issuer" (valueChange)="patchIn('awards', i, { issuer: $any($event) })" />
+                <elv-field label="Year" placeholder="2023"
+                  [value]="item.year" (valueChange)="patchIn('awards', i, { year: $any($event) })" />
+              </div>
+            </ng-template>
+          </elv-repeater>
+        </elv-accordion-panel>
+      }
+
+      @if (isOn('volunteer')) {
+        <elv-accordion-panel panelId="volunteer" header="Volunteer" icon="pi pi-heart">
+          <elv-repeater
+            [items]="boost().volunteer"
+            [factory]="newVolunteer"
+            itemNoun="Placement"
+            addLabel="Add placement"
+            emptyIcon="pi-heart"
+            emptyTitle="Nothing added yet"
+            emptyText="Unpaid work still counts as work."
+            (itemsChange)="setList('volunteer', $any($event))">
+            <ng-template elvRepeaterItem let-item let-i="index">
+              <div class="elv-floor__grid-2">
+                <elv-field label="Organisation" placeholder="Local literacy programme"
+                  [value]="item.organisation" (valueChange)="patchIn('volunteer', i, { organisation: $any($event) })" />
+                <elv-field label="Role" placeholder="Weekend tutor"
+                  [value]="item.role" (valueChange)="patchIn('volunteer', i, { role: $any($event) })" />
+                <elv-field class="elv-floor__span-2" label="What you did"
+                  [multiline]="true" [rows]="2"
+                  [value]="item.description" (valueChange)="patchIn('volunteer', i, { description: $any($event) })" />
+              </div>
+            </ng-template>
+          </elv-repeater>
+        </elv-accordion-panel>
+      }
+
+      @if (isOn('references')) {
+        <elv-accordion-panel panelId="references" header="References" icon="pi pi-users">
+          <elv-repeater
+            [items]="boost().references"
+            [factory]="newReference"
+            itemNoun="Reference"
+            addLabel="Add reference"
+            emptyIcon="pi-users"
+            emptyTitle="No references yet"
+            emptyText='"Available on request" is also a perfectly normal answer.'
+            (itemsChange)="setList('references', $any($event))">
+            <ng-template elvRepeaterItem let-item let-i="index">
+              <div class="elv-floor__grid-2">
+                <elv-field label="Name" placeholder="Dana Meng"
+                  [value]="item.name" (valueChange)="patchIn('references', i, { name: $any($event) })" />
+                <elv-field label="Relationship" placeholder="Former manager"
+                  [value]="item.relationship" (valueChange)="patchIn('references', i, { relationship: $any($event) })" />
+                <elv-field class="elv-floor__span-2" label="Contact" placeholder="dana@example.com"
+                  [value]="item.contact" (valueChange)="patchIn('references', i, { contact: $any($event) })" />
+              </div>
+            </ng-template>
+          </elv-repeater>
+        </elv-accordion-panel>
+      }
+
+      @if (isOn('interests')) {
+        <elv-accordion-panel panelId="interests" header="Interests" icon="pi pi-compass">
+          <elv-field
+            label="Interests"
+            placeholder="Long-distance running, film photography, Khmer cooking"
+            hint="Comma separated. Two or three is plenty — this is a line of personality, not a hobby list."
+            [value]="interestsText()"
+            (valueChange)="setInterests($any($event))" />
+        </elv-accordion-panel>
+      }
+    </elv-accordion>
+  }
+</app-wizard-floor>

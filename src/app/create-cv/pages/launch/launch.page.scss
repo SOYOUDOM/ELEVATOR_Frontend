@@ -1,0 +1,188 @@
+// ════════════════════════════════════════════════════════════
+// LAUNCH — /create
+// ViewEncapsulation.None; everything prefixed .elv-launch.
+// ════════════════════════════════════════════════════════════
+
+.elv-launch {
+  display: block;
+}
+
+.elv-launch__inner {
+  width: min(1080px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(30px, 4vw, 52px);
+}
+
+.elv-launch__h2 {
+  margin: 0;
+  font-family: 'Orbitron', 'Chakra Petch', sans-serif;
+  font-weight: 400;
+  font-size: clamp(16px, 1.9vw, 21px);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--p-elevator-ink);
+}
+
+// ── The two doors ─────────────────────────────────────────────
+.elv-launch__doors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(14px, 1.8vw, 22px);
+}
+
+.elv-launch__door-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+// ── Import ────────────────────────────────────────────────────
+.elv-launch__import {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.elv-launch__import-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.elv-launch__stages {
+  padding: 18px;
+  border: 1px solid var(--p-elevator-line);
+  background: color-mix(in oklch, var(--p-elevator-panel-hi) 34%, transparent);
+}
+
+.elv-launch__report-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.elv-launch__report-note {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--p-elevator-ink3);
+  max-width: 62ch;
+}
+
+// ── Template strip ────────────────────────────────────────────
+.elv-launch__templates {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.elv-launch__templates-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.elv-launch__caption {
+  font-size: 9.5px;
+  letter-spacing: .22em;
+  color: var(--p-elevator-ink4);
+}
+
+.elv-launch__strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.elv-launch__tpl {
+  --tpl-accent: var(--p-elevator-accent);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  padding: 16px;
+  cursor: pointer;
+
+  appearance: none;
+  font: inherit;
+  color: var(--p-elevator-ink);
+  border: 1px solid var(--p-elevator-line);
+  background: color-mix(in oklch, var(--p-elevator-panel-hi) 34%, transparent);
+
+  transition: border-color .22s ease, background-color .22s ease;
+
+  &:hover,
+  &:focus-visible {
+    border-color: color-mix(in oklch, var(--tpl-accent) 55%, transparent);
+    background: color-mix(in oklch, var(--p-elevator-panel-hi) 60%, transparent);
+  }
+
+  &:focus-visible {
+    outline: 1px solid var(--tpl-accent);
+    outline-offset: 2px;
+  }
+
+  &.is-active {
+    border-color: var(--tpl-accent);
+    box-shadow: inset 0 0 24px color-mix(in oklch, var(--tpl-accent) 14%, transparent);
+  }
+}
+
+.elv-launch__tpl-swatch {
+  height: 46px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--tpl-accent) 40%, transparent),
+    color-mix(in oklch, var(--tpl-accent) 6%, transparent)
+  );
+  border: 1px solid color-mix(in oklch, var(--tpl-accent) 32%, transparent);
+}
+
+.elv-launch__tpl-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.elv-launch__tpl-desc {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--p-elevator-ink3);
+}
+
+.elv-launch__tpl-mark {
+  font-size: 9px;
+  letter-spacing: .18em;
+  color: var(--tpl-accent);
+
+  i { font-size: 9px; }
+}
+
+.elv-launch__pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.elv-launch__pager-count {
+  font-size: 10px;
+  letter-spacing: .2em;
+  color: var(--p-elevator-ink4);
+}
+
+// ── Responsive ────────────────────────────────────────────────
+@media (max-width: 900px) {
+  .elv-launch__doors,
+  .elv-launch__strip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

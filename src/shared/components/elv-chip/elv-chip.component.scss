@@ -201,3 +201,19 @@
         transition: none;
     }
 }
+
+// ════════════════════════════════════════════════════════════
+// TONE — semantic status colour, orthogonal to `skin`.
+//
+// Added so every status pill in the product (SAVED, EXPORT
+// UNLOCKED, FACE DETECTED, TOO DARK …) is an elv-chip rather
+// than a separate StatusPill component.
+//
+// Each tone only re-points --_accent, so whichever skin is in
+// play keeps its own fill/border treatment and simply changes
+// hue. `neutral` emits no class at all and is unaffected.
+// ════════════════════════════════════════════════════════════
+.elv-chip--tone-success { --_accent: var(--p-elevator-accent, #7cffb2); }
+.elv-chip--tone-info    { --_accent: var(--p-elevator-secondary, #7ad7ff); }
+.elv-chip--tone-warn    { --_accent: #ffc46b; }
+.elv-chip--tone-danger  { --_accent: #ff7a8a; }

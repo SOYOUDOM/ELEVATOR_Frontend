@@ -150,6 +150,16 @@ export class ElvFieldComponent implements ControlValueAccessor {
     readonly required = input(false, { transform: booleanAttribute });
     readonly optional = input(false, { transform: booleanAttribute });
     readonly autofocus = input(false, { transform: booleanAttribute });
+
+    /**
+     * Low-confidence value — draws a 2px cyan left border.
+     *
+     * Added for CV import: a field the extractor filled but is not sure about
+     * is flagged for review rather than silently trusted. It is deliberately
+     * NOT a validation status: the value may be perfectly correct, so it must
+     * not colour the box like an error or block anything.
+     */
+    readonly uncertain = input(false, { transform: booleanAttribute });
     readonly clearableIn = input<boolean | null, unknown>(null, { transform: nullBool, alias: 'clearable' });
     readonly revealableIn = input<boolean | null, unknown>(null, { transform: nullBool, alias: 'revealable' });
     readonly copyableIn = input<boolean | null, unknown>(null, { transform: nullBool, alias: 'copyable' });
@@ -357,6 +367,7 @@ export class ElvFieldComponent implements ControlValueAccessor {
             this.multiline() ? 'is-multiline' : '',
             this.status() !== 'idle' ? `is-${this.status()}` : '',
             this.shakePhase() ? `is-shake-${this.shakePhase()}` : '',
+            this.uncertain() ? 'is-uncertain' : '',
         ]
             .filter(Boolean)
             .join(' ')

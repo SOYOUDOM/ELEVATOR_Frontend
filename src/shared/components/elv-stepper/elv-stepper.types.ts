@@ -24,12 +24,28 @@ export interface ElvStepperItem {
     ariaLabel?: string;
     /** Blocks selection even when the stepper is `[clickable]`. */
     disabled?: boolean;
+
+    /**
+     * Marks a step the user can still open but has not finished. The elevator
+     * variant draws it as a hollow ring — the spec's "mark, don't lock".
+     */
+    incomplete?: boolean;
 }
 
 /** Where a step sits relative to the active one. Drives every visual. */
 export type ElvStepperState = 'done' | 'active' | 'upcoming' | 'disabled';
 
 export type ElvStepperOrientation = 'horizontal' | 'vertical';
+
+/**
+ * `default` — the neutral numbered track.
+ *
+ * `elevator` — the ELEVATOR shaft. Renders vertically as floors with a car
+ * that rides between them, and falls back to horizontal below the mobile
+ * breakpoint. Free jumping is the point of it: an incomplete floor is marked,
+ * never locked, so pair it with `reach="all"`.
+ */
+export type ElvStepperVariant = 'default' | 'elevator';
 
 /** The rule drawn between two markers. */
 export type ElvStepperConnector = 'dashed' | 'solid' | 'none';

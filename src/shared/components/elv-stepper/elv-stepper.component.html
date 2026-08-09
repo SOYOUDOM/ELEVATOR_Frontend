@@ -12,6 +12,15 @@
 }
 
 <ol class="elv-stepper__track" [attr.aria-label]="ariaLabel()">
+
+  <!-- The car. Only the elevator variant paints it; its position comes from
+       --elv-stepper-car-y/x, measured in parkCar(). -->
+  @if (variant() === 'elevator') {
+    <li class="elv-stepper__car" aria-hidden="true">
+      <span class="elv-stepper__car-box"></span>
+    </li>
+  }
+
   @for (step of steps(); track step.item.id) {
 
     @if (!$first) {
@@ -22,6 +31,7 @@
 
     <li class="elv-stepper__step"
         [attr.data-state]="step.state"
+        [attr.data-incomplete]="step.incomplete ? '' : null"
         [attr.aria-current]="step.state === 'active' ? 'step' : null">
 
       @if (step.selectable) {

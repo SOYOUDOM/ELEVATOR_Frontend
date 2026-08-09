@@ -1,0 +1,20 @@
+// ════════════════════════════════════════════════════════════
+// BOOST — floor 05
+// ViewEncapsulation.None; everything prefixed .elv-boost.
+// ════════════════════════════════════════════════════════════
+
+.elv-boost {
+  display: block;
+}
+
+// The opt-in row. Chips carry a description, so they need room to
+// breathe rather than the tight wrap a bare tag row would get.
+.elv-boost__picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(198px, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 600px) {
+  .elv-boost__picker { grid-template-columns: minmax(0, 1fr); }
+}

@@ -1,0 +1,245 @@
+<app-wizard-floor
+  [wide]="true"
+  [continueDisabled]="continueDisabled()"
+  footnote="Only the target job title is required — it seeds every AI suggestion from here on. Everything else is optional.">
+
+  <div class="elv-identity__split">
+
+    <!-- ══ LEFT · PHOTO MODULE ═══════════════════════════════════ -->
+    <section class="elv-identity__photo">
+      <h2 class="elv-floor__group-title">Photo</h2>
+
+      @if (!photo()) {
+        <div class="elv-identity__avatar-wrap">
+          <app-elv-avatar size="xl" shape="notch" icon="pi-user" [ring]="true" />
+        </div>
+
+        <elv-dropzone
+          [accept]="['image/*']"
+          [maxSizeMb]="8"
+          idleIcon="pi-camera"
+          idleTitle="Add a photo"
+          idleText="Drag & drop, or click to browse"
+          ariaLabel="Upload your photo"
+          (accepted)="onPhoto($event)" />
+
+        <p class="elv-identity__hint">
+          Optional. Plenty of strong CVs have no photo at all — and in some countries leaving it off is the norm.
+        </p>
+      } @else {
+
+        @if (transforming()) {
+          <!-- elv-skeleton, never a spinner. -->
+          <app-elv-skeleton shape="block" height="260px" ariaLabel="Generating your studio photo" />
+          <p class="elv-identity__hint">Relighting, retouching and replacing the backdrop…</p>
+        } @else if (showCompare()) {
+          <elv-before-after
+            [beforeSrc]="original()!"
+            [afterSrc]="photo()!"
+            beforeLabel="Original"
+            afterLabel="Studio"
+            ratio="3 / 4" />
+        } @else {
+          <div class="elv-identity__preview">
+            <img [src]="photo()!" alt="Your photo" />
+          </div>
+        }
+
+        <!-- Local quality gate — runs before any upload. -->
+        @if (checks().length) {
+          <div class="elv-identity__checks">
+            @for (c of checks(); track c.label) {
+              <app-elv-chip
+                variant="badge"
+                size="small"
+                corner="sharp"
+                [tone]="c.tone"
+                [icon]="c.icon"
+                [title]="c.label" />
+            }
+          </div>
+        }
+
+        @if (transformError()) {
+          <p class="elv-identity__error">{{ transformError() }}</p>
+        }
+
+        <div class="elv-identity__photo-actions">
+          <app-elv-button
+            variant="neon"
+            size="small"
+            corner="sharp"
+            [glow]="canTransform()"
+            icon="pi pi-sparkles"
+            [iconGap]="12"
+            title="Transform to studio"
+            [disabled]="!canTransform()"
+            [loading]="transforming()"
+            (clicked)="transform()" />
+
+          <app-elv-button
+            variant="ghost"
+            size="small"
+            corner="sharp"
+            icon="pi pi-trash"
+            title="Remove"
+            (clicked)="removePhoto()" />
+        </div>
+
+        <span class="elv-identity__quota elv-mono">
+          {{ transformsLeft() }} of 3 transforms left
+        </span>
+      }
+    </section>
+
+    <!-- ══ RIGHT · FIELDS ════════════════════════════════════════ -->
+    <section class="elv-identity__fields">
+
+      <div class="elv-floor__group">
+        <h2 class="elv-floor__group-title">You</h2>
+
+        <elv-field
+          preset="name"
+          label="Full name"
+          placeholder="Jordan Avery"
+          [value]="identity().fullName"
+          [uncertain]="uncertain('fullName')"
+          (valueChange)="set('fullName', $any($event))" />
+
+        <!-- Emphasised on purpose: this seeds every downstream AI call. -->
+        <div class="elv-identity__target">
+          <elv-field
+            label="Target job title"
+            placeholder="Senior Product Designer"
+            icon="pi-crosshairs"
+            hint="The single most important field on this screen — every AI suggestion is aimed at it."
+            [required]="true"
+            [value]="identity().targetJobTitle"
+            [uncertain]="uncertain('targetJobTitle')"
+            (valueChange)="set('targetJobTitle', $any($event))" />
+        </div>
+      </div>
+
+      <div class="elv-floor__group">
+        <h2 class="elv-floor__group-title">Contact</h2>
+
+        <div class="elv-floor__grid-2">
+          <elv-field
+            preset="email"
+            label="Email"
+            [value]="identity().email"
+            [uncertain]="uncertain('email')"
+            (valueChange)="set('email', $any($event))" />
+
+          <elv-field
+            preset="phone"
+            label="Phone"
+            [value]="identity().phone"
+            [uncertain]="uncertain('phone')"
+            (valueChange)="set('phone', $any($event))" />
+
+          <elv-field
+            class="elv-floor__span-2"
+            preset="location"
+            label="Location"
+            placeholder="Phnom Penh, Cambodia"
+            [value]="identity().location"
+            [uncertain]="uncertain('location')"
+            (valueChange)="set('location', $any($event))" />
+        </div>
+      </div>
+
+      <div class="elv-floor__group">
+        <h2 class="elv-floor__group-title">Links</h2>
+
+        <elv-repeater
+          [items]="identity().links"
+          [factory]="newLink"
+          itemNoun="Link"
+          addLabel="Add a link"
+          emptyIcon="pi-link"
+          emptyTitle="No links yet"
+          emptyText="Portfolio, LinkedIn, GitHub — whatever is worth a recruiter's click."
+          (itemsChange)="setLinks($any($event))">
+          <ng-template elvRepeaterItem let-link let-i="index">
+            <div class="elv-floor__grid-2">
+              <elv-field
+                label="Label"
+                placeholder="Portfolio"
+                [value]="link.label"
+                (valueChange)="patchLink(i, { label: $any($event) })" />
+              <elv-field
+                label="URL"
+                placeholder="jordanavery.design"
+                [value]="link.url"
+                (valueChange)="patchLink(i, { url: $any($event) })" />
+            </div>
+          </ng-template>
+        </elv-repeater>
+      </div>
+
+      <div class="elv-floor__group">
+        <h2 class="elv-floor__group-title">Summary</h2>
+
+        <!-- The skeleton OVERLAYS the field rather than replacing it. The AI
+             buttons live in the field's [ai] slot, so swapping the field out
+             would destroy the very component that is mid-request and the
+             result would never be applied. -->
+        <div class="elv-identity__summary" [class.is-busy]="summaryBusy()">
+          <elv-field
+            label="Professional summary"
+            placeholder="Two or three sentences on who you are and what you do best."
+            hint="Not sure what to write? Let the AI draft one from what you have already entered."
+            [multiline]="true"
+            [rows]="4"
+            [counter]="true"
+            [maxlength]="600"
+            [value]="identity().summary"
+            [uncertain]="uncertain('summary')"
+            (valueChange)="set('summary', $any($event))">
+
+            <!-- [ai] slot — inline AI actions belonging to this field. -->
+            <div ai>
+              <elv-ai-action
+                label="Generate"
+                icon="pi pi-sparkles"
+                [task]="summaryTask('generate')"
+                (stateChange)="summaryBusy.set($event === 'loading')"
+                (generated)="applySummary($event)" />
+
+              <elv-ai-action
+                label="Rewrite"
+                icon="pi pi-refresh"
+                [task]="summaryTask('rewrite')"
+                [disabled]="!identity().summary"
+                (stateChange)="summaryBusy.set($event === 'loading')"
+                (generated)="applySummary($event)" />
+
+              <elv-ai-action
+                label="Shorten"
+                icon="pi pi-minus"
+                [task]="summaryTask('shorten')"
+                [disabled]="!identity().summary"
+                (stateChange)="summaryBusy.set($event === 'loading')"
+                (generated)="applySummary($event)" />
+
+              <elv-ai-action
+                label="Fix grammar"
+                icon="pi pi-check-square"
+                [task]="summaryTask('grammar')"
+                [disabled]="!identity().summary"
+                (stateChange)="summaryBusy.set($event === 'loading')"
+                (generated)="applySummary($event)" />
+            </div>
+          </elv-field>
+
+          @if (summaryBusy()) {
+            <div class="elv-identity__summary-veil">
+              <app-elv-skeleton shape="text" [lines]="3" ariaLabel="Writing your summary" />
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+</app-wizard-floor>

@@ -1,0 +1,118 @@
+// ════════════════════════════════════════════════════════════
+// ELV-BEFORE-AFTER
+// ViewEncapsulation.None — all selectors prefixed
+// .elv-before-after. Split position arrives as --elv-ba-pos (%).
+// ════════════════════════════════════════════════════════════
+
+.elv-before-after {
+  --elv-ba-pos: 50;
+  display: block;
+  width: 100%;
+}
+
+.elv-before-after__frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--p-elevator-line-strong);
+  background: var(--p-elevator-panel);
+  cursor: ew-resize;
+  touch-action: none; // pointer events own the gesture, not the scroller
+  user-select: none;
+}
+
+.elv-before-after__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  -webkit-user-drag: none;
+}
+
+// clip-path rather than width: the image keeps its true size and is
+// revealed, instead of being squashed as the split moves.
+.elv-before-after__after {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(0 calc(100% - var(--elv-ba-pos) * 1%) 0 0);
+}
+
+// ── Handle ────────────────────────────────────────────────────
+.elv-before-after__handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--elv-ba-pos) * 1%);
+  width: 44px;
+  // Standalone `translate`, never `transform` — a transform here would
+  // collide with any fill-mode animation on this centred element.
+  translate: -50% 0;
+  display: grid;
+  place-items: center;
+  cursor: ew-resize;
+  background: none;
+  border: 0;
+
+  &:focus-visible {
+    outline: none;
+
+    .elv-before-after__grip {
+      box-shadow:
+        0 0 0 2px var(--p-elevator-bg0),
+        0 0 0 4px var(--p-elevator-accent);
+    }
+  }
+}
+
+.elv-before-after__line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  translate: -50% 0;
+  background: var(--p-elevator-accent);
+  box-shadow: 0 0 14px var(--p-elevator-accent-glow);
+}
+
+.elv-before-after__grip {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  background: var(--p-elevator-bg0);
+  border: 1px solid var(--p-elevator-accent);
+  color: var(--p-elevator-accent);
+  box-shadow: 0 0 18px var(--p-elevator-accent-glow);
+
+  i { font-size: 13px; }
+}
+
+.elv-before-after.is-dragging .elv-before-after__grip {
+  background: var(--p-elevator-accent);
+  color: var(--p-elevator-bg0);
+}
+
+// ── Corner tags ───────────────────────────────────────────────
+.elv-before-after__tag {
+  position: absolute;
+  bottom: 10px;
+  padding: 4px 9px;
+  font-size: 9px;
+  letter-spacing: .18em;
+  color: var(--p-elevator-ink);
+  background: color-mix(in oklch, var(--p-elevator-bg0) 78%, transparent);
+  border: 1px solid var(--p-elevator-line);
+  pointer-events: none;
+}
+
+.elv-before-after__tag--before { left: 10px; }
+
+.elv-before-after__tag--after {
+  right: 10px;
+  color: var(--p-elevator-accent);
+  border-color: color-mix(in oklch, var(--p-elevator-accent) 45%, transparent);
+}

@@ -1,0 +1,121 @@
+<!-- Real semantic structure — headings, paragraphs, lists — so the printed
+     PDF is selectable text an ATS can parse, not a picture of a CV. -->
+<article class="elv-paper" [style.--paper-zoom]="zoom()">
+  <div class="elv-paper__sheet">
+
+    <header class="elv-paper__head">
+      @if (draft().identity.photoDataUrl) {
+        <img class="elv-paper__photo" [src]="draft().identity.photoDataUrl!" alt="" />
+      }
+
+      <div class="elv-paper__head-text">
+        <h1 class="elv-paper__name">{{ draft().identity.fullName || 'Your name' }}</h1>
+        @if (draft().identity.targetJobTitle) {
+          <p class="elv-paper__role">{{ draft().identity.targetJobTitle }}</p>
+        }
+
+        <p class="elv-paper__contact">
+          @if (draft().identity.email) { <span>{{ draft().identity.email }}</span> }
+          @if (draft().identity.phone) { <span>{{ draft().identity.phone }}</span> }
+          @if (draft().identity.location) { <span>{{ draft().identity.location }}</span> }
+          @for (link of draft().identity.links; track link.id) {
+            @if (link.url) { <span>{{ link.url }}</span> }
+          }
+        </p>
+      </div>
+    </header>
+
+    @if (draft().identity.summary) {
+      <section class="elv-paper__section">
+        <h2 class="elv-paper__h2">Summary</h2>
+        <p class="elv-paper__body">{{ draft().identity.summary }}</p>
+      </section>
+    }
+
+    @if (draft().experience.length) {
+      <section class="elv-paper__section">
+        <h2 class="elv-paper__h2">Experience</h2>
+        @for (job of draft().experience; track job.id) {
+          <div class="elv-paper__entry">
+            <div class="elv-paper__entry-head">
+              <h3 class="elv-paper__h3">{{ job.role || 'Role' }}@if (job.company) {, {{ job.company }}}</h3>
+              <span class="elv-paper__dates">{{ dateRange(job.startDate, job.endDate, job.current) }}</span>
+            </div>
+            @if (job.location) { <p class="elv-paper__meta">{{ job.location }}</p> }
+            @if (job.bullets.length) {
+              <ul class="elv-paper__list">
+                @for (b of job.bullets; track b.id) {
+                  @if (b.text) { <li>{{ b.text }}</li> }
+                }
+              </ul>
+            }
+          </div>
+        }
+      </section>
+    }
+
+    @if (draft().education.length) {
+      <section class="elv-paper__section">
+        <h2 class="elv-paper__h2">Education</h2>
+        @for (ed of draft().education; track ed.id) {
+          <div class="elv-paper__entry">
+            <div class="elv-paper__entry-head">
+              <h3 class="elv-paper__h3">{{ ed.qualification || 'Qualification' }}</h3>
+              <span class="elv-paper__dates">{{ dateRange(ed.startDate, ed.endDate, false) }}</span>
+            </div>
+            @if (ed.institution) { <p class="elv-paper__meta">{{ ed.institution }}</p> }
+            @if (ed.description) { <p class="elv-paper__body">{{ ed.description }}</p> }
+          </div>
+        }
+      </section>
+    }
+
+    @if (draft().certifications.length) {
+      <section class="elv-paper__section">
+        <h2 class="elv-paper__h2">Certifications</h2>
+        <ul class="elv-paper__list">
+          @for (c of draft().certifications; track c.id) {
+            <li>{{ c.name }}@if (c.issuer) {, {{ c.issuer }}}@if (c.year) { ({{ c.year }})}</li>
+          }
+        </ul>
+      </section>
+    }
+
+    @if (draft().skills.length) {
+      <section class="elv-paper__section">
+        <h2 class="elv-paper__h2">Skills</h2>
+        <p class="elv-paper__body">
+          @for (s of draft().skills; track s.id) {{{ $first ? '' : ' · ' }}{{ s.name }}}
+        </p>
+      </section>
+    }
+
+    @if (draft().languages.length) {
+      <section class="elv-paper__section">
+        <h2 class="elv-paper__h2">Languages</h2>
+        <p class="elv-paper__body">
+          @for (l of draft().languages; track l.id) {{{ $first ? '' : ' · ' }}{{ l.name }} ({{ l.level }})}
+        </p>
+      </section>
+    }
+
+    @if (draft().boost.projects.length) {
+      <section class="elv-paper__section">
+        <h2 class="elv-paper__h2">Projects</h2>
+        @for (p of draft().boost.projects; track p.id) {
+          <div class="elv-paper__entry">
+            <h3 class="elv-paper__h3">{{ p.name }}</h3>
+            @if (p.description) { <p class="elv-paper__body">{{ p.description }}</p> }
+          </div>
+        }
+      </section>
+    }
+
+    @if (draft().boost.interests.length) {
+      <section class="elv-paper__section">
+        <h2 class="elv-paper__h2">Interests</h2>
+        <p class="elv-paper__body">{{ draft().boost.interests.join(' · ') }}</p>
+      </section>
+    }
+  </div>
+</article>

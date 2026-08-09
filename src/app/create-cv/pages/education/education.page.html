@@ -1,0 +1,122 @@
+<app-wizard-floor
+  [wide]="true"
+  footnote="No formal education to list? Skip it. Certifications, bootcamps and self-taught work all count on the next floors.">
+
+  <section class="elv-floor__group">
+    <h2 class="elv-floor__group-title">Education</h2>
+
+    <elv-repeater
+      [items]="education()"
+      [factory]="newEducation"
+      [cardTitle]="eduTitle"
+      itemNoun="Education"
+      addLabel="Add education"
+      emptyIcon="pi-book"
+      emptyTitle="No education added"
+      emptyText="Degrees, diplomas, bootcamps — or nothing at all."
+      (itemsChange)="setEducation($any($event))">
+
+      <ng-template elvRepeaterItem let-item let-i="index">
+        <div class="elv-floor__grid-2">
+          <elv-field
+            label="Qualification"
+            placeholder="BA, Media & Communication"
+            [value]="item.qualification"
+            (valueChange)="patchEducation(i, { qualification: $any($event) })" />
+
+          <elv-field
+            label="Institution"
+            placeholder="Royal University of Phnom Penh"
+            [value]="item.institution"
+            (valueChange)="patchEducation(i, { institution: $any($event) })" />
+
+          <elv-field
+            label="From"
+            placeholder="2013"
+            [value]="item.startDate"
+            (valueChange)="patchEducation(i, { startDate: $any($event) })" />
+
+          <elv-field
+            label="To"
+            placeholder="2017"
+            [value]="item.endDate"
+            (valueChange)="patchEducation(i, { endDate: $any($event) })" />
+
+          <elv-field
+            class="elv-floor__span-2"
+            label="Notes"
+            placeholder="Thesis, honours, relevant coursework…"
+            [multiline]="true"
+            [rows]="2"
+            [value]="item.description"
+            (valueChange)="patchEducation(i, { description: $any($event) })">
+            <div ai>
+              <elv-ai-action
+                label="Improve"
+                icon="pi pi-sparkles"
+                [task]="describeTask(item.description)"
+                [disabled]="!item.description"
+                (generated)="patchEducation(i, { description: $event })" />
+            </div>
+          </elv-field>
+        </div>
+      </ng-template>
+    </elv-repeater>
+  </section>
+
+  <section class="elv-floor__group">
+    <h2 class="elv-floor__group-title">Certifications</h2>
+
+    <elv-repeater
+      [items]="certifications()"
+      [factory]="newCertification"
+      [cardTitle]="certTitle"
+      itemNoun="Certification"
+      addLabel="Add certification"
+      emptyIcon="pi-verified"
+      emptyTitle="No certifications added"
+      emptyText="Courses, licences and credentials worth naming."
+      (itemsChange)="setCertifications($any($event))">
+
+      <ng-template elvRepeaterItem let-item let-i="index">
+        <div class="elv-floor__grid-2">
+          <elv-field
+            label="Name"
+            placeholder="Google UX Design Certificate"
+            [value]="item.name"
+            (valueChange)="patchCertification(i, { name: $any($event) })" />
+
+          <elv-field
+            label="Issuer"
+            placeholder="Google"
+            [value]="item.issuer"
+            (valueChange)="patchCertification(i, { issuer: $any($event) })" />
+
+          <elv-field
+            label="Year"
+            placeholder="2023"
+            [value]="item.year"
+            (valueChange)="patchCertification(i, { year: $any($event) })" />
+
+          <elv-field
+            class="elv-floor__span-2"
+            label="Notes"
+            placeholder="What it covered, if it is worth saying."
+            [multiline]="true"
+            [rows]="2"
+            [value]="item.description"
+            (valueChange)="patchCertification(i, { description: $any($event) })">
+            <div ai>
+              <elv-ai-action
+                label="Improve"
+                icon="pi pi-sparkles"
+                [task]="describeTask(item.description)"
+                [disabled]="!item.description"
+                (generated)="patchCertification(i, { description: $event })" />
+            </div>
+          </elv-field>
+        </div>
+      </ng-template>
+    </elv-repeater>
+  </section>
+</app-wizard-floor>

@@ -1,0 +1,20 @@
+<app-elv-button
+  variant="neon-soft"
+  corner="sharp"
+  [size]="size()"
+  [icon]="shownIcon()"
+  [iconGap]="10"
+  [title]="shownLabel()"
+  [loading]="isBusy()"
+  [disabled]="disabled()"
+  (clicked)="run()" />
+
+<!-- Announced separately so a screen reader hears the outcome even though the
+     button's own label change is easy to miss mid-interaction. -->
+<span class="elv-ai-action__live" role="status" aria-live="polite">
+  @switch (state()) {
+    @case ('loading') { Generating… }
+    @case ('applied') { {{ appliedLabel() }} }
+    @case ('error') { That did not work. Try again. }
+  }
+</span>

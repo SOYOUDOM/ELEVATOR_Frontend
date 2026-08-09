@@ -1,0 +1,93 @@
+<!-- ────────────────────────────────────────────────────────────
+     Empty → elv-empty-state. Populated → one elv-card per row,
+     each stamping the caller's *elvRepeaterItem template.
+
+     `track $index` is deliberate: rows are plain objects with no
+     stable id, and tracking by identity would tear down and
+     rebuild every focused input on each array replacement.
+     ──────────────────────────────────────────────────────────── -->
+
+@if (isEmpty()) {
+  <app-elv-empty-state
+    skin="dashed"
+    [icon]="emptyIcon()"
+    [title]="emptyTitle()"
+    [text]="emptyText()"
+    [actionTitle]="emptyActionLabel()"
+    (action)="emptyAction.emit()" />
+} @else {
+  <ol class="elv-repeater__list">
+    @for (item of items(); track $index) {
+      <li class="elv-repeater__row">
+        <app-elv-card
+          variant="panel"
+          corner="notch"
+          size="md"
+          [title]="titleFor(item, $index)">
+
+          <div card-actions class="elv-repeater__tools">
+            @if (reorderable() && items().length > 1) {
+              <app-elv-button
+                variant="ghost"
+                size="small"
+                corner="sharp"
+                [iconOnly]="true"
+                icon="pi pi-chevron-up"
+                ariaLabel="Move {{ titleFor(item, $index) }} up"
+                [disabled]="disabled() || $first"
+                (clicked)="move($index, -1)" />
+
+              <app-elv-button
+                variant="ghost"
+                size="small"
+                corner="sharp"
+                [iconOnly]="true"
+                icon="pi pi-chevron-down"
+                ariaLabel="Move {{ titleFor(item, $index) }} down"
+                [disabled]="disabled() || $last"
+                (clicked)="move($index, 1)" />
+            }
+
+            @if (removable()) {
+              <app-elv-button
+                variant="ghost"
+                size="small"
+                corner="sharp"
+                [iconOnly]="true"
+                icon="pi pi-trash"
+                ariaLabel="Remove {{ titleFor(item, $index) }}"
+                [disabled]="disabled()"
+                (clicked)="remove($index)" />
+            }
+          </div>
+
+          <div class="elv-repeater__body">
+            <ng-container
+              [ngTemplateOutlet]="row()!.template"
+              [ngTemplateOutletContext]="{
+                $implicit: item,
+                item: item,
+                index: $index,
+                first: $first,
+                last: $last,
+                count: count()
+              }" />
+          </div>
+        </app-elv-card>
+      </li>
+    }
+  </ol>
+}
+
+@if (canAdd()) {
+  <div class="elv-repeater__add">
+    <app-elv-button
+      variant="neon-soft"
+      corner="sharp"
+      icon="pi pi-plus"
+      [iconGap]="14"
+      [title]="addLabel()"
+      [block]="isEmpty()"
+      (clicked)="add()" />
+  </div>
+}

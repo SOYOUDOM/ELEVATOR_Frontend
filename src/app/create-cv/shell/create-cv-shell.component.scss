@@ -1,0 +1,172 @@
+// ════════════════════════════════════════════════════════════
+// CREATE CV — shell
+//
+// ViewEncapsulation.None everywhere in this feature, so every
+// selector is prefixed .elv-create / .elv-content.
+//
+// The feature's palette is scoped HERE rather than in the global
+// preset: mint + cyan is the builder's identity, while the rest
+// of the product (landing, account, get-started) is still gold.
+// Promoting it globally is a one-line move in my-preset.ts.
+// ════════════════════════════════════════════════════════════
+
+.elv-create {
+  // ── Feature palette ─────────────────────────────────────────
+  --p-elevator-accent: #7cffb2;
+  --p-elevator-accent-soft: color-mix(in oklch, #7cffb2 22%, transparent);
+  --p-elevator-accent-glow: color-mix(in oklch, #7cffb2 40%, transparent);
+  --p-elevator-secondary: #7ad7ff;
+
+  --elv-create-rail-w: 232px;
+  --elv-create-header-h: 62px;
+
+  position: relative;
+  display: block;
+  min-height: 100dvh;
+  background: var(--p-elevator-bg0);
+  color: var(--p-elevator-ink);
+  font-family: 'Chakra Petch', sans-serif;
+}
+
+// Never lightens the environment — a dark radial wash only.
+.elv-create__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(90ch 60ch at 12% -10%, color-mix(in oklch, #7cffb2 7%, transparent), transparent 70%),
+    radial-gradient(70ch 50ch at 92% 8%, color-mix(in oklch, #7ad7ff 6%, transparent), transparent 72%),
+    var(--p-elevator-bg0);
+}
+
+// ── Header ────────────────────────────────────────────────────
+.elv-create__header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: var(--elv-create-header-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 clamp(14px, 2.4vw, 30px);
+  border-bottom: 1px solid var(--p-elevator-line);
+  background: color-mix(in oklch, var(--p-elevator-bg0) 88%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.elv-create__brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1px;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: var(--p-elevator-ink);
+}
+
+.elv-create__brand-mark {
+  color: var(--p-elevator-accent);
+  text-shadow: 0 0 18px var(--p-elevator-accent-glow);
+}
+
+.elv-create__header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+// ── Body ──────────────────────────────────────────────────────
+.elv-create__body {
+  position: relative;
+  z-index: 1;
+  display: block;
+  min-height: calc(100dvh - var(--elv-create-header-h));
+}
+
+.elv-create__body.has-rail {
+  display: grid;
+  grid-template-columns: var(--elv-create-rail-w) minmax(0, 1fr);
+  align-items: start;
+}
+
+// ── The shaft ─────────────────────────────────────────────────
+.elv-create__rail {
+  position: sticky;
+  top: var(--elv-create-header-h);
+  align-self: start;
+  border-right: 1px solid var(--p-elevator-line);
+  padding: clamp(22px, 3vw, 34px) clamp(14px, 1.6vw, 22px);
+  min-height: calc(100dvh - var(--elv-create-header-h));
+}
+
+.elv-create__rail-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+  position: sticky;
+  top: calc(var(--elv-create-header-h) + 24px);
+}
+
+.elv-create__signal {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding-top: 22px;
+  border-top: 1px solid var(--p-elevator-line-soft);
+}
+
+.elv-create__signal-title {
+  font-family: 'Varino', 'Share Tech Mono', ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: .24em;
+  color: var(--p-elevator-ink4);
+}
+
+.elv-create__signal-note {
+  font-family: 'Share Tech Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: .08em;
+  line-height: 1.5;
+  color: var(--p-elevator-ink3);
+}
+
+// ── Content ───────────────────────────────────────────────────
+// NOT `content-wrapper`: AdminLTE hooks that name with margin-left.
+.elv-content {
+  display: block;
+  min-width: 0;
+  padding: clamp(22px, 3.4vw, 46px) clamp(16px, 3vw, 46px) clamp(50px, 6vw, 90px);
+}
+
+// ── Mobile ────────────────────────────────────────────────────
+// The shaft lies down above the content and the stepper's own
+// elevator variant switches to a scrolling horizontal track.
+@media (max-width: 1024px) {
+  .elv-create__body.has-rail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .elv-create__rail {
+    position: static;
+    min-height: 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--p-elevator-line);
+    padding: 16px clamp(14px, 3vw, 22px);
+  }
+
+  .elv-create__rail-inner {
+    position: static;
+    gap: 18px;
+  }
+
+  .elv-create__signal {
+    padding-top: 14px;
+  }
+}

@@ -1,0 +1,40 @@
+// ════════════════════════════════════════════════════════════
+// EXPERIENCE — floor 02
+// ViewEncapsulation.None; everything prefixed .elv-exp.
+// ════════════════════════════════════════════════════════════
+
+.elv-exp {
+  display: block;
+}
+
+.elv-exp__dates {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.elv-exp__current {
+  display: flex;
+  align-items: center;
+}
+
+// The plain-language on-ramp reads as a distinct affordance, not a field.
+.elv-exp__seed {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 15px;
+  border: 1px dashed color-mix(in oklch, var(--p-elevator-accent) 32%, transparent);
+  background: color-mix(in oklch, var(--p-elevator-accent) 4%, transparent);
+}
+
+.elv-exp__bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+@media (max-width: 900px) {
+  .elv-exp__dates { grid-template-columns: minmax(0, 1fr); }
+}

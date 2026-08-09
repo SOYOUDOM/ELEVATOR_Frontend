@@ -1,0 +1,82 @@
+<!-- ────────────────────────────────────────────────────────────
+     Full-screen builder shell. NOT inside the AdminLTE layout.
+
+     The content wrapper is .elv-content — never `content-wrapper`,
+     which AdminLTE hooks with a margin-left.
+     ──────────────────────────────────────────────────────────── -->
+<app-fx-grain />
+
+<div class="elv-create__backdrop" aria-hidden="true"></div>
+
+<header class="elv-create__header">
+  <button type="button" class="elv-create__brand" (click)="exit()">
+    <span class="elv-create__brand-mark">E</span>
+    <span class="elv-create__brand-name">LEVATOR</span>
+  </button>
+
+  <div class="elv-create__header-right">
+    <!-- The only assurance the user's work still exists. -->
+    <app-elv-chip
+      variant="badge"
+      size="small"
+      corner="sharp"
+      [icon]="saveChip().icon"
+      [tone]="saveChip().tone"
+      [title]="store.lastSavedAt() && store.saveState() === 'saved'
+        ? (saveChip().title + ' ' + (store.lastSavedAt() | date: 'HH:mm'))
+        : saveChip().title" />
+
+    <app-elv-button
+      variant="ghost"
+      size="small"
+      corner="sharp"
+      icon="pi pi-times"
+      [iconOnly]="true"
+      ariaLabel="Leave the builder"
+      (clicked)="exit()" />
+  </div>
+</header>
+
+<div class="elv-create__body" [class.has-rail]="wizard.onWizardFloor()">
+
+  <!-- ══ THE SHAFT ══════════════════════════════════════════════
+       Only on the five numbered floors. Launch and the editor sit
+       off the climb and must not claim a position on it.
+       ═══════════════════════════════════════════════════════════ -->
+  @if (wizard.onWizardFloor()) {
+    <aside class="elv-create__rail" [class.is-open]="railOpen()">
+      <div class="elv-create__rail-inner">
+
+        <elv-stepper
+          variant="elevator"
+          orientation="vertical"
+          [items]="wizard.stepperItems()"
+          [activeId]="wizard.activeId()"
+          [clickable]="true"
+          reach="all"
+          completedIcon=""
+          ariaLabel="CV builder floors"
+          (stepSelected)="onFloorSelected($event)" />
+
+        <!-- SIGNAL STRENGTH — the only progress feedback before the editor,
+             so it is bound to the draft and moves as the user types. -->
+        <div class="elv-create__signal">
+          <span class="elv-create__signal-title elv-mono">Signal strength</span>
+          <app-elv-progress
+            size="small"
+            corner="sharp"
+            tone="accent"
+            [value]="store.completeness()"
+            [showValue]="true"
+            [glow]="true"
+            ariaLabel="CV signal strength" />
+          <span class="elv-create__signal-note">{{ signalLabel() }}</span>
+        </div>
+      </div>
+    </aside>
+  }
+
+  <main class="elv-content">
+    <router-outlet />
+  </main>
+</div>

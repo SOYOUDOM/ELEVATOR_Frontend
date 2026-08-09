@@ -1,0 +1,40 @@
+<div
+  class="elv-before-after__frame"
+  [style.aspect-ratio]="ratio()"
+  (pointerdown)="onFramePointerDown($event)">
+
+  <!-- BEFORE sits underneath, full width. -->
+  <img class="elv-before-after__img" [src]="beforeSrc()" [alt]="beforeAlt()" draggable="false" />
+
+  <!-- AFTER is clipped to the split. clip-path (not width) so the image never
+       squashes — it stays the same size and is simply revealed. -->
+  <div class="elv-before-after__after">
+    <img class="elv-before-after__img" [src]="afterSrc()" [alt]="afterAlt()" draggable="false" />
+  </div>
+
+  @if (showLabels()) {
+    <span class="elv-before-after__tag elv-before-after__tag--before elv-mono">{{ beforeLabel() }}</span>
+    <span class="elv-before-after__tag elv-before-after__tag--after elv-mono">{{ afterLabel() }}</span>
+  }
+
+  <!-- A real slider: draggable AND arrow-key operable. -->
+  <div
+    class="elv-before-after__handle"
+    role="slider"
+    tabindex="0"
+    [attr.aria-label]="ariaLabel()"
+    aria-valuemin="0"
+    aria-valuemax="100"
+    [attr.aria-valuenow]="rounded()"
+    [attr.aria-valuetext]="rounded() + '% revealed'"
+    (pointerdown)="onPointerDown($event)"
+    (pointermove)="onPointerMove($event)"
+    (pointerup)="onPointerUp($event)"
+    (pointercancel)="onPointerUp($event)"
+    (keydown)="onKeydown($event)">
+    <span class="elv-before-after__line" aria-hidden="true"></span>
+    <span class="elv-before-after__grip" aria-hidden="true">
+      <i class="pi pi-arrows-h"></i>
+    </span>
+  </div>
+</div>

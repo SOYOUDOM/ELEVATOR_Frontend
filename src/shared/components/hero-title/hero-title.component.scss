@@ -1,0 +1,118 @@
+// ════════════════════════════════════════════════════════════
+// HERO TITLE
+//
+// ViewEncapsulation.None — every selector is prefixed
+// .elv-hero-title so nothing leaks.
+//
+// Known trap honoured: no `isolation: isolate` anywhere in
+// here. A stacking context on a headline wrapper traps the
+// accent glow and any reveal applied to its children.
+// ════════════════════════════════════════════════════════════
+
+.elv-hero-title {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.elv-hero-title[data-align='center'] {
+  align-items: center;
+  text-align: center;
+}
+
+// ── Eyebrow ───────────────────────────────────────────────────
+.elv-hero-title__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Varino', 'Share Tech Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--p-elevator-ink3);
+
+  &::before {
+    content: '';
+    width: 26px;
+    height: 2px;
+    flex: none;
+    background: linear-gradient(90deg, transparent, var(--p-elevator-accent));
+    box-shadow: 0 0 10px var(--p-elevator-accent-glow);
+  }
+}
+
+.elv-hero-title[data-align='center'] .elv-hero-title__eyebrow::after {
+  content: '';
+  width: 26px;
+  height: 2px;
+  flex: none;
+  background: linear-gradient(270deg, transparent, var(--p-elevator-accent));
+  box-shadow: 0 0 10px var(--p-elevator-accent-glow);
+}
+
+// ── Headline ──────────────────────────────────────────────────
+.elv-hero-title__h {
+  margin: 0;
+  font-family: 'Orbitron', 'Chakra Petch', sans-serif;
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: .01em;
+  text-transform: uppercase;
+  color: var(--p-elevator-ink);
+  text-wrap: balance;
+
+  // Parts are inline so the headline wraps as one sentence; the
+  // stacked flag below is what forces a line per part.
+  display: block;
+}
+
+.elv-hero-title__lead,
+.elv-hero-title__accent,
+.elv-hero-title__tail {
+  // A space between the runs that survives Angular's whitespace
+  // collapsing — the spans are adjacent in the compiled template.
+  &::after { content: ' '; }
+}
+
+.elv-hero-title__tail::after { content: none; }
+
+.elv-hero-title__accent {
+  color: color-mix(in oklch, var(--p-elevator-accent) 88%, #fff);
+  text-shadow:
+    0 0 16px var(--p-elevator-accent-glow),
+    0 0 36px var(--p-elevator-accent-glow);
+}
+
+.elv-hero-title[data-stacked='true'] .elv-hero-title__lead,
+.elv-hero-title[data-stacked='true'] .elv-hero-title__accent,
+.elv-hero-title[data-stacked='true'] .elv-hero-title__tail {
+  display: block;
+}
+
+// ── Sizes ─────────────────────────────────────────────────────
+.elv-hero-title[data-size='sm'] .elv-hero-title__h { font-size: clamp(17px, 2vw, 22px); }
+.elv-hero-title[data-size='md'] .elv-hero-title__h { font-size: clamp(21px, 2.8vw, 32px); }
+.elv-hero-title[data-size='lg'] .elv-hero-title__h { font-size: clamp(26px, 3.8vw, 44px); }
+.elv-hero-title[data-size='xl'] .elv-hero-title__h { font-size: clamp(30px, 4.6vw, 58px); }
+
+// ── Lede ──────────────────────────────────────────────────────
+.elv-hero-title__lede {
+  margin: 0;
+  max-width: 52ch;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: clamp(13.5px, 1.3vw, 16px);
+  line-height: 1.7;
+  color: var(--p-elevator-ink2);
+  text-wrap: pretty;
+}
+
+// ── Extra slot ────────────────────────────────────────────────
+.elv-hero-title__extra:empty { display: none; }
+
+.elv-hero-title__extra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}

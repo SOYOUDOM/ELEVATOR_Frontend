@@ -202,3 +202,11 @@
         </div>
     </div>
 </div>
+
+<!-- [ai] — inline AI actions (elv-ai-action) that belong to this field.
+     Sits BELOW the assist row so a growing error message never reflows the
+     button row, and outside .fld__box so the buttons are real tab stops
+     rather than being swallowed by the box's focus-stealing mousedown. -->
+<div class="fld__ai">
+    <ng-content select="[ai]" />
+</div>

@@ -1,0 +1,44 @@
+// ════════════════════════════════════════════════════════════
+// ELV-REPEATER
+// ViewEncapsulation.None — everything prefixed .elv-repeater.
+// Layout only; rows are elv-cards and style themselves.
+// ════════════════════════════════════════════════════════════
+
+.elv-repeater {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.elv-repeater__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.elv-repeater__row {
+  min-width: 0;
+}
+
+// The card's action footer holds the row tools. Pushed hard right so the
+// controls line up down the stack regardless of title length.
+.elv-repeater__tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.elv-repeater__body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.elv-repeater__add {
+  display: flex;
+}

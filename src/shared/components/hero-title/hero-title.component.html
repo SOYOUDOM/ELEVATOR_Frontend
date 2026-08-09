@@ -1,1 +1,40 @@
-<p>hero-title works!</p>
+<!-- The heading rank is a real switch rather than a dynamic tag, so the
+     document outline is whatever the caller asked for and the compiler can
+     still see the element. -->
+@if (eyebrow()) {
+  <span class="elv-hero-title__eyebrow elv-mono">{{ eyebrow() }}</span>
+}
+
+<ng-template #parts>
+  @if (lead()) {
+    <span class="elv-hero-title__lead">{{ lead() }}</span>
+  }
+  @if (accent()) {
+    <span class="elv-hero-title__accent">{{ accent() }}</span>
+  }
+  @if (tail()) {
+    <span class="elv-hero-title__tail">{{ tail() }}</span>
+  }
+</ng-template>
+
+@switch (level()) {
+  @case (1) {
+    <h1 class="elv-hero-title__h"><ng-container [ngTemplateOutlet]="parts" /></h1>
+  }
+  @case (2) {
+    <h2 class="elv-hero-title__h"><ng-container [ngTemplateOutlet]="parts" /></h2>
+  }
+  @case (3) {
+    <h3 class="elv-hero-title__h"><ng-container [ngTemplateOutlet]="parts" /></h3>
+  }
+  @default {
+    <h4 class="elv-hero-title__h"><ng-container [ngTemplateOutlet]="parts" /></h4>
+  }
+}
+
+@if (lede()) {
+  <p class="elv-hero-title__lede">{{ lede() }}</p>
+}
+
+<!-- Anything extra the caller wants under the heading (chips, buttons). -->
+<div class="elv-hero-title__extra"><ng-content /></div>

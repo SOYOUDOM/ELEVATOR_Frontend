@@ -1,0 +1,48 @@
+<!-- The drop surface. The native <input type="file"> is stretched over it and
+     kept in the tab order, so click, Enter, Space and every AT affordance are
+     the browser's rather than a re-implementation. -->
+<div
+  class="elv-dropzone__surface"
+  (dragenter)="onDragEnter($event)"
+  (dragover)="onDragOver($event)"
+  (dragleave)="onDragLeave($event)"
+  (drop)="onDrop($event)">
+
+  @if (!busy()) {
+    <input
+      type="file"
+      class="elv-dropzone__input"
+      [attr.accept]="acceptAttr()"
+      [multiple]="multiple()"
+      [disabled]="disabled()"
+      [attr.aria-label]="ariaLabel()"
+      (change)="onPick($event)" />
+  }
+
+  <!-- Idle / dragging state. Projected content wins when supplied, so a
+       caller can render a preview here instead (see the photo module). -->
+  <div class="elv-dropzone__body">
+    <ng-content>
+      <app-elv-empty-state
+        skin="ghost"
+        [icon]="idleIcon()"
+        [eyebrow]="idleEyebrow()"
+        [title]="idleTitle()"
+        [text]="idleText()"
+        [actionTitle]="actionTitle()" />
+    </ng-content>
+  </div>
+</div>
+
+@if (error()) {
+  <div class="elv-dropzone__error">
+    <app-elv-alert
+      tone="danger"
+      skin="soft"
+      size="small"
+      icon="pi-exclamation-triangle"
+      [text]="error()"
+      [dismissible]="true"
+      (closed)="dismissError()" />
+  </div>
+}

@@ -1,0 +1,102 @@
+// ════════════════════════════════════════════════════════════
+// AD GATE
+// ViewEncapsulation.None; everything prefixed .elv-adgate.
+// ════════════════════════════════════════════════════════════
+
+.elv-adgate__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: color-mix(in oklch, #04060a 82%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.elv-adgate__panel {
+  width: min(560px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: clamp(20px, 3vw, 32px);
+  border: 1px solid color-mix(in oklch, var(--p-elevator-accent) 38%, transparent);
+  background: var(--p-elevator-panel);
+  box-shadow: 0 0 60px color-mix(in oklch, var(--p-elevator-accent) 14%, transparent);
+}
+
+.elv-adgate__head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.elv-adgate__title {
+  margin: 0;
+  font-family: 'Orbitron', 'Chakra Petch', sans-serif;
+  font-weight: 400;
+  font-size: clamp(16px, 2vw, 21px);
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: var(--p-elevator-ink);
+}
+
+.elv-adgate__sub {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--p-elevator-ink3);
+}
+
+// Placeholder surface. A real ad slot mounts here.
+.elv-adgate__stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  border: 1px dashed var(--p-elevator-line-strong);
+  background: color-mix(in oklch, var(--p-elevator-panel-hi) 40%, transparent);
+}
+
+.elv-adgate__stage-label {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  font-size: 9px;
+  letter-spacing: .22em;
+  color: var(--p-elevator-ink4);
+}
+
+.elv-adgate__count {
+  font-family: 'Share Tech Mono', ui-monospace, monospace;
+  font-size: clamp(40px, 7vw, 64px);
+  line-height: 1;
+  color: var(--p-elevator-accent);
+  text-shadow: 0 0 26px var(--p-elevator-accent-glow);
+}
+
+.elv-adgate__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.elv-adgate__wait {
+  font-size: 10px;
+  letter-spacing: .18em;
+  color: var(--p-elevator-ink4);
+}
+
+.elv-adgate__actions {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+// The gate must never appear on the printed sheet.
+@media print {
+  .elv-adgate__backdrop { display: none !important; }
+}

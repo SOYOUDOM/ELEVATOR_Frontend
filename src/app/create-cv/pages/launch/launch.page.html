@@ -1,0 +1,187 @@
+<div class="elv-launch__inner">
+
+  <app-hero-title
+    eyebrow="Create CV"
+    lead="Build a CV that"
+    accent="gets read"
+    tail="— free, start to finish."
+    lede="Bring what you already have, or start with nothing at all. Everything is optional, everything autosaves, and there is no account to make."
+    [level]="1"
+    size="xl" />
+
+  <!-- ══ THE TWO DOORS ══════════════════════════════════════════ -->
+  @if (mode() === 'choose') {
+    <div class="elv-launch__doors">
+
+      <app-elv-card
+        variant="feature"
+        corner="notch"
+        size="lg"
+        hover="border"
+        [interactive]="true"
+        icon="pi-cloud-upload"
+        title="Import existing CV"
+        text="Upload a PDF, DOCX or photo. We read it, rebuild it, and keep every word you wrote."
+        ariaLabel="Import an existing CV"
+        (activated)="chooseImport()"
+        elvReveal="rise">
+        <div card-actions class="elv-launch__door-actions">
+          <app-elv-chip variant="badge" size="small" corner="sharp" title="~2 min" icon="pi pi-clock" />
+          <app-elv-chip variant="badge" size="small" corner="sharp" tone="info" title="Fastest" />
+        </div>
+      </app-elv-card>
+
+      <app-elv-card
+        variant="feature"
+        corner="notch"
+        size="lg"
+        hover="border"
+        [interactive]="true"
+        icon="pi-pencil"
+        title="Start from scratch"
+        text="Nothing to upload. Answer a short run of questions and the AI drafts each section alongside you."
+        ariaLabel="Start from scratch"
+        (activated)="chooseScratch()"
+        elvReveal="rise"
+        [revealDelay]="0.08">
+        <div card-actions class="elv-launch__door-actions">
+          <app-elv-chip variant="badge" size="small" corner="sharp" title="~6 min" icon="pi pi-clock" />
+          <app-elv-chip variant="badge" size="small" corner="sharp" tone="success" title="Most control" />
+        </div>
+      </app-elv-card>
+    </div>
+  }
+
+  <!-- ══ IMPORT ═════════════════════════════════════════════════ -->
+  @if (mode() === 'import') {
+    <section class="elv-launch__import">
+
+      <div class="elv-launch__import-head">
+        <h2 class="elv-launch__h2">Upload your CV</h2>
+        <app-elv-button
+          variant="ghost"
+          size="small"
+          corner="sharp"
+          icon="pi pi-arrow-left"
+          title="Back"
+          (clicked)="backToChoice()" />
+      </div>
+
+      @if (stage() === 'idle' || stage() === 'error') {
+        <elv-dropzone
+          [accept]="['.pdf', '.docx', '.png', '.jpg', '.jpeg']"
+          [maxSizeMb]="10"
+          idleIcon="pi-file-import"
+          idleTitle="Drop your CV here"
+          idleText="PDF, DOCX, PNG or JPG · up to 10 MB"
+          ariaLabel="Upload your existing CV"
+          (accepted)="onFiles($event)" />
+      }
+
+      @if (busy() || stage() === 'done') {
+        <div class="elv-launch__stages">
+          <app-elv-progress
+            size="medium"
+            corner="sharp"
+            tone="accent"
+            [value]="progress()"
+            [showValue]="true"
+            [glow]="true"
+            [label]="stageLabel()"
+            ariaLabel="Import progress" />
+        </div>
+      }
+
+      @if (importError()) {
+        <app-elv-alert
+          tone="danger"
+          skin="soft"
+          corner="sharp"
+          [bar]="true"
+          icon="pi-exclamation-triangle"
+          title="Import failed"
+          [text]="importError()" />
+      }
+
+      @if (report(); as r) {
+        <app-elv-alert
+          tone="success"
+          skin="soft"
+          corner="sharp"
+          [bar]="true"
+          icon="pi-check-circle"
+          title="Extraction report"
+          [text]="r.fieldsRecovered + ' fields recovered · ' + r.fieldsNeedingAttention + ' need attention'">
+          <div alert-actions class="elv-launch__report-actions">
+            <p class="elv-launch__report-note">
+              Anything we were unsure about is flagged on the next screen with a cyan rail. Nothing was invented — fields we could not read were left blank.
+            </p>
+            <app-elv-button
+              variant="neon"
+              corner="sharp"
+              [glow]="true"
+              icon="pi pi-arrow-right"
+              iconPos="right"
+              [iconGap]="18"
+              title="Review your details"
+              (clicked)="continueToIdentity()" />
+          </div>
+        </app-elv-alert>
+      }
+    </section>
+  }
+
+  <!-- ══ TEMPLATE STRIP ═════════════════════════════════════════ -->
+  <section class="elv-launch__templates">
+    <div class="elv-launch__templates-head">
+      <h2 class="elv-launch__h2">Pick a look</h2>
+      <span class="elv-launch__caption elv-mono">Switchable anytime</span>
+    </div>
+
+    <div class="elv-launch__strip">
+      @for (tpl of visibleTemplates(); track tpl.id) {
+        <button
+          type="button"
+          class="elv-launch__tpl"
+          [class.is-active]="selectedTemplate() === tpl.id"
+          [style.--tpl-accent]="tpl.accent"
+          (click)="selectTemplate(tpl.id)">
+          <span class="elv-launch__tpl-swatch" aria-hidden="true"></span>
+          <span class="elv-launch__tpl-name">{{ tpl.name }}</span>
+          <span class="elv-launch__tpl-desc">{{ tpl.description }}</span>
+          @if (selectedTemplate() === tpl.id) {
+            <span class="elv-launch__tpl-mark elv-mono"><i class="pi pi-check"></i> Selected</span>
+          }
+        </button>
+      }
+    </div>
+
+    @if (pageCount() > 1) {
+      <div class="elv-launch__pager">
+        <app-elv-button
+          variant="ghost"
+          size="small"
+          corner="sharp"
+          [iconOnly]="true"
+          icon="pi pi-chevron-left"
+          ariaLabel="Previous templates"
+          [disabled]="templatePage() === 0"
+          (clicked)="pageBy(-1)" />
+
+        <span class="elv-launch__pager-count elv-mono">
+          {{ templatePage() + 1 }} / {{ pageCount() }}
+        </span>
+
+        <app-elv-button
+          variant="ghost"
+          size="small"
+          corner="sharp"
+          [iconOnly]="true"
+          icon="pi pi-chevron-right"
+          ariaLabel="More templates"
+          [disabled]="templatePage() >= pageCount() - 1"
+          (clicked)="pageBy(1)" />
+      </div>
+    }
+  </section>
+</div>

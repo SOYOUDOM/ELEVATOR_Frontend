@@ -1,7 +1,11 @@
     import { HttpHandler,HttpResponse, http } from "msw";
     import {handlers as generated} from './generated/handlers';
+    import { createCvHandlers } from './create-cv.handlers';
 
     export const handlers: HttpHandler[] = [
+        // Create CV first: these are hand-written and must win over any
+        // generated catch-all that happens to match the same path.
+        ...createCvHandlers,
         http.get('*/AbpUserConfiguration/GetAll',() => HttpResponse.json({
         "result": {
             "multiTenancy": {

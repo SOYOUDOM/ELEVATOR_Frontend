@@ -9,6 +9,16 @@ export type ElvChipSkin =
   | 'glass'     // translucent + backdrop blur
   | 'plain';    // no fill, no border, no padding — icon + text only
 
+/**
+ * Semantic status colour, independent of `skin`.
+ *
+ * Added so elv-chip can carry every status pill in the product (SAVED,
+ * EXPORT UNLOCKED, FACE DETECTED, TOO DARK ...) rather than a separate
+ * StatusPill component. `neutral` is the default and paints nothing, so
+ * every existing chip is unaffected.
+ */
+export type ElvChipTone = 'neutral' | 'success' | 'warn' | 'danger' | 'info';
+
 export type ElvChipSize    = 'small' | 'medium' | 'large';
 export type ElvChipCorner  = 'notch' | 'round' | 'pill' | 'sharp';
 export type ElvChipFrame   = 'none' | 'circle' | 'round' | 'square';  // shape drawn around the icon
@@ -62,6 +72,9 @@ export class ElvChipComponent {
   @Input() iconPos: ElvChipIconPos = 'start';
   @Input() align: ElvChipAlign = 'start';
 
+  /** Semantic status colour. 'neutral' leaves the skin's own colours alone. */
+  @Input() tone: ElvChipTone = 'neutral';
+
   /* Content. `icon` is the FULL icon class — library-agnostic.
      PrimeIcons:   'pi pi-bolt'        FontAwesome: 'fa-solid fa-rocket' */
   @Input() icon = '';
@@ -95,6 +108,7 @@ export class ElvChipComponent {
       `elv-chip--frame-${this.rFrame}`,
       `elv-chip--icon-${this.iconPos}`,
       `elv-chip--align-${this.align}`,
+      this.tone !== 'neutral' ? `elv-chip--tone-${this.tone}` : '',
       this.description ? 'elv-chip--has-desc' : '',
       this.interactive ? 'elv-chip--interactive' : '',
       this.customClass,

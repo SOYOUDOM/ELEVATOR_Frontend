@@ -1,0 +1,51 @@
+@if (wizard.activeStep(); as step) {
+  <div class="elv-floor__inner" [class.is-wide]="wide()">
+
+    <app-hero-title
+      [eyebrow]="'Floor ' + (wizard.activeIndex() + 1) + ' of ' + wizard.steps.length"
+      [lead]="step.title"
+      [lede]="step.subtitle"
+      [level]="1"
+      size="lg" />
+
+    <div class="elv-floor__body">
+      <ng-content />
+    </div>
+
+    <footer class="elv-floor__foot">
+      @if (footnote()) {
+        <p class="elv-floor__note">{{ footnote() }}</p>
+      }
+
+      <div class="elv-floor__nav">
+        <app-elv-button
+          variant="ghost"
+          corner="sharp"
+          icon="pi pi-arrow-left"
+          title="Back"
+          (clicked)="wizard.previous()" />
+
+        <div class="elv-floor__nav-right">
+          @if (step.skippable) {
+            <app-elv-button
+              variant="link"
+              corner="sharp"
+              title="Skip this floor"
+              (clicked)="wizard.next()" />
+          }
+
+          <app-elv-button
+            variant="neon"
+            corner="sharp"
+            [glow]="true"
+            icon="pi pi-arrow-right"
+            iconPos="right"
+            [iconGap]="18"
+            [title]="wizard.isLast() ? 'Open the editor' : continueLabel()"
+            [disabled]="continueDisabled()"
+            (clicked)="wizard.next()" />
+        </div>
+      </div>
+    </footer>
+  </div>
+}

@@ -298,6 +298,171 @@
   }
 }
 
+// ════════════════════════════════════════════════════════════
+// ELEVATOR VARIANT
+//
+// A vertical shaft of numbered floors with a car riding between
+// them. Colour split follows the spec: mint marks where you ARE,
+// cyan marks where you have BEEN.
+//
+// Free jumping is the rule — [data-incomplete] draws a hollow
+// ring so an unfinished floor is *marked*, never locked.
+// ════════════════════════════════════════════════════════════
+:host([data-variant='elevator']) {
+  --elv-stepper-dot: 40px;
+  --elv-stepper-gap: 14px;
+  --elv-stepper-track-gap: 22px;
+  --elv-stepper-num: 12px;
+  --elv-stepper-label: 9.5px;
+
+  --elv-stepper-mint: var(--p-elevator-accent, #7cffb2);
+  --elv-stepper-cyan: var(--p-elevator-secondary, #7ad7ff);
+
+  --elv-stepper-accent: var(--elv-stepper-mint);
+  --elv-stepper-line: color-mix(in oklch, var(--elv-stepper-cyan) 22%, transparent);
+
+  .elv-stepper__track {
+    position: relative;
+    flex-direction: column;
+    align-items: stretch;
+    // Room for the car rail down the left of the markers.
+    padding-left: 0;
+  }
+
+  // The shaft rail: one continuous hairline behind every floor.
+  .elv-stepper__track::before {
+    content: '';
+    position: absolute;
+    top: calc(var(--elv-stepper-dot) / 2);
+    bottom: calc(var(--elv-stepper-dot) / 2);
+    left: calc(var(--elv-stepper-dot) / 2);
+    width: 1px;
+    background: linear-gradient(
+      180deg,
+      color-mix(in oklch, var(--elv-stepper-cyan) 40%, transparent),
+      color-mix(in oklch, var(--elv-stepper-cyan) 10%, transparent)
+    );
+    pointer-events: none;
+  }
+
+  // Per-step connectors are redundant against the continuous rail.
+  .elv-stepper__connector { display: none; }
+
+  .elv-stepper__hit {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--elv-stepper-gap);
+  }
+
+  .elv-stepper__marker {
+    border-radius: 0;
+    background: var(--p-elevator-bg0, #04060a);
+  }
+
+  .elv-stepper__pulse { border-radius: 0; }
+
+  .elv-stepper__label {
+    text-align: left;
+    max-width: none;
+  }
+
+  // ── Floor states ──────────────────────────────────────────
+  // Completed: cyan outline, dimmed — "you have been here".
+  .elv-stepper__step[data-state='done'] .elv-stepper__marker {
+    border-color: color-mix(in oklch, var(--elv-stepper-cyan) 55%, transparent);
+    color: color-mix(in oklch, var(--elv-stepper-cyan) 80%, transparent);
+    opacity: .72;
+  }
+
+  .elv-stepper__step[data-state='done'] .elv-stepper__label {
+    color: color-mix(in oklch, var(--elv-stepper-cyan) 62%, transparent);
+  }
+
+  // Current: mint fill + glow — "you are here".
+  .elv-stepper__step[data-state='active'] .elv-stepper__marker {
+    background: var(--elv-stepper-mint);
+    border-color: var(--elv-stepper-mint);
+    color: var(--p-elevator-bg0, #04060a);
+    box-shadow:
+      0 0 22px color-mix(in oklch, var(--elv-stepper-mint) 55%, transparent),
+      inset 0 0 12px color-mix(in oklch, #fff 30%, transparent);
+  }
+
+  .elv-stepper__step[data-state='active'] .elv-stepper__label {
+    color: var(--elv-stepper-mint);
+  }
+
+  // Incomplete: hollow ring. Marked, not locked — still clickable.
+  .elv-stepper__step[data-incomplete] .elv-stepper__marker {
+    border-style: dashed;
+    border-color: color-mix(in oklch, var(--elv-stepper-cyan) 34%, transparent);
+    background: transparent;
+  }
+
+  // …unless it is the floor you are standing on, which always wins.
+  .elv-stepper__step[data-incomplete][data-state='active'] .elv-stepper__marker {
+    border-style: solid;
+    background: var(--elv-stepper-mint);
+  }
+}
+
+// ── The car ───────────────────────────────────────────────────
+// Rides the shaft to the active floor. `translate` (the standalone
+// property) — NOT transform: pairing transform with a fill-mode
+// animation on a centred element is the known breakage.
+.elv-stepper__car {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--elv-stepper-dot);
+  height: var(--elv-stepper-dot);
+  translate: calc(var(--elv-stepper-car-x, 50%) - 50%) calc(var(--elv-stepper-car-y, 0px) - 50%);
+  transition: translate .55s cubic-bezier(.65, 0, .35, 1);
+  pointer-events: none;
+  z-index: 0;
+  list-style: none;
+}
+
+.elv-stepper__car-box {
+  position: absolute;
+  inset: -7px;
+  border: 1px solid color-mix(in oklch, var(--elv-stepper-mint, #7cffb2) 45%, transparent);
+  box-shadow:
+    0 0 18px color-mix(in oklch, var(--elv-stepper-mint, #7cffb2) 30%, transparent),
+    inset 0 0 10px color-mix(in oklch, var(--elv-stepper-mint, #7cffb2) 12%, transparent);
+}
+
+// Mobile: the shaft lies down and becomes an ordinary scrolling track.
+@media (max-width: 900px) {
+  :host([data-variant='elevator']) {
+    --elv-stepper-dot: 32px;
+    --elv-stepper-track-gap: 10px;
+
+    .elv-stepper__track {
+      flex-direction: row;
+      align-items: flex-start;
+      overflow-x: auto;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar { display: none; }
+      &::before { display: none; }
+    }
+
+    .elv-stepper__connector { display: block; }
+
+    .elv-stepper__hit {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .elv-stepper__label { text-align: center; }
+
+    // A car that tracks a horizontally scrolling rail fights the scroll.
+    .elv-stepper__car { display: none; }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .elv-stepper__pulse { animation: none; }
 
@@ -306,4 +471,8 @@
   .elv-stepper__connector {
     transition: none;
   }
+
+  // Spec: the car does not animate under reduced motion. It still
+  // parks on the right floor — it just gets there instantly.
+  .elv-stepper__car { transition: none; }
 }

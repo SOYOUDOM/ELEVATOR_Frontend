@@ -7,4 +7,5 @@ export type {
     ElvStepperSelection,
     ElvStepperSize,
     ElvStepperState,
+    ElvStepperVariant,
 } from './elv-stepper.types';

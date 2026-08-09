@@ -21,6 +21,7 @@ import type {
     ElvStepperSelection,
     ElvStepperSize,
     ElvStepperState,
+    ElvStepperVariant,
 } from './elv-stepper.types';
 
 /** One item plus everything the template needs, computed once per change. */
@@ -31,6 +32,7 @@ interface ResolvedStep {
     marker: string;
     icon: string | null;
     selectable: boolean;
+    incomplete: boolean;
 }
 
 /**
@@ -75,6 +77,7 @@ interface ResolvedStep {
         '[attr.data-orientation]': 'orientation()',
         '[attr.data-size]': 'size()',
         '[attr.data-connector]': 'connector()',
+        '[attr.data-variant]': 'variant()',
     },
 })
 export class ElvStepperComponent {
@@ -85,6 +88,12 @@ export class ElvStepperComponent {
     readonly activeId = input<string | null>(null);
 
     // ── Appearance ────────────────────────────────────────────────────
+    /**
+     * `elevator` swaps the neutral track for the ELEVATOR shaft: floors, a
+     * riding car, mint for the current floor and cyan for completed ones.
+     */
+    readonly variant = input<ElvStepperVariant>('default');
+
     readonly orientation = input<ElvStepperOrientation>('horizontal');
     readonly size = input<ElvStepperSize>('medium');
     readonly connector = input<ElvStepperConnector>('dashed');
@@ -118,6 +127,7 @@ export class ElvStepperComponent {
         const reach = this.reach();
         const clickable = this.clickable();
         const doneIcon = this.completedIcon();
+        const elevator = this.variant() === 'elevator';
 
         return this.items().map((item, index) => {
             const state = this.stateFor(item, index, active);
@@ -127,9 +137,12 @@ export class ElvStepperComponent {
                 item,
                 index,
                 state,
-                marker: String(item.marker ?? index + 1),
+                // The elevator shaft numbers its floors 01, 02, … — a bare
+                // "1" would read as a list item rather than a floor.
+                marker: String(item.marker ?? (elevator ? pad2(index + 1) : index + 1)),
                 icon: item.icon ?? (isDone && doneIcon ? doneIcon : null),
                 selectable: clickable && !item.disabled && (reach === 'all' || index <= active),
+                incomplete: item.incomplete === true,
             };
         });
     });
@@ -152,10 +165,17 @@ export class ElvStepperComponent {
         // Track the active marker into view on every change, including the
         // first paint. `untracked` keeps the DOM read out of the dependency
         // graph — only activeIndex should retrigger this.
-        afterNextRender(() => this.keepActiveInView());
+        afterNextRender(() => {
+            this.keepActiveInView();
+            this.parkCar();
+        });
         effect(() => {
             this.activeIndex();
-            untracked(() => this.keepActiveInView());
+            this.variant();
+            untracked(() => {
+                this.keepActiveInView();
+                this.parkCar();
+            });
         });
     }
 
@@ -190,10 +210,52 @@ export class ElvStepperComponent {
         }
 
         const target = marker.offsetLeft - (track.clientWidth - marker.offsetWidth) / 2;
-        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        track.scrollTo({ left: Math.max(0, target), behavior: reduced ? 'auto' : 'smooth' });
+        track.scrollTo({ left: Math.max(0, target), behavior: reducedMotion() ? 'auto' : 'smooth' });
     }
+
+    /**
+     * Moves the elevator car to the active floor.
+     *
+     * Measured rather than calculated from an index: the floors are laid out
+     * by flex `gap`, so their pitch depends on label wrapping and the size
+     * axis. Reading the marker's real offset is correct at any of them.
+     *
+     * The position is published as a custom property and the stylesheet moves
+     * the car with the standalone `translate` property — never `transform`,
+     * which would collide with the fill-mode trap on a centred element.
+     */
+    private parkCar(): void {
+        if (this.variant() !== 'elevator') {
+            return;
+        }
+
+        const root = this.host.nativeElement;
+        const track = root.querySelector<HTMLElement>('.elv-stepper__track');
+        const marker = track?.querySelector<HTMLElement>(
+            '.elv-stepper__step[data-state="active"] .elv-stepper__marker'
+        );
+
+        if (!track || !marker) {
+            return;
+        }
+
+        // offsetTop is relative to the nearest positioned ancestor; the track
+        // is that ancestor in the elevator variant, so this needs no walking.
+        const y = marker.offsetTop + marker.offsetHeight / 2;
+        const x = marker.offsetLeft + marker.offsetWidth / 2;
+
+        root.style.setProperty('--elv-stepper-car-y', `${Math.round(y)}px`);
+        root.style.setProperty('--elv-stepper-car-x', `${Math.round(x)}px`);
+    }
+}
+
+function pad2(n: number): string {
+    return n < 10 ? `0${n}` : String(n);
+}
+
+function reducedMotion(): boolean {
+    return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
 }
 
 /* ============================================================================

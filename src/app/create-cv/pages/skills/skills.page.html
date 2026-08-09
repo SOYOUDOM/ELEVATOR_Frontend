@@ -1,0 +1,176 @@
+<app-wizard-floor
+  footnote="Three skills is the minimum that reads as deliberate. Ten is plenty — a wall of fifty reads as noise.">
+
+  <!-- ══ SCAN ═══════════════════════════════════════════════════ -->
+  <section class="elv-skills__scan">
+    <div class="elv-skills__scan-head">
+      <div>
+        <h2 class="elv-floor__group-title">Scan my experience</h2>
+        <p class="elv-skills__scan-note">
+          Reads the bullets you already wrote and proposes the skills they actually demonstrate. Nothing is added until you tap it.
+        </p>
+      </div>
+
+      <app-elv-button
+        variant="neon"
+        corner="sharp"
+        [glow]="canScan()"
+        icon="pi pi-search"
+        [iconGap]="14"
+        title="Scan my experience"
+        [disabled]="!canScan()"
+        [loading]="scanning()"
+        (clicked)="scan()" />
+    </div>
+
+    @if (scanning()) {
+      <app-elv-skeleton shape="chip" [count]="7" ariaLabel="Reading your experience" />
+    } @else if (openSuggestions().length) {
+      <div class="elv-skills__chips">
+        @for (s of openSuggestions(); track s.name) {
+          <app-elv-chip
+            variant="badge"
+            corner="sharp"
+            size="small"
+            tone="info"
+            icon="pi pi-plus"
+            [title]="s.name"
+            [interactive]="true"
+            (clicked)="toggle(s.name, s.group)" />
+        }
+      </div>
+    } @else if (scanned()) {
+      <p class="elv-skills__scan-note">
+        Nothing new to suggest — either they are all added already, or there is not enough written yet for an honest read.
+      </p>
+    } @else if (!canScan()) {
+      <p class="elv-skills__scan-note">
+        Write a bullet or two on the experience floor first and this will have something to read.
+      </p>
+    }
+  </section>
+
+  <!-- ══ PRESET GROUPS ══════════════════════════════════════════ -->
+  @for (group of presets; track group.group) {
+    <section class="elv-floor__group">
+      <h2 class="elv-floor__group-title">{{ group.label }}</h2>
+      <div class="elv-skills__chips">
+        @for (name of group.items; track name) {
+          <app-elv-chip
+            variant="badge"
+            corner="sharp"
+            size="small"
+            [tone]="has(name) ? 'success' : 'neutral'"
+            [icon]="has(name) ? 'pi pi-check' : ''"
+            [title]="name"
+            [interactive]="true"
+            (clicked)="toggle(name, group.group)" />
+        }
+      </div>
+    </section>
+  }
+
+  <!-- ══ CUSTOM ═════════════════════════════════════════════════ -->
+  <section class="elv-floor__group">
+    <h2 class="elv-floor__group-title">Add your own</h2>
+    <div class="elv-skills__row">
+      <elv-field
+        label="Skill"
+        labelMode="hidden"
+        placeholder="Something not on the lists above"
+        [value]="custom()"
+        (valueChange)="custom.set($any($event))"
+        (enter)="addCustom()" />
+      <app-elv-button
+        variant="neon-soft"
+        corner="sharp"
+        icon="pi pi-plus"
+        title="Add"
+        [disabled]="!custom()"
+        (clicked)="addCustom()" />
+    </div>
+  </section>
+
+  <!-- ══ SELECTED ═══════════════════════════════════════════════ -->
+  <section class="elv-floor__group">
+    <h2 class="elv-floor__group-title">On your CV · {{ skills().length }}</h2>
+
+    <div class="elv-skills__output">
+      @if (skills().length) {
+        <div class="elv-skills__chips">
+          @for (s of skills(); track s.id) {
+            <app-elv-chip
+              variant="badge"
+              corner="sharp"
+              size="small"
+              tone="success"
+              icon="pi pi-times"
+              iconPos="end"
+              [title]="s.name"
+              [interactive]="true"
+              ariaLabel="Remove {{ s.name }}"
+              (clicked)="remove(s)" />
+          }
+        </div>
+      } @else {
+        <app-elv-empty-state
+          skin="ghost"
+          size="sm"
+          icon="pi-bolt"
+          title="Nothing selected yet"
+          text="Tap any chip above to add it. Tap it again here to take it off." />
+      }
+    </div>
+  </section>
+
+  <!-- ══ LANGUAGES ══════════════════════════════════════════════ -->
+  <section class="elv-floor__group">
+    <h2 class="elv-floor__group-title">Languages</h2>
+
+    <div class="elv-skills__lang-row">
+      <elv-field
+        label="Language"
+        labelMode="hidden"
+        placeholder="English"
+        [value]="newLanguage()"
+        (valueChange)="newLanguage.set($any($event))"
+        (enter)="addLanguage()" />
+
+      <select
+        class="elv-skills__select"
+        [value]="newLevel()"
+        aria-label="Level"
+        (change)="newLevel.set($any($event.target).value)">
+        @for (lvl of levels; track lvl) {
+          <option [value]="lvl">{{ lvl }}</option>
+        }
+      </select>
+
+      <app-elv-button
+        variant="neon-soft"
+        corner="sharp"
+        icon="pi pi-plus"
+        title="Add"
+        [disabled]="!newLanguage()"
+        (clicked)="addLanguage()" />
+    </div>
+
+    @if (languages().length) {
+      <div class="elv-skills__chips">
+        @for (l of languages(); track l.id) {
+          <app-elv-chip
+            variant="badge"
+            corner="sharp"
+            size="small"
+            tone="info"
+            icon="pi pi-times"
+            iconPos="end"
+            [title]="l.name + ' • ' + l.level"
+            [interactive]="true"
+            ariaLabel="Remove {{ l.name }}"
+            (clicked)="removeLanguage(l)" />
+        }
+      </div>
+    }
+  </section>
+</app-wizard-floor>

@@ -824,3 +824,45 @@
         transition-duration: 1ms !important;
     }
 }
+
+// ════════════════════════════════════════════════════════════
+// UNCERTAIN — low-confidence value after a CV import.
+//
+// Deliberately NOT a validation status: the value may be right,
+// so it must not recolour the box like an error or block
+// anything. It is a 2px cyan rail on the leading edge and
+// nothing else, and it yields to any real status.
+// ════════════════════════════════════════════════════════════
+.elv-field.is-uncertain .fld__box {
+    position: relative;
+}
+
+.elv-field.is-uncertain .fld__box::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 2px;
+    background: var(--p-elevator-secondary, #7ad7ff);
+    box-shadow: 0 0 10px color-mix(in oklch, var(--p-elevator-secondary, #7ad7ff) 45%, transparent);
+    pointer-events: none;
+    z-index: 2;
+}
+
+// A real error/warning outranks a confidence hint.
+.elv-field.is-uncertain.is-error .fld__box::before,
+.elv-field.is-uncertain.is-warning .fld__box::before {
+    display: none;
+}
+
+// ── [ai] slot ────────────────────────────────────────────────
+// Empty by default, so a field with no AI actions costs no space.
+.elv-field .fld__ai:empty { display: none; }
+
+.elv-field .fld__ai {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}

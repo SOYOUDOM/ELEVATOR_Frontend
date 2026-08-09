@@ -1,0 +1,90 @@
+// ════════════════════════════════════════════════════════════
+// ELV-DROPZONE
+// ViewEncapsulation.None — every selector is prefixed
+// .elv-dropzone.
+// ════════════════════════════════════════════════════════════
+
+.elv-dropzone {
+  display: block;
+  width: 100%;
+}
+
+.elv-dropzone__surface {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  padding: clamp(18px, 2.4vw, 30px);
+
+  border: 1px dashed var(--p-elevator-line-strong);
+  background: color-mix(in oklch, var(--p-elevator-panel-hi) 32%, transparent);
+
+  transition: border-color .25s ease, background-color .25s ease, box-shadow .25s ease;
+}
+
+// Hover and keyboard focus read identically — the input is the control.
+.elv-dropzone:not(.is-disabled):not(.is-busy) .elv-dropzone__surface:hover,
+.elv-dropzone__surface:focus-within {
+  border-color: color-mix(in oklch, var(--p-elevator-accent) 55%, transparent);
+  background: color-mix(in oklch, var(--p-elevator-panel-hi) 52%, transparent);
+}
+
+.elv-dropzone__surface:focus-within {
+  outline: 1px solid var(--p-elevator-accent);
+  outline-offset: 3px;
+}
+
+.elv-dropzone.is-dragging .elv-dropzone__surface {
+  border-style: solid;
+  border-color: var(--p-elevator-accent);
+  background: color-mix(in oklch, var(--p-elevator-accent) 9%, transparent);
+  // Inward only — an outward glow is clipped by any reveal clip-path
+  // still applied to an ancestor.
+  box-shadow: inset 0 0 34px color-mix(in oklch, var(--p-elevator-accent) 18%, transparent);
+}
+
+.elv-dropzone.is-disabled .elv-dropzone__surface {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.elv-dropzone.is-busy .elv-dropzone__surface {
+  border-style: solid;
+}
+
+// The stretched native input.
+.elv-dropzone__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+
+  &:disabled { cursor: not-allowed; }
+}
+
+.elv-dropzone__body {
+  position: relative;
+  // Sits under the input so the input keeps the clicks; anything the caller
+  // projects that needs its own clicks must raise itself.
+  pointer-events: none;
+  width: 100%;
+  display: grid;
+  place-items: center;
+}
+
+// Projected controls (buttons in a preview) opt back in.
+.elv-dropzone__body button,
+.elv-dropzone__body a,
+.elv-dropzone__body [data-interactive] {
+  pointer-events: auto;
+}
+
+.elv-dropzone__error {
+  margin-top: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .elv-dropzone__surface { transition: none; }
+}

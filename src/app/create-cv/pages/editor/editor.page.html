@@ -1,0 +1,153 @@
+<div class="elv-editor__inner">
+
+  <!-- Mobile tabs. Desktop shows both columns and hides this row. -->
+  <div class="elv-editor__tabs">
+    <button type="button" class="elv-editor__tab" [class.is-active]="tab() === 'edit'" (click)="tab.set('edit')">Edit</button>
+    <button type="button" class="elv-editor__tab" [class.is-active]="tab() === 'preview'" (click)="tab.set('preview')">Preview</button>
+  </div>
+
+  <div class="elv-editor__split">
+
+    <!-- ══ LEFT · INLINE EDITING ══════════════════════════════════ -->
+    <section class="elv-editor__pane elv-editor__pane--edit" [class.is-hidden-mobile]="tab() !== 'edit'">
+      <elv-accordion preset="cv-section" [multiple]="true" [value]="['identity']" [headingLevel]="2">
+
+        <elv-accordion-panel panelId="identity" header="Identity" icon="pi pi-user">
+          <div class="elv-editor__fields">
+            <elv-field label="Full name" [value]="identity().fullName"
+              (valueChange)="setIdentity('fullName', $any($event))" />
+            <elv-field label="Target job title" [value]="identity().targetJobTitle"
+              (valueChange)="setIdentity('targetJobTitle', $any($event))" />
+            <elv-field label="Email" preset="email" [value]="identity().email"
+              (valueChange)="setIdentity('email', $any($event))" />
+            <elv-field label="Phone" preset="phone" [value]="identity().phone"
+              (valueChange)="setIdentity('phone', $any($event))" />
+            <elv-field label="Location" [value]="identity().location"
+              (valueChange)="setIdentity('location', $any($event))" />
+            <elv-field label="Summary" [multiline]="true" [rows]="4" [value]="identity().summary"
+              (valueChange)="setIdentity('summary', $any($event))" />
+          </div>
+        </elv-accordion-panel>
+
+        <elv-accordion-panel panelId="experience" header="Experience" icon="pi pi-briefcase"
+          [badge]="draft().experience.length">
+          <div class="elv-editor__fields">
+            @for (job of draft().experience; track job.id; let ji = $index) {
+              <div class="elv-editor__entry">
+                <h3 class="elv-editor__entry-title">{{ job.role || 'Role' }}@if (job.company) {, {{ job.company }}}</h3>
+                @for (b of job.bullets; track b.id; let bi = $index) {
+                  <elv-field label="Bullet" labelMode="hidden" [multiline]="true" [rows]="2"
+                    [value]="b.text" (valueChange)="patchBullet(ji, bi, $any($event))" />
+                }
+              </div>
+            } @empty {
+              <p class="elv-editor__empty">No experience added. Go back to floor 02 to add a role.</p>
+            }
+          </div>
+        </elv-accordion-panel>
+
+        <elv-accordion-panel panelId="skills" header="Skills" icon="pi pi-bolt" [badge]="draft().skills.length">
+          <div class="elv-editor__chiprow">
+            @for (s of draft().skills; track s.id) {
+              <app-elv-chip variant="badge" size="small" corner="sharp" tone="success" [title]="s.name" />
+            } @empty {
+              <p class="elv-editor__empty">No skills added yet.</p>
+            }
+          </div>
+        </elv-accordion-panel>
+      </elv-accordion>
+
+      <div class="elv-editor__back">
+        <app-elv-button variant="ghost" corner="sharp" icon="pi pi-arrow-left"
+          title="Back to the floors" (clicked)="wizard.goTo('boost')" />
+      </div>
+    </section>
+
+    <!-- ══ RIGHT · PREVIEW + ACTIONS ═════════════════════════════ -->
+    <section class="elv-editor__pane elv-editor__pane--preview" [class.is-hidden-mobile]="tab() !== 'preview'">
+
+      <!-- Action rail -->
+      <div class="elv-editor__rail">
+        <app-elv-button variant="neon-soft" size="small" corner="sharp" icon="pi pi-shield"
+          title="ATS scan" [loading]="scanning()" (clicked)="runAts()" />
+        <app-elv-button variant="neon-soft" size="small" corner="sharp" icon="pi pi-eye"
+          title="Recruiter review" (clicked)="runAts()" />
+        <app-elv-button variant="neon-soft" size="small" corner="sharp" icon="pi pi-check-square"
+          title="Grammar pass" (clicked)="runAts()" />
+        <app-elv-button variant="neon-soft" size="small" corner="sharp" icon="pi pi-envelope"
+          title="Cover letter" [loading]="writingCover()" (clicked)="runCoverLetter()" />
+
+        <app-elv-button variant="neon" size="small" corner="sharp" [glow]="true"
+          icon="pi pi-download" iconPos="right" [iconGap]="14"
+          [title]="unlocked() ? 'Export PDF' : 'Export PDF'" (clicked)="exportPdf()" />
+
+        @if (unlocked()) {
+          <app-elv-chip variant="badge" size="small" corner="sharp" tone="success"
+            icon="pi pi-lock-open" title="Export unlocked" />
+        }
+      </div>
+
+      <!-- Zoom -->
+      <div class="elv-editor__zoom">
+        <app-elv-button variant="ghost" size="small" corner="sharp" [iconOnly]="true"
+          icon="pi pi-minus" ariaLabel="Zoom out" (clicked)="zoomBy(-0.08)" />
+        <span class="elv-editor__zoom-val elv-mono">{{ (zoom() * 100).toFixed(0) }}%</span>
+        <app-elv-button variant="ghost" size="small" corner="sharp" [iconOnly]="true"
+          icon="pi pi-plus" ariaLabel="Zoom in" (clicked)="zoomBy(0.08)" />
+      </div>
+
+      <!-- Result panels -->
+      @if (panel() === 'ats') {
+        <div class="elv-editor__result">
+          @if (scanning()) {
+            <app-elv-skeleton shape="block" height="180px" ariaLabel="Scanning your CV" />
+          } @else if (ats()) {
+            @let r = ats()!;
+            <app-elv-progress size="large" corner="sharp" [tone]="atsTone()" [value]="r.score"
+              [showValue]="true" [glow]="true" label="ATS match score" ariaLabel="ATS score" />
+
+            <app-stats [stats]="atsStats()" skin="ghost" size="small" corner="sharp" divider="line" />
+
+            @if (r.notes.length) {
+              <app-elv-alert tone="warning" skin="soft" size="small" corner="sharp"
+                icon="pi-exclamation-triangle" title="Biggest wins"
+                [text]="r.notes.join(' ')" />
+            }
+
+            @if (r.missingKeywords.length) {
+              <div class="elv-editor__chiprow">
+                @for (k of r.missingKeywords; track k) {
+                  <app-elv-chip variant="badge" size="small" corner="sharp" tone="warn" [title]="k" />
+                }
+              </div>
+            }
+          }
+          <app-elv-button variant="ghost" size="small" corner="sharp" title="Close" (clicked)="closePanel()" />
+        </div>
+      }
+
+      @if (panel() === 'cover') {
+        <div class="elv-editor__result">
+          @if (writingCover()) {
+            <app-elv-skeleton shape="text" [lines]="8" ariaLabel="Writing your cover letter" />
+          } @else {
+            <elv-field label="Cover letter" [multiline]="true" [rows]="12" [copyable]="true"
+              [value]="coverLetter()" (valueChange)="coverLetter.set($any($event))" />
+          }
+          <app-elv-button variant="ghost" size="small" corner="sharp" title="Close" (clicked)="closePanel()" />
+        </div>
+      }
+
+      <!-- The sheet -->
+      <div class="elv-editor__paper">
+        <app-cv-preview [draft]="draft()" [zoom]="zoom()" />
+      </div>
+    </section>
+  </div>
+</div>
+
+<app-ad-gate
+  [open]="adOpen()"
+  [seconds]="8"
+  (completed)="onAdComplete()"
+  (dismissed)="onAdDismiss()" />

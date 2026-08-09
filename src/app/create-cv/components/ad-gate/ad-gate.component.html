@@ -1,0 +1,68 @@
+@if (open()) {
+  <div
+    class="elv-adgate__backdrop"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="adgate-title"
+    tabindex="-1"
+    (click)="onBackdrop($event)"
+    (keydown)="onKeydown($event)">
+
+    <div class="elv-adgate__panel">
+
+      <header class="elv-adgate__head">
+        <h2 class="elv-adgate__title" id="adgate-title">One short ad, then it is yours</h2>
+        <p class="elv-adgate__sub">
+          This is the whole business model. No card, no trial, no watermark — you watch {{ seconds() }} seconds and the
+          export unlocks for good on this CV.
+        </p>
+      </header>
+
+      <div class="elv-adgate__stage">
+        <span class="elv-adgate__stage-label elv-mono">Advertisement</span>
+        <span class="elv-adgate__count">{{ remaining() }}</span>
+      </div>
+
+      <app-elv-progress
+        size="small"
+        corner="sharp"
+        tone="accent"
+        [value]="percent()"
+        [showValue]="false"
+        ariaLabel="Ad progress" />
+
+      <footer class="elv-adgate__foot">
+        @if (done()) {
+          <app-elv-chip
+            variant="badge"
+            size="small"
+            corner="sharp"
+            tone="success"
+            icon="pi pi-check"
+            title="Export unlocked" />
+        } @else {
+          <span class="elv-adgate__wait elv-mono">{{ remaining() }}s remaining</span>
+        }
+
+        <div class="elv-adgate__actions">
+          <app-elv-button
+            variant="ghost"
+            corner="sharp"
+            title="Not now"
+            (clicked)="dismiss()" />
+
+          <app-elv-button
+            variant="neon"
+            corner="sharp"
+            [glow]="done()"
+            icon="pi pi-download"
+            iconPos="right"
+            [iconGap]="16"
+            title="Download my PDF"
+            [disabled]="!done()"
+            (clicked)="unlock()" />
+        </div>
+      </footer>
+    </div>
+  </div>
+}
