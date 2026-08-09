@@ -4,19 +4,15 @@
 // ViewEncapsulation.None everywhere in this feature, so every
 // selector is prefixed .elv-create / .elv-content.
 //
-// The feature's palette is scoped HERE rather than in the global
-// preset: mint + cyan is the builder's identity, while the rest
-// of the product (landing, account, get-started) is still gold.
-// Promoting it globally is a one-line move in my-preset.ts.
+// The builder uses the app's own palette. Every colour here comes
+// from a --p-elevator-* token; nothing is redefined locally.
 // ════════════════════════════════════════════════════════════
 
 .elv-create {
-  // ── Feature palette ─────────────────────────────────────────
-  --p-elevator-accent: #7cffb2;
-  --p-elevator-accent-soft: color-mix(in oklch, #7cffb2 22%, transparent);
-  --p-elevator-accent-glow: color-mix(in oklch, #7cffb2 40%, transparent);
-  --p-elevator-secondary: #7ad7ff;
-
+  // NO palette override here. An earlier revision re-pointed
+  // --p-elevator-accent at mint for this feature, which is exactly the
+  // "new accent colour" the theme forbids — the builder now inherits the
+  // app's gold accent like every other page.
   --elv-create-rail-w: 232px;
   --elv-create-header-h: 62px;
 
@@ -25,7 +21,7 @@
   min-height: 100dvh;
   background: var(--p-elevator-bg0);
   color: var(--p-elevator-ink);
-  font-family: 'Chakra Petch', sans-serif;
+  font-family: var(--p-elevator-f-body);
 }
 
 // Never lightens the environment — a dark radial wash only.
@@ -35,8 +31,8 @@
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(90ch 60ch at 12% -10%, color-mix(in oklch, #7cffb2 7%, transparent), transparent 70%),
-    radial-gradient(70ch 50ch at 92% 8%, color-mix(in oklch, #7ad7ff 6%, transparent), transparent 72%),
+    radial-gradient(90ch 60ch at 12% -10%, color-mix(in oklch, var(--p-elevator-accent) 7%, transparent), transparent 70%),
+    radial-gradient(70ch 50ch at 92% 8%, color-mix(in oklch, var(--p-elevator-done) 6%, transparent), transparent 72%),
     var(--p-elevator-bg0);
 }
 
@@ -64,7 +60,7 @@
   border: 0;
   padding: 0;
   cursor: pointer;
-  font-family: 'Orbitron', sans-serif;
+  font-family: var(--p-elevator-f-display);
   font-size: 19px;
   font-weight: 700;
   letter-spacing: .04em;
@@ -123,14 +119,14 @@
 }
 
 .elv-create__signal-title {
-  font-family: 'Varino', 'Share Tech Mono', ui-monospace, monospace;
+  font-family: var(--p-elevator-f-label);
   font-size: 9.5px;
   letter-spacing: .24em;
   color: var(--p-elevator-ink4);
 }
 
 .elv-create__signal-note {
-  font-family: 'Share Tech Mono', ui-monospace, monospace;
+  font-family: var(--p-elevator-f-mono);
   font-size: 10px;
   letter-spacing: .08em;
   line-height: 1.5;

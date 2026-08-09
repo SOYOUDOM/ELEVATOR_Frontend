@@ -843,8 +843,8 @@
     inset-block: 0;
     inset-inline-start: 0;
     width: 2px;
-    background: var(--p-elevator-secondary, #7ad7ff);
-    box-shadow: 0 0 10px color-mix(in oklch, var(--p-elevator-secondary, #7ad7ff) 45%, transparent);
+    background: var(--p-elevator-done);
+    box-shadow: 0 0 10px color-mix(in oklch, var(--p-elevator-done) 45%, transparent);
     pointer-events: none;
     z-index: 2;
 }

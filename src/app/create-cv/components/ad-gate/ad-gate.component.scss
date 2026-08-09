@@ -10,7 +10,7 @@
   display: grid;
   place-items: center;
   padding: 20px;
-  background: color-mix(in oklch, #04060a 82%, transparent);
+  background: color-mix(in oklch, var(--p-elevator-bg0) 82%, transparent);
   backdrop-filter: blur(6px);
 }
 
@@ -33,7 +33,7 @@
 
 .elv-adgate__title {
   margin: 0;
-  font-family: 'Orbitron', 'Chakra Petch', sans-serif;
+  font-family: var(--p-elevator-f-display);
   font-weight: 400;
   font-size: clamp(16px, 2vw, 21px);
   letter-spacing: .03em;
@@ -68,7 +68,7 @@
 }
 
 .elv-adgate__count {
-  font-family: 'Share Tech Mono', ui-monospace, monospace;
+  font-family: var(--p-elevator-f-mono);
   font-size: clamp(40px, 7vw, 64px);
   line-height: 1;
   color: var(--p-elevator-accent);

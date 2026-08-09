@@ -23,7 +23,7 @@
   flex: 1;
   appearance: none;
   font: inherit;
-  font-family: 'Varino', 'Share Tech Mono', ui-monospace, monospace;
+  font-family: var(--p-elevator-f-label);
   font-size: 10px;
   letter-spacing: .2em;
   text-transform: uppercase;

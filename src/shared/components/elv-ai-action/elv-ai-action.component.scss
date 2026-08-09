@@ -13,11 +13,11 @@
 // Success and failure recolour the accent only, so the button keeps its
 // own shape/skin and simply changes hue.
 .elv-ai-action[data-state='applied'] .elv-btn {
-  --_accent: var(--p-elevator-accent, #7cffb2);
+  --_accent: var(--p-elevator-accent);
 }
 
 .elv-ai-action[data-state='error'] .elv-btn {
-  --_accent: #ff7a8a;
+  --_accent: var(--p-elevator-danger);
 }
 
 // Visually hidden, still announced.

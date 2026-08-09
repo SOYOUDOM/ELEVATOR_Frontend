@@ -132,7 +132,7 @@
   background: var(--elv-stepper-surface);
   border: 1px solid var(--elv-stepper-line);
   color: var(--elv-stepper-ink-dim);
-  font-family: 'Share Tech Mono', ui-monospace, monospace;
+  font-family: var(--p-elevator-f-mono);
   font-size: var(--elv-stepper-num);
   line-height: 1;
 
@@ -315,11 +315,11 @@
   --elv-stepper-num: 12px;
   --elv-stepper-label: 9.5px;
 
-  --elv-stepper-mint: var(--p-elevator-accent, #7cffb2);
-  --elv-stepper-cyan: var(--p-elevator-secondary, #7ad7ff);
+  --elv-stepper-current: var(--p-elevator-accent);
+  --elv-stepper-done: var(--p-elevator-done);
 
-  --elv-stepper-accent: var(--elv-stepper-mint);
-  --elv-stepper-line: color-mix(in oklch, var(--elv-stepper-cyan) 22%, transparent);
+  --elv-stepper-accent: var(--elv-stepper-current);
+  --elv-stepper-line: color-mix(in oklch, var(--elv-stepper-done) 22%, transparent);
 
   .elv-stepper__track {
     position: relative;
@@ -339,8 +339,8 @@
     width: 1px;
     background: linear-gradient(
       180deg,
-      color-mix(in oklch, var(--elv-stepper-cyan) 40%, transparent),
-      color-mix(in oklch, var(--elv-stepper-cyan) 10%, transparent)
+      color-mix(in oklch, var(--elv-stepper-done) 40%, transparent),
+      color-mix(in oklch, var(--elv-stepper-done) 10%, transparent)
     );
     pointer-events: none;
   }
@@ -357,7 +357,7 @@
 
   .elv-stepper__marker {
     border-radius: 0;
-    background: var(--p-elevator-bg0, #04060a);
+    background: var(--p-elevator-bg0);
   }
 
   .elv-stepper__pulse { border-radius: 0; }
@@ -370,40 +370,40 @@
   // ── Floor states ──────────────────────────────────────────
   // Completed: cyan outline, dimmed — "you have been here".
   .elv-stepper__step[data-state='done'] .elv-stepper__marker {
-    border-color: color-mix(in oklch, var(--elv-stepper-cyan) 55%, transparent);
-    color: color-mix(in oklch, var(--elv-stepper-cyan) 80%, transparent);
+    border-color: color-mix(in oklch, var(--elv-stepper-done) 55%, transparent);
+    color: color-mix(in oklch, var(--elv-stepper-done) 80%, transparent);
     opacity: .72;
   }
 
   .elv-stepper__step[data-state='done'] .elv-stepper__label {
-    color: color-mix(in oklch, var(--elv-stepper-cyan) 62%, transparent);
+    color: color-mix(in oklch, var(--elv-stepper-done) 62%, transparent);
   }
 
   // Current: mint fill + glow — "you are here".
   .elv-stepper__step[data-state='active'] .elv-stepper__marker {
-    background: var(--elv-stepper-mint);
-    border-color: var(--elv-stepper-mint);
-    color: var(--p-elevator-bg0, #04060a);
+    background: var(--elv-stepper-current);
+    border-color: var(--elv-stepper-current);
+    color: var(--p-elevator-bg0);
     box-shadow:
-      0 0 22px color-mix(in oklch, var(--elv-stepper-mint) 55%, transparent),
-      inset 0 0 12px color-mix(in oklch, #fff 30%, transparent);
+      0 0 22px color-mix(in oklch, var(--elv-stepper-current) 55%, transparent),
+      inset 0 0 12px color-mix(in oklch, var(--p-elevator-ink) 30%, transparent);
   }
 
   .elv-stepper__step[data-state='active'] .elv-stepper__label {
-    color: var(--elv-stepper-mint);
+    color: var(--elv-stepper-current);
   }
 
   // Incomplete: hollow ring. Marked, not locked — still clickable.
   .elv-stepper__step[data-incomplete] .elv-stepper__marker {
     border-style: dashed;
-    border-color: color-mix(in oklch, var(--elv-stepper-cyan) 34%, transparent);
+    border-color: color-mix(in oklch, var(--elv-stepper-done) 34%, transparent);
     background: transparent;
   }
 
   // …unless it is the floor you are standing on, which always wins.
   .elv-stepper__step[data-incomplete][data-state='active'] .elv-stepper__marker {
     border-style: solid;
-    background: var(--elv-stepper-mint);
+    background: var(--elv-stepper-current);
   }
 }
 
@@ -427,10 +427,10 @@
 .elv-stepper__car-box {
   position: absolute;
   inset: -7px;
-  border: 1px solid color-mix(in oklch, var(--elv-stepper-mint, #7cffb2) 45%, transparent);
+  border: 1px solid color-mix(in oklch, var(--elv-stepper-current) 45%, transparent);
   box-shadow:
-    0 0 18px color-mix(in oklch, var(--elv-stepper-mint, #7cffb2) 30%, transparent),
-    inset 0 0 10px color-mix(in oklch, var(--elv-stepper-mint, #7cffb2) 12%, transparent);
+    0 0 18px color-mix(in oklch, var(--elv-stepper-current) 30%, transparent),
+    inset 0 0 10px color-mix(in oklch, var(--elv-stepper-current) 12%, transparent);
 }
 
 // Mobile: the shaft lies down and becomes an ordinary scrolling track.

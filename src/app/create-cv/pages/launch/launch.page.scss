@@ -16,7 +16,7 @@
 
 .elv-launch__h2 {
   margin: 0;
-  font-family: 'Orbitron', 'Chakra Petch', sans-serif;
+  font-family: var(--p-elevator-f-display);
   font-weight: 400;
   font-size: clamp(16px, 1.9vw, 21px);
   letter-spacing: .04em;
@@ -146,7 +146,7 @@
 }
 
 .elv-launch__tpl-name {
-  font-family: 'Orbitron', sans-serif;
+  font-family: var(--p-elevator-f-display);
   font-size: 13px;
   letter-spacing: .05em;
   text-transform: uppercase;

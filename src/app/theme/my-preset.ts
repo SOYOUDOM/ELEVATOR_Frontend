@@ -102,7 +102,43 @@ export const ElevatorPreset = definePreset(Aura, {
       maxw:   '1240px',
       edgecolor: '--p-elevator-line',
       minw: '937px',
-      navbarHeight: '88px'
+      navbarHeight: '88px',
+
+      /* ── Type ──────────────────────────────────────────────────
+         Promoted from about.component.scss, where --f-display /
+         --f-body / --f-mono were declared locally and therefore
+         invisible to every other page.
+
+         Only faces that _font.scss actually imports are named
+         first: Orbitron, Sora and Jost. 'Chakra Petch' and
+         'Share Tech Mono' appear throughout the app but are NOT
+         imported anywhere, so they silently fall back — they are
+         kept only as trailing hints in case they are added later. */
+      fDisplay: "'Orbitron', 'Chakra Petch', sans-serif",
+      fBody:    "'Sora', system-ui, sans-serif",
+      fUi:      "'Jost', system-ui, sans-serif",
+      fMono:    "'Share Tech Mono', ui-monospace, monospace",
+      fLabel:   "'Varino', 'Orbitron', sans-serif",
+
+      /* ── Semantic state ────────────────────────────────────────
+         Needed by the builder for "done" vs "current" on the
+         section rail and by ATS scoring bands. Derived from the
+         accent so a future re-theme moves them together, except
+         `done`, which must be distinguishable FROM the accent. */
+      done:    '#7ad7ff',
+      warn:    '#ffc46b',
+      danger:  '#ff7a8a',
+      doneSoft:   'color-mix(in oklch, #7ad7ff 22%, transparent)',
+      doneGlow:   'color-mix(in oklch, #7ad7ff 40%, transparent)',
+
+      /* ── Paper ─────────────────────────────────────────────────
+         The CV preview is a light document inside a dark app. It
+         is the artefact the recruiter receives, so it does NOT
+         use the app's ink ramp. */
+      paper:      '#ffffff',
+      paperInk:   '#14161c',
+      paperInk2:  '#4c525e',
+      paperLine:  '#d7dbe2'
     }
   },
 

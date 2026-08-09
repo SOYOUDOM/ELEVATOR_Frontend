@@ -15,9 +15,12 @@
 
 .elv-paper {
   --paper-zoom: 1;
-  --paper-ink: #14161c;
-  --paper-ink-soft: #4c525e;
-  --paper-rule: #d7dbe2;
+  // The sheet is a light document inside a dark app, so it does NOT use
+  // the app's ink ramp — but the values are still theme tokens
+  // (--p-elevator-paper*), not literals.
+  --paper-ink: var(--p-elevator-paper-ink);
+  --paper-ink-soft: var(--p-elevator-paper-ink2);
+  --paper-rule: var(--p-elevator-paper-line);
 
   display: flex;
   justify-content: center;
@@ -27,9 +30,9 @@
   width: 210mm;
   min-height: 297mm;
   padding: 16mm 15mm;
-  background: #fff;
+  background: var(--p-elevator-paper);
   color: var(--paper-ink);
-  font-family: 'Chakra Petch', system-ui, sans-serif;
+  font-family: var(--p-elevator-f-body);
   font-size: 10.5pt;
   line-height: 1.5;
 
@@ -62,7 +65,7 @@
 
 .elv-paper__name {
   margin: 0;
-  font-family: 'Orbitron', system-ui, sans-serif;
+  font-family: var(--p-elevator-f-display);
   font-size: 20pt;
   font-weight: 700;
   line-height: 1.1;
@@ -101,7 +104,7 @@
   margin: 0 0 2.5mm;
   padding-bottom: 1mm;
   border-bottom: .5pt solid var(--paper-rule);
-  font-family: 'Orbitron', system-ui, sans-serif;
+  font-family: var(--p-elevator-f-display);
   font-size: 9pt;
   font-weight: 700;
   letter-spacing: .16em;
@@ -128,7 +131,7 @@
 
 .elv-paper__dates {
   flex: none;
-  font-family: 'Share Tech Mono', ui-monospace, monospace;
+  font-family: var(--p-elevator-f-mono);
   font-size: 8.5pt;
   color: var(--paper-ink-soft);
 }

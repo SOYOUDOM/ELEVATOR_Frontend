@@ -213,7 +213,7 @@
 // play keeps its own fill/border treatment and simply changes
 // hue. `neutral` emits no class at all and is unaffected.
 // ════════════════════════════════════════════════════════════
-.elv-chip--tone-success { --_accent: var(--p-elevator-accent, #7cffb2); }
-.elv-chip--tone-info    { --_accent: var(--p-elevator-secondary, #7ad7ff); }
-.elv-chip--tone-warn    { --_accent: #ffc46b; }
-.elv-chip--tone-danger  { --_accent: #ff7a8a; }
+.elv-chip--tone-success { --_accent: var(--p-elevator-accent); }
+.elv-chip--tone-info    { --_accent: var(--p-elevator-done); }
+.elv-chip--tone-warn    { --_accent: var(--p-elevator-warn); }
+.elv-chip--tone-danger  { --_accent: var(--p-elevator-danger); }

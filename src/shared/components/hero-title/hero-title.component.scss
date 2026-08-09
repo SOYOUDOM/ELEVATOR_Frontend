@@ -25,7 +25,7 @@
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  font-family: 'Varino', 'Share Tech Mono', ui-monospace, monospace;
+  font-family: var(--p-elevator-f-label);
   font-size: 11px;
   letter-spacing: .3em;
   text-transform: uppercase;
@@ -53,7 +53,7 @@
 // ── Headline ──────────────────────────────────────────────────
 .elv-hero-title__h {
   margin: 0;
-  font-family: 'Orbitron', 'Chakra Petch', sans-serif;
+  font-family: var(--p-elevator-f-display);
   font-weight: 400;
   line-height: 1.08;
   letter-spacing: .01em;
@@ -99,7 +99,7 @@
 .elv-hero-title__lede {
   margin: 0;
   max-width: 52ch;
-  font-family: 'Chakra Petch', sans-serif;
+  font-family: var(--p-elevator-f-body);
   font-size: clamp(13.5px, 1.3vw, 16px);
   line-height: 1.7;
   color: var(--p-elevator-ink2);
