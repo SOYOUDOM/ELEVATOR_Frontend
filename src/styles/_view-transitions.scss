@@ -74,6 +74,42 @@ html[data-nav='back'] {
   to   { translate: 0;     opacity: 1; }
 }
 
+// ── 2b · Named effects · `data: { transition: 'x' }` ──────────
+// These sit AFTER the direction rules on purpose. Both blocks are
+// the same specificity (0-2-0 plus a pseudo-element), so the tie
+// is broken by source order and a named effect always wins — no
+// !important, and no need to know which direction it overrode.
+//
+// A named effect is direction-agnostic by default: the new page
+// always opens, the old always recedes. To make one respond to
+// travel direction, add `html[data-nav-fx='x'][data-nav='back']`
+// blocks below the base one.
+//
+// DOORS — the lift arriving. The new page parts from the centre
+// line while the old one falls away behind it. Used by /account/*.
+//
+// Only the NEW layer can carry the doors: a view transition gives
+// us exactly two images, so there is no way to split the old page
+// into two halves that travel apart. Wiping the incoming page open
+// from the centre reads as the same gesture and needs one layer.
+html[data-nav-fx='doors'] {
+  &::view-transition-old(root) { animation-name: elv-vt-doors-recede; }
+  &::view-transition-new(root) { animation-name: elv-vt-doors-part; }
+}
+
+@keyframes elv-vt-doors-recede {
+  from { scale: 1;    opacity: 1; filter: blur(0); }
+  to   { scale: 0.96; opacity: 0; filter: blur(3px); }
+}
+
+// inset() is right/left insets, so 50%/50% is a closed seam at the
+// centre and 0/0 is fully open. `translate` is untouched here — the
+// page does not move, only the aperture over it.
+@keyframes elv-vt-doors-part {
+  from { clip-path: inset(0 50% 0 50%); opacity: 1; }
+  to   { clip-path: inset(0 0 0 0);     opacity: 1; }
+}
+
 // ── 3 · Pin the header ────────────────────────────────────────
 // Named on the FIXED bar, not on <app-header>. The host element is
 // only an 88px flow spacer (see _header.scss); its border box
@@ -102,7 +138,10 @@ app-header > div {
 // already swapped by the time CSS sees it. Give the incoming page
 // a short entry instead, so navigation still reads as movement.
 @supports not (view-transition-name: none) {
-  .elv-page {
+  // .elv-auth is the account area's shell — it is NOT an .elv-page,
+  // so it needs naming explicitly or login gets no entry at all.
+  .elv-page,
+  .elv-auth {
     animation: elv-vt-fallback-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
@@ -124,6 +163,7 @@ app-header > div {
   }
 
   @supports not (view-transition-name: none) {
-    .elv-page { animation: none; }
+    .elv-page,
+    .elv-auth { animation: none; }
   }
 }

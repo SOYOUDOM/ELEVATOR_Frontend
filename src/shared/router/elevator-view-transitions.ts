@@ -24,27 +24,43 @@ import { withInMemoryScrolling, withViewTransitions, type ActivatedRouteSnapshot
 export const NAV_DIRECTION_ATTR = 'data-nav';
 
 /**
- * Deepest `data.step` in a snapshot chain.
+ * Attribute naming a NAMED effect that replaces the default slide.
  *
- * `from` / `to` are ROOT snapshots, so the step we care about is several
- * `firstChild` hops down. Taking the last defined numeric value (rather than the
- * first) means a parent may declare a default that a child overrides, and it
- * shrugs off `paramsInheritanceStrategy` copying a parent's `data` downward.
+ * Set from `data: { transition: 'doors' }` on a route. The stylesheet keys off
+ * it at the same specificity as the direction rules but later in source order,
+ * so a named effect always wins — see `_view-transitions.scss`.
  */
-function deepestStep(snapshot: ActivatedRouteSnapshot | null | undefined): number | null {
-    let step: number | null = null;
+export const NAV_EFFECT_ATTR = 'data-nav-fx';
+
+/**
+ * Deepest `data[key]` in a snapshot chain.
+ *
+ * `from` / `to` are ROOT snapshots, so the value we care about is several
+ * `firstChild` hops down. Taking the last defined one (rather than the first)
+ * means a parent may declare a default that a child overrides, and it shrugs
+ * off `paramsInheritanceStrategy` copying a parent's `data` downward.
+ */
+function deepestData<T>(
+    snapshot: ActivatedRouteSnapshot | null | undefined,
+    key: string,
+    accept: (v: unknown) => v is T
+): T | null {
+    let found: T | null = null;
     let node: ActivatedRouteSnapshot | null = snapshot ?? null;
 
     while (node) {
-        const raw: unknown = node.data?.['step'];
-        if (typeof raw === 'number' && Number.isFinite(raw)) {
-            step = raw;
+        const raw: unknown = node.data?.[key];
+        if (accept(raw)) {
+            found = raw;
         }
         node = node.firstChild;
     }
 
-    return step;
+    return found;
 }
+
+const isStep = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
+const isEffect = (v: unknown): v is string => typeof v === 'string' && v.length > 0;
 
 /**
  * Router features for the page-to-page slide.
@@ -70,13 +86,26 @@ export function provideElevatorViewTransitions(): Provider[] {
                 // Runs inside an injection context — see ViewTransitionsFeatureOptions.
                 const root = inject(DOCUMENT).documentElement;
 
-                const fromStep = deepestStep(from);
-                const toStep = deepestStep(to);
+                const fromStep = deepestData(from, 'step', isStep);
+                const toStep = deepestData(to, 'step', isStep);
                 const goingBack = fromStep !== null && toStep !== null && toStep < fromStep;
 
                 root.setAttribute(NAV_DIRECTION_ATTR, goingBack ? 'back' : 'fwd');
 
-                const clear = () => root.removeAttribute(NAV_DIRECTION_ATTR);
+                // `to` first, then `from`: a page that declares a named effect
+                // owns BOTH its entrance and its exit, so leaving it plays the
+                // same effect even though the destination never asked for one.
+                // Two ordinary pages leave this unset and get the plain slide.
+                const effect = deepestData(to, 'transition', isEffect) ?? deepestData(from, 'transition', isEffect);
+
+                if (effect) {
+                    root.setAttribute(NAV_EFFECT_ATTR, effect);
+                }
+
+                const clear = () => {
+                    root.removeAttribute(NAV_DIRECTION_ATTR);
+                    root.removeAttribute(NAV_EFFECT_ATTR);
+                };
                 // `.then(clear, clear)`, NOT `.finally()`: a skipped transition
                 // rejects `finished`, and `finally` re-throws what it catches —
                 // which surfaces as an unhandled rejection in the console.
