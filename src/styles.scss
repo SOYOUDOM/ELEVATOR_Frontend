@@ -38,6 +38,7 @@
 @use './styles/typography';    // font helpers, eyebrow, brand wordmark
 @use './styles/layout';        // container, section, helpers, section head
 @use './styles/animations';    // .elv-reveal   ← keep ABOVE hero (rule 2)
+@use './styles/view-transitions'; // page-to-page slide ← keep BELOW animations
 
 // ── 5 · components ─────────────────────────────────────────────
 @use './styles/header';        // burger toggle + nav links

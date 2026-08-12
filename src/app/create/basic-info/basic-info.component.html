@@ -1,0 +1,125 @@
+<!-- ============================================================
+     BASIC INFO — floor one of the build
+
+     Reads as one short climb:
+       head (who is riding) → the nine boxes → the rail out
+
+     Reveal vocabulary follows get-started so the two pages feel
+     like one product:
+       section head → wipe      field grid → rise
+       footer rail  → rise (late)
+
+     ⚠ elvReveal is on SIBLINGS, never on a wrapper that holds a
+     z-index layer — the directive's effects create a stacking
+     context that traps children. The footer rail below is a
+     sibling of the grid for exactly that reason.
+     ============================================================ -->
+<div class="elv-page scene bi">
+  <section class="bi-shell elv-container">
+
+    <div class="elv-hero-glow" aria-hidden="true"></div>
+
+    <!-- ══ HEAD ═══════════════════════════════════════════════ -->
+    <header class="elv-section-head bi-head" elvReveal="wipe">
+      <span class="elv-eyebrow">FLOOR 01 &nbsp;·&nbsp; WHO IS RIDING</span>
+
+      <h2>
+        START WITH<br />
+        <span class="elv-glow-text">THE BASICS</span>
+      </h2>
+
+      <p class="elv-lede">
+        Five boxes carry the whole CV — a name, a title, and three ways to reach
+        you. The other four are yours to skip. Nothing here is permanent; every
+        floor above this one can send you back down.
+      </p>
+    </header>
+
+    <!-- ══ METER ══════════════════════════════════════════════ -->
+    <!-- role=status + aria-live so the count is announced as it moves,
+         without stealing focus from the field being typed into. -->
+    <div class="bi-meter" role="status" aria-live="polite" elvReveal="rise" [revealDelay]="0.08">
+      <app-elv-progress
+        size="small"
+        corner="pill"
+        tone="accent"
+        label="PROFILE COMPLETE"
+        [value]="filledCount()"
+        [max]="fields.length"
+        [showValue]="true"
+        [valueText]="filledCount() + ' of ' + fields.length"
+        ariaLabel="Basic info completion" />
+
+      <span class="bi-meter__note elv-mono">{{ meterNote() }}</span>
+    </div>
+
+    <!-- ══ THE NINE BOXES ═════════════════════════════════════ -->
+    <!-- A real <form> so Enter submits and password managers behave.
+         (submit) is gated inside next(); novalidate keeps the browser's
+         own bubbles out of a design that shows its own messages. -->
+    <form class="bi-grid" novalidate (submit)="$event.preventDefault(); next()">
+      @for (f of fields; track f.key) {
+        <div
+          class="bi-cell"
+          [class.bi-cell--wide]="f.wide"
+          elvReveal="rise"
+          [revealY]="18"
+          [revealDelay]="0.04 * $index">
+          <!-- elv-field owns the <label for> / aria-required / aria-invalid
+               wiring, so there is no hand-rolled markup to keep in sync. -->
+          <elv-field
+            skin="minimal"
+            corner="sharp"
+            density="roomy"
+            labelMode="stacked"
+            [label]="f.label"
+            [placeholder]="f.placeholder"
+            [required]="f.required"
+            [icon]="f.icon"
+            [type]="f.type ?? 'text'"
+            [name]="f.key"
+            [autocomplete]="f.autocomplete ?? null"
+            [inputmode]="f.inputmode ?? null"
+            [clearable]="true"
+            [value]="model()[f.key]"
+            (valueChange)="patch(f.key, $event)" />
+        </div>
+      }
+    </form>
+
+    <!-- ══ THE RAIL OUT ═══════════════════════════════════════ -->
+    <div class="bi-rail" elvReveal="rise" [revealDelay]="0.12">
+      <app-elv-button
+        variant="ghost"
+        size="medium"
+        corner="sharp"
+        title="BACK"
+        icon="pi pi-arrow-left"
+        iconPos="left"
+        ariaLabel="Back to Get Started"
+        (clicked)="back()" />
+
+      <p class="bi-rail__hint elv-mono" aria-hidden="true">
+        @if (canContinue()) {
+          NEXT FLOOR &nbsp;·&nbsp; EXPERIENCE
+        } @else {
+          FILL THE FIVE MARKED &ast;
+        }
+      </p>
+
+      <app-elv-button
+        variant="neon"
+        size="medium"
+        corner="sharp"
+        [glow]="canContinue()"
+        [disabled]="!canContinue()"
+        title="NEXT"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        [iconGap]="18"
+        ariaLabel="Continue to Experience"
+        (clicked)="next()" />
+    </div>
+
+  </section>
+</div>

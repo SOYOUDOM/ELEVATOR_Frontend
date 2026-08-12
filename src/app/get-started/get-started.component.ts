@@ -9,7 +9,6 @@ import {
     signal,
 } from '@angular/core';
 
-import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { RevealDirective } from '@shared/directives/reveal.directive';
 
 import { ElvAlertComponent } from '@shared/components/elv-alert/elv-alert.component';
@@ -85,7 +84,6 @@ interface Faq {
     standalone: true,
     templateUrl: './get-started.component.html',
     styleUrl: './get-started.component.scss',
-    animations: [appModuleAnimation()],
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         RevealDirective,

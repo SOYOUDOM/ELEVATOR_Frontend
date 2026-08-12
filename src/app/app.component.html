@@ -92,9 +92,9 @@
     class="fixed inset-0 bg-black/45 z-30 lg:hidden">
   </div> -->
 
-  <!-- route-shell gets the rise+deblur on boot and on every route
-       change (the key re-creates the div so the CSS animation replays) -->
-  <!-- <div class="route-shell" *ngIf="routeKey"> -->
+  <!-- route-shell gets the rise+deblur on BOOT ONLY (see _boot.scss).
+       Page-to-page motion is the View Transitions slide in
+       _view-transitions.scss, driven by `data: { step: N }` on the route. -->
     
 
     <!-- <div class="content-wrapper">
@@ -125,7 +125,7 @@
     class="fixed inset-0 bg-black/45 z-30 lg:hidden">
   </div>
 
-  <div class="route-shell" [attr.data-route-key]="routeKey">
+  <div class="route-shell">
     <div class="elv-content">
       <router-outlet></router-outlet>
     </div>

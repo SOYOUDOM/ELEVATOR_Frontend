@@ -20,6 +20,24 @@ import { AppComponent } from './app.component';
                         loadChildren: () =>
                             import('./get-started/get-started.module').then((m) => m.GetStartedModule),
                         canActivate: [AppRouteGuard],
+                        // `step` drives the direction of the view transition —
+                        // see @shared/router/elevator-view-transitions.
+                        data: { step: 1 },
+                    },
+                    {
+                        path: 'create',
+                        canActivate: [AppRouteGuard],
+                        children: [
+                            { path: '', pathMatch: 'full', redirectTo: 'basic-info' },
+                            {
+                                path: 'basic-info',
+                                loadComponent: () =>
+                                    import('./create/basic-info/basic-info.component').then(
+                                        (m) => m.BasicInfoComponent
+                                    ),
+                                data: { step: 2 },
+                            },
+                        ],
                     },
                     {
                         path: 'about',

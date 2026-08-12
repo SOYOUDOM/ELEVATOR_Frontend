@@ -195,8 +195,18 @@ html[data-boot="run"] { --bd: 1.45s; }
   html[data-boot] app-header a.nav-link:nth-child(4) { animation-delay: calc(var(--bd) + 0.82s); }
   html[data-boot] app-header a.nav-link:nth-child(n+5) { animation-delay: calc(var(--bd) + 0.9s); }
 
-  /* ---- main content + footer ---- */
-  .route-shell { animation: routeIn 0.6s var(--ease) var(--bd) both; }
+  /* ---- main content + footer ----
+     routeIn is BOOT-ONLY. Unscoped it also matched after the doors
+     were done, and because it runs with fill-mode:both its final
+     `transform: none` computes to a real matrix that never goes
+     away — a transformed ancestor is the containing block for
+     position:fixed, so anything fixed inside a page was silently
+     re-anchored to .route-shell. Gating on data-boot="run" means
+     the fill drops the moment boot flips to "done" (the keyframes
+     end at 2.05s, the flip is at 2.4s, and the end state is
+     identical to the natural one — so nothing moves). Page-to-page
+     motion is the View Transitions slide in _view-transitions.scss. */
+  html[data-boot='run'] .route-shell { animation: routeIn 0.6s var(--ease) var(--bd) both; }
   html[data-boot] app-footer .footer,
   html[data-boot] .footer { animation: footUp 0.8s var(--ease) calc(var(--bd) + 0.35s) both; }
 

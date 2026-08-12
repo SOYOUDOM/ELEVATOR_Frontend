@@ -1,0 +1,129 @@
+// ════════════════════════════════════════════════════════════
+// VIEW TRANSITIONS · the horizontal lift travel between pages
+// ------------------------------------------------------------
+// ⚠ LOAD ORDER: must be @use'd AFTER _animations.scss. Nothing
+// here collides with .elv-reveal today, but both files write
+// page-level `animation`, and same-specificity ties are decided
+// by source order — keeping this last makes the override
+// direction explicit rather than accidental.
+//
+// The direction flag (`html[data-nav="fwd" | "back"]`) is written
+// by onViewTransitionCreated in
+// @shared/router/elevator-view-transitions and removed when the
+// transition settles. Outside a navigation neither selector
+// matches, so these rules cost nothing at rest.
+//
+// The pseudo-elements below live in the browser's own transition
+// tree, NOT in the Angular view tree. They cannot be reached from
+// a component stylesheet under emulated encapsulation, which is
+// why this is global.
+// ════════════════════════════════════════════════════════════
+
+// ── 1 · Root snapshot: shared timing ──────────────────────────
+// mix-blend-mode: normal kills the UA's default `plus-lighter`
+// cross-fade. Left on, the two snapshots' opacities SUM while
+// they slide past each other and everything in the overlap
+// blows out to a bright ghost.
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.42s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: both;
+  mix-blend-mode: normal;
+}
+
+// The image pair isolates its children into their own group by
+// default, which re-enables the blending we just turned off.
+::view-transition-image-pair(root) {
+  isolation: none;
+}
+
+// ── 2 · Direction ─────────────────────────────────────────────
+// `translate` (the standalone property), NOT `transform`.
+// A `transform: none` keyframe run with fill-mode:both computes
+// to a real matrix and sticks around, which then becomes the
+// containing block for any position:fixed descendant. The
+// standalone property has no such tail.
+html[data-nav='fwd'] {
+  &::view-transition-old(root) { animation-name: elv-vt-exit-left; }
+  &::view-transition-new(root) { animation-name: elv-vt-enter-right; }
+}
+
+html[data-nav='back'] {
+  &::view-transition-old(root) { animation-name: elv-vt-exit-right; }
+  &::view-transition-new(root) { animation-name: elv-vt-enter-left; }
+}
+
+@keyframes elv-vt-exit-left {
+  from { translate: 0;     opacity: 1; }
+  to   { translate: -14%;  opacity: 0; }
+}
+
+@keyframes elv-vt-enter-right {
+  from { translate: 100%;  opacity: 0.35; }
+  to   { translate: 0;     opacity: 1; }
+}
+
+@keyframes elv-vt-exit-right {
+  from { translate: 0;     opacity: 1; }
+  to   { translate: 14%;   opacity: 0; }
+}
+
+@keyframes elv-vt-enter-left {
+  from { translate: -100%; opacity: 0.35; }
+  to   { translate: 0;     opacity: 1; }
+}
+
+// ── 3 · Pin the header ────────────────────────────────────────
+// Named on the FIXED bar, not on <app-header>. The host element is
+// only an 88px flow spacer (see _header.scss); its border box
+// scrolls away with the document, so naming it would snapshot the
+// header at whatever offset the outgoing page happened to be
+// scrolled to. The bar inside is position:fixed, so its border box
+// is already viewport-aligned and the two snapshots line up
+// exactly. Same selector _boot.scss uses for navDrop.
+//
+// Lifting it out of the root snapshot leaves a matching hole there,
+// so page content slides UNDER the bar the way it does when you
+// scroll. The bar's backdrop-blur freezes for the 0.42s it is a
+// static image — the one visible cost of this approach.
+app-header > div {
+  view-transition-name: elv-header;
+}
+
+::view-transition-group(elv-header) { animation: none; }
+// Without these the pair still cross-fades, and with blending off
+// (rule 1 does not apply to this group) that reads as a dip.
+::view-transition-old(elv-header)   { animation: none; opacity: 0; }
+::view-transition-new(elv-header)   { animation: none; opacity: 1; }
+
+// ── 4 · Fallback · Firefox and anything pre-VT ────────────────
+// No snapshots exist, so there is nothing to slide — the DOM has
+// already swapped by the time CSS sees it. Give the incoming page
+// a short entry instead, so navigation still reads as movement.
+@supports not (view-transition-name: none) {
+  .elv-page {
+    animation: elv-vt-fallback-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes elv-vt-fallback-in {
+    from { translate: 3% 0; opacity: 0; }
+    to   { translate: 0;    opacity: 1; }
+  }
+}
+
+// ── 5 · Reduced motion ────────────────────────────────────────
+// The UA's own `::view-transition-*` animations are author-origin
+// -immune in some engines; `!important` is the only thing that
+// reliably stops them. This is the ONE place it is allowed here.
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+
+  @supports not (view-transition-name: none) {
+    .elv-page { animation: none; }
+  }
+}

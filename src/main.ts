@@ -34,6 +34,7 @@ import { provideUiInput } from '@shared/components/ui-input';
 import { ElevatorPreset } from './app/theme/my-preset';
 import { CommonModule } from '@angular/common';
 import { provideElvField } from '@shared/components/elv-field';
+import { provideElevatorViewTransitions } from '@shared/router/elevator-view-transitions';
 
 if (environment.production) {
     enableProdMode();
@@ -93,6 +94,12 @@ const bootstrap = () => {
             provideElvField({
                 defaults: { density: 'default', corner: 'soft', labelMode: 'stacked' },
             }),
+
+            // Horizontal page slide + top-anchored scroll on every navigation.
+            // MUST stay after importProvidersFrom(RootRoutingModule) above: these
+            // supplement RouterModule.forRoot(), and the later ROUTER_SCROLLER
+            // binding is the one that wins.
+            ...provideElevatorViewTransitions(),
         ],
     });
 };

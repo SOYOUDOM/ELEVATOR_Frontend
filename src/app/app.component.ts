@@ -4,14 +4,13 @@ import { SignalRAspNetCoreHelper } from '@shared/helpers/SignalRAspNetCoreHelper
 import { LayoutStoreService } from '@shared/layout/layout-store.service';
 import { HeaderComponent } from './layout/header.component';
 import { SidebarComponent } from './layout/sidebar.component';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { FooterComponent } from './layout/footer.component';
 import { LandingComponent } from './layout/landing/landing.component';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { environment } from 'environments/environment';
 import { FxSettingsService } from '@shared/services/fx-settings.service';
 import { FxGrainComponent } from '@shared/components/fx-grain/fx-grain.component';
-import { Subscription, filter } from 'rxjs';
 
 @Component({
     templateUrl: './app.component.html',
@@ -28,14 +27,12 @@ import { Subscription, filter } from 'rxjs';
 export class AppComponent extends AppComponentBase implements OnInit {
     sidebarExpanded = false;
     booting         = false;
-    routeKey        = 1;
 
     readonly fx = inject(FxSettingsService);
 
     private static readonly BOOT_MS      = 2400;
     private static readonly SESSION_FLAG = 'elevator-booted';
     private readonly document   = inject(DOCUMENT);
-    private routerSub?: Subscription;
     private bootTimer?: ReturnType<typeof setTimeout>;
     private _glowRaf?: number;
 
@@ -43,7 +40,6 @@ export class AppComponent extends AppComponentBase implements OnInit {
         injector: Injector,
         private _layoutStore: LayoutStoreService,
         private renderer: Renderer2,
-        private router: Router,
     ) {
         super(injector);
     }
@@ -70,10 +66,6 @@ export class AppComponent extends AppComponentBase implements OnInit {
         this._layoutStore.sidebarExpanded.subscribe(v => (this.sidebarExpanded = v));
 
         this.startBoot();
-
-        this.routerSub = this.router.events
-            .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-            .subscribe(() => this.replayRoute());
     }
 
     // ── Mouse-reactive glow ───────────────────────────────────
@@ -107,7 +99,6 @@ export class AppComponent extends AppComponentBase implements OnInit {
     }
 
     ngOnDestroy(): void {
-        this.routerSub?.unsubscribe();
         if (this.bootTimer)  clearTimeout(this.bootTimer);
         if (this._glowRaf !== undefined) cancelAnimationFrame(this._glowRaf);
     }
@@ -130,10 +121,5 @@ export class AppComponent extends AppComponentBase implements OnInit {
             this.booting = false;
             try { sessionStorage.setItem(AppComponent.SESSION_FLAG, '1'); } catch {}
         }, AppComponent.BOOT_MS);
-    }
-
-    private replayRoute(): void {
-        this.routeKey = 0;
-        setTimeout(() => (this.routeKey = Date.now()));
     }
 }
