@@ -1,0 +1,31 @@
+<ol class="elv-rail__list">
+  @for (row of rows(); track row.id) {
+    <li class="elv-rail__item" [attr.data-state]="row.state">
+
+      @if (!$first) {
+        <span class="elv-rail__link" aria-hidden="true"></span>
+      }
+
+      <button
+        type="button"
+        class="elv-rail__hit"
+        [attr.aria-current]="row.state === 'active' ? 'step' : null"
+        (click)="onSelect(row.id)">
+
+        <span class="elv-rail__badge" aria-hidden="true">
+          @if (row.state === 'complete') {
+            <i class="pi pi-check"></i>
+          } @else {
+            <i class="{{ row.icon }}"></i>
+          }
+        </span>
+
+        <span class="elv-rail__body">
+          <span class="elv-rail__num">{{ row.num }}</span>
+          <span class="elv-rail__label">{{ row.label }}</span>
+          <span class="elv-rail__status">{{ row.status }}</span>
+        </span>
+      </button>
+    </li>
+  }
+</ol>

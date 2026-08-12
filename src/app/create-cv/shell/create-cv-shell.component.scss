@@ -1,20 +1,16 @@
 // ════════════════════════════════════════════════════════════
 // CREATE CV — shell
 //
-// ViewEncapsulation.None everywhere in this feature, so every
-// selector is prefixed .elv-create / .elv-content.
+// ViewEncapsulation.None, so every selector is prefixed
+// .elv-create / .elv-content.
 //
 // The builder uses the app's own palette. Every colour here comes
 // from a --p-elevator-* token; nothing is redefined locally.
 // ════════════════════════════════════════════════════════════
 
 .elv-create {
-  // NO palette override here. An earlier revision re-pointed
-  // --p-elevator-accent at mint for this feature, which is exactly the
-  // "new accent colour" the theme forbids — the builder now inherits the
-  // app's gold accent like every other page.
-  --elv-create-rail-w: 232px;
-  --elv-create-header-h: 62px;
+  --elv-create-header-h: 74px;
+  --elv-create-gap: clamp(18px, 2vw, 28px);
 
   position: relative;
   display: block;
@@ -24,15 +20,14 @@
   font-family: var(--p-elevator-f-body);
 }
 
-// Never lightens the environment — a dark radial wash only.
+// A dark wash only — never lightens the environment.
 .elv-create__backdrop {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(90ch 60ch at 12% -10%, color-mix(in oklch, var(--p-elevator-accent) 7%, transparent), transparent 70%),
-    radial-gradient(70ch 50ch at 92% 8%, color-mix(in oklch, var(--p-elevator-done) 6%, transparent), transparent 72%),
+    radial-gradient(80ch 50ch at 50% -12%, color-mix(in oklch, var(--p-elevator-accent) 6%, transparent), transparent 68%),
     var(--p-elevator-bg0);
 }
 
@@ -40,30 +35,29 @@
 .elv-create__header {
   position: sticky;
   top: 0;
-  z-index: 20;
-  height: var(--elv-create-header-h);
+  z-index: 30;
+  min-height: var(--elv-create-header-h);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 0 clamp(14px, 2.4vw, 30px);
+  gap: clamp(16px, 3vw, 42px);
+  padding: 0 clamp(16px, 3vw, 40px);
   border-bottom: 1px solid var(--p-elevator-line);
-  background: color-mix(in oklch, var(--p-elevator-bg0) 88%, transparent);
-  backdrop-filter: blur(10px);
+  background: color-mix(in oklch, var(--p-elevator-bg0) 92%, transparent);
+  backdrop-filter: blur(12px);
 }
 
 .elv-create__brand {
+  flex: none;
   display: inline-flex;
   align-items: baseline;
-  gap: 1px;
   background: none;
   border: 0;
   padding: 0;
   cursor: pointer;
   font-family: var(--p-elevator-f-display);
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 700;
-  letter-spacing: .04em;
+  letter-spacing: .12em;
   color: var(--p-elevator-ink);
 }
 
@@ -72,97 +66,135 @@
   text-shadow: 0 0 18px var(--p-elevator-accent-glow);
 }
 
-.elv-create__header-right {
+// ── Step track ────────────────────────────────────────────────
+.elv-create__track {
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 0;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
 }
 
-// ── Body ──────────────────────────────────────────────────────
-.elv-create__body {
-  position: relative;
-  z-index: 1;
-  display: block;
-  min-height: calc(100dvh - var(--elv-create-header-h));
+.elv-create__track-rule {
+  flex: 0 1 clamp(18px, 4vw, 62px);
+  height: 1px;
+  min-width: 14px;
+  background: var(--p-elevator-line-strong);
+  margin-bottom: 14px;
 }
 
-.elv-create__body.has-rail {
-  display: grid;
-  grid-template-columns: var(--elv-create-rail-w) minmax(0, 1fr);
-  align-items: start;
-}
-
-// ── The shaft ─────────────────────────────────────────────────
-.elv-create__rail {
-  position: sticky;
-  top: var(--elv-create-header-h);
-  align-self: start;
-  border-right: 1px solid var(--p-elevator-line);
-  padding: clamp(22px, 3vw, 34px) clamp(14px, 1.6vw, 22px);
-  min-height: calc(100dvh - var(--elv-create-header-h));
-}
-
-.elv-create__rail-inner {
+.elv-create__track-step {
+  flex: none;
   display: flex;
   flex-direction: column;
-  gap: 34px;
-  position: sticky;
-  top: calc(var(--elv-create-header-h) + 24px);
+  align-items: center;
+  gap: 5px;
+  padding: 4px 6px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  transition: color .25s var(--ease);
+
+  &:focus-visible {
+    outline: 1px solid var(--p-elevator-accent);
+    outline-offset: 2px;
+  }
 }
 
-.elv-create__signal {
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-  padding-top: 22px;
-  border-top: 1px solid var(--p-elevator-line-soft);
-}
-
-.elv-create__signal-title {
-  font-family: var(--p-elevator-f-label);
-  font-size: 9.5px;
-  letter-spacing: .24em;
+.elv-create__track-num {
+  font-family: var(--p-elevator-f-mono);
+  font-size: 13px;
+  letter-spacing: .1em;
   color: var(--p-elevator-ink4);
+  transition: color .25s var(--ease), text-shadow .25s var(--ease);
 }
 
-.elv-create__signal-note {
+.elv-create__track-label {
+  font-family: var(--p-elevator-f-label);
+  font-size: 8.5px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--p-elevator-ink4);
+  transition: color .25s var(--ease);
+}
+
+.elv-create__track-step[data-state='done'] {
+  .elv-create__track-num,
+  .elv-create__track-label { color: var(--p-elevator-ink3); }
+}
+
+// The active step is the only gold thing in the header.
+.elv-create__track-step[data-state='active'] {
+  .elv-create__track-num {
+    color: var(--p-elevator-accent);
+    text-shadow: 0 0 14px var(--p-elevator-accent-glow);
+  }
+
+  .elv-create__track-label { color: var(--p-elevator-accent); }
+}
+
+.elv-create__track-step:hover .elv-create__track-num,
+.elv-create__track-step:hover .elv-create__track-label {
+  color: var(--p-elevator-ink2);
+}
+
+// ── Header right ──────────────────────────────────────────────
+.elv-create__header-right {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.elv-create__save {
   font-family: var(--p-elevator-f-mono);
   font-size: 10px;
-  letter-spacing: .08em;
-  line-height: 1.5;
-  color: var(--p-elevator-ink3);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--p-elevator-ink4);
+
+  &[data-state='saved'] { color: var(--p-elevator-done); }
+  &[data-state='error'] { color: var(--p-elevator-danger); }
 }
 
 // ── Content ───────────────────────────────────────────────────
 // NOT `content-wrapper`: AdminLTE hooks that name with margin-left.
 .elv-content {
+  position: relative;
+  z-index: 1;
   display: block;
-  min-width: 0;
-  padding: clamp(22px, 3.4vw, 46px) clamp(16px, 3vw, 46px) clamp(50px, 6vw, 90px);
+  width: min(var(--p-elevator-maxw), 94vw);
+  margin: 0 auto;
+  padding: clamp(26px, 3.6vw, 46px) 0 clamp(40px, 5vw, 70px);
 }
 
-// ── Mobile ────────────────────────────────────────────────────
-// The shaft lies down above the content and the stepper's own
-// elevator variant switches to a scrolling horizontal track.
-@media (max-width: 1024px) {
-  .elv-create__body.has-rail {
-    grid-template-columns: minmax(0, 1fr);
+.elv-create__footer {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 1120px) {
+  .elv-create__header {
+    flex-wrap: wrap;
+    padding-block: 12px;
+    gap: 12px;
   }
 
-  .elv-create__rail {
-    position: static;
-    min-height: 0;
-    border-right: 0;
-    border-bottom: 1px solid var(--p-elevator-line);
-    padding: 16px clamp(14px, 3vw, 22px);
+  .elv-create__track {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
   }
 
-  .elv-create__rail-inner {
-    position: static;
-    gap: 18px;
-  }
+  .elv-create__header-right { margin-left: auto; }
+}
 
-  .elv-create__signal {
-    padding-top: 14px;
-  }
+@media (max-width: 720px) {
+  .elv-create__save { display: none; }
 }

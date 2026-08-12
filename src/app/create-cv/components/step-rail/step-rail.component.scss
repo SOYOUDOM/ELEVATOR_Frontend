@@ -1,0 +1,155 @@
+// ════════════════════════════════════════════════════════════
+// STEP RAIL — the vertical floor list beside the form.
+// ViewEncapsulation.None; everything prefixed .elv-rail.
+// ════════════════════════════════════════════════════════════
+
+.elv-rail {
+  --elv-rail-badge: 46px;
+  display: block;
+}
+
+.elv-rail__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.elv-rail__item {
+  position: relative;
+  padding-block: 6px;
+}
+
+// The hairline joining one badge to the next. Sits behind the badge,
+// centred on it, so the badge always paints over the line end.
+.elv-rail__link {
+  position: absolute;
+  left: calc(var(--elv-rail-badge) / 2);
+  top: -14px;
+  height: 26px;
+  width: 1px;
+  background: var(--p-elevator-line-strong);
+}
+
+.elv-rail__item[data-state='complete'] .elv-rail__link,
+.elv-rail__item[data-state='active'] .elv-rail__link {
+  background: color-mix(in oklch, var(--p-elevator-accent) 45%, transparent);
+}
+
+.elv-rail__hit {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 8px;
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .25s var(--ease), background-color .25s var(--ease);
+
+  &:hover { background: color-mix(in oklch, var(--p-elevator-panel-hi) 40%, transparent); }
+
+  &:focus-visible {
+    outline: 1px solid var(--p-elevator-accent);
+    outline-offset: 2px;
+  }
+}
+
+// ── Badge ─────────────────────────────────────────────────────
+.elv-rail__badge {
+  flex: none;
+  width: var(--elv-rail-badge);
+  height: var(--elv-rail-badge);
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--p-elevator-line-strong);
+  background: var(--p-elevator-bg0);
+  color: var(--p-elevator-ink4);
+  transition: color .25s var(--ease), border-color .25s var(--ease), box-shadow .25s var(--ease);
+
+  i { font-size: 17px; }
+}
+
+.elv-rail__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.elv-rail__num {
+  font-family: var(--p-elevator-f-mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: var(--p-elevator-ink4);
+}
+
+.elv-rail__label {
+  font-family: var(--p-elevator-f-label);
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--p-elevator-ink2);
+}
+
+.elv-rail__status {
+  font-size: 11px;
+  color: var(--p-elevator-ink4);
+}
+
+// ── States ────────────────────────────────────────────────────
+.elv-rail__item[data-state='complete'] {
+  .elv-rail__badge {
+    border-color: color-mix(in oklch, var(--p-elevator-accent) 50%, transparent);
+    color: var(--p-elevator-accent);
+  }
+
+  .elv-rail__label { color: var(--p-elevator-ink); }
+  .elv-rail__status { color: var(--p-elevator-ink3); }
+}
+
+// The floor you are standing on: gold box, gold glow, gold rule.
+.elv-rail__item[data-state='active'] {
+  .elv-rail__hit {
+    border-color: var(--p-elevator-accent);
+    background: color-mix(in oklch, var(--p-elevator-accent) 7%, transparent);
+    box-shadow: inset 0 0 26px color-mix(in oklch, var(--p-elevator-accent) 10%, transparent);
+  }
+
+  .elv-rail__badge {
+    border-color: var(--p-elevator-accent);
+    color: var(--p-elevator-accent);
+    box-shadow: 0 0 20px color-mix(in oklch, var(--p-elevator-accent) 26%, transparent);
+  }
+
+  .elv-rail__num,
+  .elv-rail__label { color: var(--p-elevator-accent); }
+  .elv-rail__status { color: color-mix(in oklch, var(--p-elevator-accent) 72%, transparent); }
+}
+
+.elv-rail__item[data-state='upcoming'] .elv-rail__hit { opacity: .62; }
+
+// ── Narrow ────────────────────────────────────────────────────
+// The rail lies down and becomes a scrolling strip of badges.
+@media (max-width: 1120px) {
+  .elv-rail__list {
+    flex-direction: row;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  .elv-rail__link { display: none; }
+
+  .elv-rail__hit { flex-direction: column; align-items: flex-start; min-width: 132px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .elv-rail__hit,
+  .elv-rail__badge { transition: none; }
+}

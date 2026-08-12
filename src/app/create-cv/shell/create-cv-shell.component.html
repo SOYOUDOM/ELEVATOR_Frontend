@@ -1,7 +1,11 @@
 <!-- ────────────────────────────────────────────────────────────
-     Full-screen builder shell. NOT inside the AdminLTE layout.
+     Builder shell. Full-screen, outside the AdminLTE layout.
 
-     The content wrapper is .elv-content — never `content-wrapper`,
+     The step track lives in the HEADER (not a side rail): it is
+     wayfinding for the whole flow, while the per-floor rail in
+     the page body carries status detail.
+
+     Content wrapper is .elv-content — never `content-wrapper`,
      which AdminLTE hooks with a margin-left.
      ──────────────────────────────────────────────────────────── -->
 <app-fx-grain />
@@ -10,73 +14,48 @@
 
 <header class="elv-create__header">
   <button type="button" class="elv-create__brand" (click)="exit()">
-    <span class="elv-create__brand-mark">E</span>
-    <span class="elv-create__brand-name">LEVATOR</span>
+    <span class="elv-create__brand-mark">E</span><span>LEVATOR</span>
   </button>
 
+  @if (wizard.onWizardFloor()) {
+    <nav class="elv-create__track" aria-label="Builder steps">
+      @for (s of wizard.stepperItems(); track s.id; let i = $index) {
+        @if (!$first) {
+          <span class="elv-create__track-rule" aria-hidden="true"></span>
+        }
+        <button
+          type="button"
+          class="elv-create__track-step"
+          [attr.data-state]="trackState(s.id, i)"
+          [attr.aria-current]="s.id === wizard.activeId() ? 'step' : null"
+          (click)="goTo(s.id)">
+          <span class="elv-create__track-num">{{ pad(i + 1) }}</span>
+          <span class="elv-create__track-label">{{ s.label }}</span>
+        </button>
+      }
+    </nav>
+  }
+
   <div class="elv-create__header-right">
-    <!-- The only assurance the user's work still exists. -->
-    <app-elv-chip
-      variant="badge"
-      size="small"
-      corner="sharp"
-      [icon]="saveChip().icon"
-      [tone]="saveChip().tone"
-      [title]="store.lastSavedAt() && store.saveState() === 'saved'
-        ? (saveChip().title + ' ' + (store.lastSavedAt() | date: 'HH:mm'))
-        : saveChip().title" />
+    <span class="elv-create__save" [attr.data-state]="store.saveState()" role="status" aria-live="polite">
+      {{ saveText() }}
+    </span>
 
     <app-elv-button
       variant="ghost"
       size="small"
       corner="sharp"
-      icon="pi pi-times"
-      [iconOnly]="true"
-      ariaLabel="Leave the builder"
+      icon="pi pi-save"
+      [iconGap]="10"
+      title="Save & exit"
       (clicked)="exit()" />
   </div>
 </header>
 
-<div class="elv-create__body" [class.has-rail]="wizard.onWizardFloor()">
+<main class="elv-content">
+  <router-outlet />
+</main>
 
-  <!-- ══ THE SHAFT ══════════════════════════════════════════════
-       Only on the five numbered floors. Launch and the editor sit
-       off the climb and must not claim a position on it.
-       ═══════════════════════════════════════════════════════════ -->
-  @if (wizard.onWizardFloor()) {
-    <aside class="elv-create__rail" [class.is-open]="railOpen()">
-      <div class="elv-create__rail-inner">
-
-        <elv-stepper
-          variant="elevator"
-          orientation="vertical"
-          [items]="wizard.stepperItems()"
-          [activeId]="wizard.activeId()"
-          [clickable]="true"
-          reach="all"
-          completedIcon=""
-          ariaLabel="CV builder floors"
-          (stepSelected)="onFloorSelected($event)" />
-
-        <!-- SIGNAL STRENGTH — the only progress feedback before the editor,
-             so it is bound to the draft and moves as the user types. -->
-        <div class="elv-create__signal">
-          <span class="elv-create__signal-title elv-mono">Signal strength</span>
-          <app-elv-progress
-            size="small"
-            corner="sharp"
-            tone="accent"
-            [value]="store.completeness()"
-            [showValue]="true"
-            [glow]="true"
-            ariaLabel="CV signal strength" />
-          <span class="elv-create__signal-note">{{ signalLabel() }}</span>
-        </div>
-      </div>
-    </aside>
-  }
-
-  <main class="elv-content">
-    <router-outlet />
-  </main>
+<div class="elv-create__footer">
+  <app-footer />
 </div>

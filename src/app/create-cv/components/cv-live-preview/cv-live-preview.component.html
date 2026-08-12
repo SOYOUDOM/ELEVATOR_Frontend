@@ -1,0 +1,125 @@
+<section class="elv-live__panel" [attr.data-device]="device()">
+
+  <!-- HUD corner ticks — decoration only, never announced. -->
+  <span class="elv-live__tick elv-live__tick--tl" aria-hidden="true"></span>
+  <span class="elv-live__tick elv-live__tick--br" aria-hidden="true"></span>
+
+  <header class="elv-live__bar">
+    <span class="elv-live__title">
+      <span class="elv-live__dot" aria-hidden="true"></span>
+      Live CV preview
+    </span>
+
+    <div class="elv-live__devices" role="group" aria-label="Preview width">
+      <button
+        type="button"
+        class="elv-live__device"
+        [class.is-active]="device() === 'desktop'"
+        aria-label="Desktop width"
+        [attr.aria-pressed]="device() === 'desktop'"
+        (click)="setDevice('desktop')">
+        <i class="pi pi-desktop" aria-hidden="true"></i>
+      </button>
+      <button
+        type="button"
+        class="elv-live__device"
+        [class.is-active]="device() === 'mobile'"
+        aria-label="Mobile width"
+        [attr.aria-pressed]="device() === 'mobile'"
+        (click)="setDevice('mobile')">
+        <i class="pi pi-mobile" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="elv-live__scroll">
+
+    <!-- ── Identity ── -->
+    <div class="elv-live__id">
+      <span class="elv-live__avatar" aria-hidden="true">
+        @if (identity().photoDataUrl) {
+          <img [src]="identity().photoDataUrl!" alt="" />
+        } @else if (initials()) {
+          <span class="elv-live__initials">{{ initials() }}</span>
+        } @else {
+          <i class="pi pi-user"></i>
+        }
+      </span>
+
+      <div class="elv-live__id-text">
+        <h3 class="elv-live__name">{{ identity().fullName || 'Your name' }}</h3>
+
+        @if (identity().targetJobTitle) {
+          <p class="elv-live__role">{{ identity().targetJobTitle }}</p>
+        }
+
+        <ul class="elv-live__contact">
+          @for (line of contactLines(); track line.text) {
+            <li><i class="{{ line.icon }}" aria-hidden="true"></i><span>{{ line.text }}</span></li>
+          }
+        </ul>
+      </div>
+    </div>
+
+    <!-- ── About ── -->
+    @if (identity().summary) {
+      <div class="elv-live__section">
+        <h4 class="elv-live__h4">About me</h4>
+        <p class="elv-live__prose">{{ identity().summary }}</p>
+      </div>
+    }
+
+    <!-- ── Experience ── -->
+    @if (roles().length) {
+      <div class="elv-live__section">
+        <h4 class="elv-live__h4">Experience</h4>
+
+        <ol class="elv-live__timeline">
+          @for (job of roles(); track job.id) {
+            <li class="elv-live__job">
+              <span class="elv-live__node" aria-hidden="true"></span>
+
+              <h5 class="elv-live__job-role">{{ job.role || 'Role' }}</h5>
+              @if (job.company) {
+                <p class="elv-live__job-company">{{ job.company }}</p>
+              }
+
+              <p class="elv-live__job-meta">
+                @if (dateRange(job.startDate, job.endDate, job.current); as range) {
+                  <span><i class="pi pi-calendar" aria-hidden="true"></i>{{ range }}</span>
+                }
+                @if (job.location) {
+                  <span><i class="pi pi-map-marker" aria-hidden="true"></i>{{ job.location }}</span>
+                }
+              </p>
+
+              @if (filledBullets(job.bullets).length) {
+                <ul class="elv-live__bullets">
+                  @for (b of filledBullets(job.bullets); track b.id) {
+                    <li>{{ b.text }}</li>
+                  }
+                </ul>
+              }
+            </li>
+          }
+        </ol>
+      </div>
+    }
+
+    <!-- ── Skills ── -->
+    @if (draft().skills.length) {
+      <div class="elv-live__section">
+        <h4 class="elv-live__h4">Skills</h4>
+        <div class="elv-live__tags">
+          @for (s of draft().skills; track s.id) {
+            <span class="elv-live__tag">{{ s.name }}</span>
+          }
+        </div>
+      </div>
+    }
+
+    <p class="elv-live__foot">
+      This is a preview. Your CV will look amazing with all your information.
+    </p>
+  </div>
+</section>

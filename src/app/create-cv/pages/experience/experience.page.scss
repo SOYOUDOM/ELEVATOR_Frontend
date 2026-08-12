@@ -1,40 +1,461 @@
 // ════════════════════════════════════════════════════════════
-// EXPERIENCE — floor 02
+// EXPERIENCE — step 02
 // ViewEncapsulation.None; everything prefixed .elv-exp.
+// Colours/fonts are all --p-elevator-* tokens.
 // ════════════════════════════════════════════════════════════
 
 .elv-exp {
   display: block;
 }
 
-.elv-exp__dates {
+// ── Page grid: form column | preview column ───────────────────
+.elv-exp__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.86fr);
+  gap: clamp(20px, 2.6vw, 40px);
+  align-items: start;
+}
+
+.elv-exp__main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(22px, 2.6vw, 34px);
+}
+
+// ── Heading ───────────────────────────────────────────────────
+.elv-exp__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--p-elevator-f-label);
+  font-size: 10px;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: var(--p-elevator-accent);
+}
+
+.elv-exp__slash {
+  font-family: var(--p-elevator-f-mono);
+  letter-spacing: .05em;
+  color: color-mix(in oklch, var(--p-elevator-accent) 55%, transparent);
+}
+
+.elv-exp__head {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.elv-exp__h1 {
+  margin: 0;
+  font-family: var(--p-elevator-f-display);
+  font-weight: 400;
+  font-size: clamp(28px, 3.6vw, 46px);
+  line-height: 1.08;
+  letter-spacing: .01em;
+  text-transform: uppercase;
+  color: var(--p-elevator-ink);
+  text-wrap: balance;
+}
+
+.elv-exp__h1-accent {
+  color: var(--p-elevator-accent);
+  text-shadow: 0 0 22px var(--p-elevator-accent-glow);
+}
+
+.elv-exp__lede {
+  margin: 0;
+  max-width: 46ch;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--p-elevator-ink2);
+  text-wrap: pretty;
+}
+
+// ── Rail + forms ──────────────────────────────────────────────
+.elv-exp__cols {
+  display: grid;
+  grid-template-columns: 172px minmax(0, 1fr);
+  gap: clamp(16px, 2vw, 28px);
+  align-items: start;
+}
+
+.elv-exp__rail {
+  position: sticky;
+  top: 100px;
+}
+
+.elv-exp__forms {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+// ── Form card ─────────────────────────────────────────────────
+.elv-exp__card {
+  border: 1px solid var(--p-elevator-line);
+  background: color-mix(in oklch, var(--p-elevator-panel) 70%, transparent);
+}
+
+.elv-exp__card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 18px;
+  border-bottom: 1px solid var(--p-elevator-line-soft);
+}
+
+.elv-exp__card-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid color-mix(in oklch, var(--p-elevator-accent) 45%, transparent);
+  color: var(--p-elevator-accent);
+
+  i { font-size: 14px; }
+}
+
+.elv-exp__card-title {
+  margin: 0;
+  flex: 1;
+  font-family: var(--p-elevator-f-label);
+  font-size: 10.5px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--p-elevator-ink);
+}
+
+.elv-exp__card-body {
+  padding: clamp(16px, 2vw, 22px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.elv-exp__row-2 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 14px;
+  align-items: end;
 }
 
 .elv-exp__current {
   display: flex;
   align-items: center;
+  min-height: 46px;
 }
 
-// The plain-language on-ramp reads as a distinct affordance, not a field.
+// ── Bullets ───────────────────────────────────────────────────
+.elv-exp__bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.elv-exp__bullets-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.elv-exp__label {
+  font-family: var(--p-elevator-f-label);
+  font-size: 9.5px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--p-elevator-ink3);
+}
+
+.elv-exp__count {
+  font-family: var(--p-elevator-f-mono);
+  font-size: 10.5px;
+  letter-spacing: .06em;
+  color: var(--p-elevator-ink4);
+}
+
+.elv-exp__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.elv-exp__row {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border: 1px solid var(--p-elevator-line);
+  background: color-mix(in oklch, var(--p-elevator-panel-hi) 45%, transparent);
+  transition: border-color .2s var(--ease);
+
+  &:focus-within { border-color: color-mix(in oklch, var(--p-elevator-accent) 55%, transparent); }
+}
+
+.elv-exp__grip {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  color: var(--p-elevator-ink4);
+  cursor: grab;
+
+  i { font-size: 11px; }
+}
+
+// A bare textarea, styled to sit flush inside the row. elv-field would add
+// its own label/assist chrome, which is wrong for a repeating list row.
+.elv-exp__input {
+  flex: 1;
+  min-width: 0;
+  resize: none;
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 11px 4px 11px 0;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--p-elevator-ink);
+
+  &::placeholder { color: var(--p-elevator-ink4); }
+  &:focus { outline: none; }
+}
+
+.elv-exp__row-x {
+  flex: none;
+  width: 34px;
+  display: grid;
+  place-items: center;
+  background: none;
+  border: 0;
+  color: var(--p-elevator-ink4);
+  cursor: pointer;
+  transition: color .2s var(--ease);
+
+  i { font-size: 11px; }
+
+  &:hover { color: var(--p-elevator-danger); }
+
+  &:focus-visible {
+    outline: 1px solid var(--p-elevator-accent);
+    outline-offset: -2px;
+  }
+}
+
+.elv-exp__add-bullet {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 15px;
+  font-family: var(--p-elevator-f-label);
+  font-size: 9.5px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--p-elevator-accent);
+  background: none;
+  border: 1px dashed color-mix(in oklch, var(--p-elevator-accent) 40%, transparent);
+  cursor: pointer;
+  transition: background-color .2s var(--ease), border-color .2s var(--ease);
+
+  i { font-size: 10px; }
+
+  &:hover {
+    border-style: solid;
+    background: color-mix(in oklch, var(--p-elevator-accent) 9%, transparent);
+  }
+
+  &:focus-visible {
+    outline: 1px solid var(--p-elevator-accent);
+    outline-offset: 2px;
+  }
+}
+
+// ── Plain-language on-ramp ────────────────────────────────────
 .elv-exp__seed {
   display: flex;
   flex-direction: column;
   gap: 12px;
   align-items: flex-start;
   padding: 15px;
-  border: 1px dashed color-mix(in oklch, var(--p-elevator-accent) 32%, transparent);
+  border: 1px dashed color-mix(in oklch, var(--p-elevator-accent) 30%, transparent);
   background: color-mix(in oklch, var(--p-elevator-accent) 4%, transparent);
 }
 
-.elv-exp__bullets {
+// ── Add another ───────────────────────────────────────────────
+.elv-exp__another {
   display: flex;
-  flex-direction: column;
-  gap: 13px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 18px;
+  border: 1px solid var(--p-elevator-line);
+  background: color-mix(in oklch, var(--p-elevator-panel) 55%, transparent);
 }
 
-@media (max-width: 900px) {
-  .elv-exp__dates { grid-template-columns: minmax(0, 1fr); }
+.elv-exp__another-title {
+  margin: 0 0 4px;
+  font-family: var(--p-elevator-f-label);
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--p-elevator-ink);
+}
+
+.elv-exp__another-text {
+  margin: 0;
+  max-width: 46ch;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--p-elevator-ink3);
+}
+
+// ── Nav ───────────────────────────────────────────────────────
+.elv-exp__nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 6px;
+}
+
+// The one solid gold button on the page — the single loudest thing on the
+// screen, so it is stated explicitly rather than left to a variant that
+// tints the accent down.
+.elv-exp__cta {
+  min-width: 210px;
+  justify-content: center;
+  background: var(--p-elevator-accent);
+  border-color: var(--p-elevator-accent);
+  color: var(--p-elevator-bg0);
+  box-shadow: 0 0 26px color-mix(in oklch, var(--p-elevator-accent) 34%, transparent);
+
+  // The label and icon inherit from elv-button's own spans, which set their
+  // own colour — override both so nothing stays light-on-gold.
+  .elv-btn__label,
+  .elv-btn__icon,
+  .elv-btn__icon-trail {
+    color: var(--p-elevator-bg0);
+  }
+
+  &:hover {
+    background: color-mix(in oklch, var(--p-elevator-accent) 88%, #fff);
+    box-shadow: 0 0 34px color-mix(in oklch, var(--p-elevator-accent) 46%, transparent);
+  }
+}
+
+.elv-exp__enter {
+  font-family: var(--p-elevator-f-mono);
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  color: var(--p-elevator-ink4);
+}
+
+// ── Preview column ────────────────────────────────────────────
+.elv-exp__preview {
+  position: sticky;
+  top: 100px;
+  min-width: 0;
+}
+
+// ── Tip band ──────────────────────────────────────────────────
+.elv-exp__tip {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: clamp(24px, 3vw, 40px);
+  padding: 20px clamp(18px, 2.4vw, 28px);
+  border: 1px solid var(--p-elevator-line);
+  background: color-mix(in oklch, var(--p-elevator-panel) 70%, transparent);
+}
+
+.elv-exp__tip-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid color-mix(in oklch, var(--p-elevator-accent) 45%, transparent);
+  color: var(--p-elevator-accent);
+
+  i { font-size: 18px; }
+}
+
+.elv-exp__tip-text {
+  position: relative;
+  z-index: 1;
+  max-width: 62ch;
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--p-elevator-ink2);
+  }
+}
+
+.elv-exp__tip-title {
+  margin: 0 0 4px;
+  font-family: var(--p-elevator-f-label);
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--p-elevator-accent);
+}
+
+// A horizon glow rather than an image — no asset to ship, and it never
+// lightens the page the way a photo would.
+.elv-exp__tip-art {
+  position: absolute;
+  right: 0;
+  bottom: -60%;
+  width: min(46%, 520px);
+  aspect-ratio: 2 / 1;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(closest-side,
+      color-mix(in oklch, var(--p-elevator-accent) 30%, transparent),
+      color-mix(in oklch, var(--p-elevator-accent) 6%, transparent) 62%,
+      transparent 72%);
+}
+
+// ── Responsive ────────────────────────────────────────────────
+@media (max-width: 1120px) {
+  .elv-exp__grid { grid-template-columns: minmax(0, 1fr); }
+
+  .elv-exp__cols { grid-template-columns: minmax(0, 1fr); }
+
+  .elv-exp__rail,
+  .elv-exp__preview { position: static; }
+}
+
+@media (max-width: 720px) {
+  .elv-exp__row-2 { grid-template-columns: minmax(0, 1fr); }
+
+  .elv-exp__nav {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .elv-exp__cta { width: 100%; }
+
+  .elv-exp__enter { display: none; }
+
+  .elv-exp__tip { flex-direction: column; align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .elv-exp__row,
+  .elv-exp__row-x,
+  .elv-exp__add-bullet { transition: none; }
 }

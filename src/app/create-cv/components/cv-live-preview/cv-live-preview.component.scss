@@ -1,0 +1,359 @@
+// ════════════════════════════════════════════════════════════
+// LIVE CV PREVIEW
+//
+// Rendered in the app's own dark theme, not as a shrunken white
+// sheet — at 40% an A4 page is unreadable, and this panel's job
+// is confidence while typing. The true paper still exists for
+// export.
+//
+// ViewEncapsulation.None; everything prefixed .elv-live.
+// ════════════════════════════════════════════════════════════
+
+.elv-live {
+  display: block;
+}
+
+.elv-live__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--p-elevator-line);
+  background: color-mix(in oklch, var(--p-elevator-panel) 88%, transparent);
+}
+
+// ── Corner ticks ──────────────────────────────────────────────
+.elv-live__tick {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  border: 1px solid color-mix(in oklch, var(--p-elevator-accent) 55%, transparent);
+  pointer-events: none;
+}
+
+.elv-live__tick--tl {
+  top: -1px;
+  left: -1px;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.elv-live__tick--br {
+  right: -1px;
+  bottom: -1px;
+  border-left: 0;
+  border-top: 0;
+}
+
+// ── Bar ───────────────────────────────────────────────────────
+.elv-live__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--p-elevator-line-soft);
+}
+
+.elv-live__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--p-elevator-f-label);
+  font-size: 9.5px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--p-elevator-ink2);
+}
+
+.elv-live__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--p-elevator-accent);
+  box-shadow: 0 0 10px var(--p-elevator-accent-glow);
+}
+
+.elv-live__devices {
+  display: flex;
+  gap: 6px;
+}
+
+.elv-live__device {
+  width: 30px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  background: none;
+  border: 1px solid var(--p-elevator-line);
+  color: var(--p-elevator-ink4);
+  cursor: pointer;
+  transition: color .2s var(--ease), border-color .2s var(--ease);
+
+  i { font-size: 12px; }
+
+  &:hover { color: var(--p-elevator-ink2); }
+
+  &.is-active {
+    border-color: var(--p-elevator-accent);
+    color: var(--p-elevator-accent);
+  }
+
+  &:focus-visible {
+    outline: 1px solid var(--p-elevator-accent);
+    outline-offset: 2px;
+  }
+}
+
+// ── Body ──────────────────────────────────────────────────────
+.elv-live__scroll {
+  padding: clamp(18px, 2vw, 26px);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-height: 68vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+// Mobile device mode narrows the content column, nothing else.
+.elv-live__panel[data-device='mobile'] .elv-live__scroll {
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+// ── Identity ──────────────────────────────────────────────────
+.elv-live__id {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.elv-live__avatar {
+  flex: none;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: var(--p-elevator-panel-hi);
+  border: 1px solid var(--p-elevator-line-strong);
+  color: var(--p-elevator-ink4);
+
+  img { width: 100%; height: 100%; object-fit: cover; }
+  i { font-size: 30px; }
+}
+
+.elv-live__initials {
+  font-family: var(--p-elevator-f-display);
+  font-size: 26px;
+  letter-spacing: .06em;
+  color: var(--p-elevator-accent);
+}
+
+.elv-live__id-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.elv-live__name {
+  margin: 0;
+  font-family: var(--p-elevator-f-display);
+  font-size: clamp(20px, 2.2vw, 27px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--p-elevator-ink);
+}
+
+.elv-live__role {
+  margin: 0;
+  font-family: var(--p-elevator-f-label);
+  font-size: 10.5px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--p-elevator-accent);
+}
+
+.elv-live__contact {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 12.5px;
+    color: var(--p-elevator-ink2);
+  }
+
+  i {
+    font-size: 11px;
+    color: var(--p-elevator-ink4);
+    flex: none;
+  }
+}
+
+// ── Sections ──────────────────────────────────────────────────
+.elv-live__section {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.elv-live__h4 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--p-elevator-f-label);
+  font-size: 9.5px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--p-elevator-accent);
+
+  // The rule that runs off to the right of every section heading.
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--p-elevator-line);
+  }
+}
+
+.elv-live__prose {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--p-elevator-ink2);
+}
+
+// ── Experience timeline ───────────────────────────────────────
+.elv-live__timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+
+  // The spine behind the nodes.
+  &::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    background: var(--p-elevator-line);
+  }
+}
+
+.elv-live__job {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.elv-live__node {
+  position: absolute;
+  left: -22px;
+  top: 5px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid var(--p-elevator-accent);
+  background: var(--p-elevator-bg0);
+}
+
+// The most recent role is the filled one.
+.elv-live__job:first-child .elv-live__node {
+  background: var(--p-elevator-accent);
+  box-shadow: 0 0 10px var(--p-elevator-accent-glow);
+}
+
+.elv-live__job-role {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--p-elevator-ink);
+}
+
+.elv-live__job-company {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--p-elevator-accent);
+}
+
+.elv-live__job-meta {
+  margin: 3px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--p-elevator-f-mono);
+    font-size: 10.5px;
+    letter-spacing: .04em;
+    color: var(--p-elevator-ink4);
+  }
+
+  i { font-size: 10px; }
+}
+
+.elv-live__bullets {
+  margin: 9px 0 0;
+  padding-left: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  li {
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--p-elevator-ink2);
+    // A gold marker rather than the browser's grey disc.
+    &::marker { color: var(--p-elevator-accent); }
+  }
+}
+
+// ── Skills ────────────────────────────────────────────────────
+.elv-live__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.elv-live__tag {
+  padding: 4px 10px;
+  font-size: 11px;
+  color: var(--p-elevator-ink2);
+  border: 1px solid var(--p-elevator-line-strong);
+  background: color-mix(in oklch, var(--p-elevator-panel-hi) 50%, transparent);
+}
+
+.elv-live__foot {
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--p-elevator-line-soft);
+  text-align: center;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--p-elevator-ink4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .elv-live__device { transition: none; }
+}

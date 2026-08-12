@@ -53,6 +53,8 @@ export interface CvExperience {
     company: string;
     role: string;
     location: string;
+    /** Full-time, Contract, Internship … free text rather than an enum. */
+    employmentType: string;
     startDate: string;
     endDate: string;
     current: boolean;
