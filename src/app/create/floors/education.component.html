@@ -1,0 +1,57 @@
+<app-floor-frame floorId="education" [canContinue]="canContinue()">
+
+  <div class="elv-meter">
+    <app-elv-progress class="elv-meter__prog" size="small" corner="pill" tone="accent"
+                      label="ENTRIES ADDED" [value]="count()" [max]="count() > 2 ? count() : 2"
+                      [showValue]="true" [valueText]="count() + ' added'" ariaLabel="Education entries" />
+    <span class="elv-meter__note">One is usually enough</span>
+  </div>
+
+  @for (entry of store.education(); track $index) {
+    <div class="elv-entry">
+      <div class="elv-entry__bar">
+        <span class="elv-entry__n">{{ ($index + 1).toString().padStart(2, '0') }}</span>
+        <span class="elv-entry__t">
+          @if (title(entry)) { {{ title(entry) }} } @else { <em>Untitled qualification</em> }
+        </span>
+        <button type="button" class="elv-icon-btn" (click)="remove($index)"
+                [attr.aria-label]="'Remove entry ' + ($index + 1)">&#10005;</button>
+      </div>
+      <div class="elv-entry__body">
+        <div class="elv-grid">
+          <div class="elv-cell">
+            <elv-field skin="minimal" corner="sharp" density="roomy" label="QUALIFICATION"
+                       placeholder="BSc Computer Science" [required]="true" icon="pi-briefcase"
+                       [value]="entry.degree" (valueChange)="patch($index, 'degree', $event)" />
+          </div>
+          <div class="elv-cell">
+            <elv-field skin="minimal" corner="sharp" density="roomy" label="INSTITUTION"
+                       placeholder="Royal University of Phnom Penh" [required]="true" icon="pi-building"
+                       [value]="entry.school" (valueChange)="patch($index, 'school', $event)" />
+          </div>
+          <div class="elv-cell">
+            <elv-field skin="minimal" corner="sharp" density="roomy" label="PERIOD"
+                       placeholder="2019 — 2023" icon="pi-calendar"
+                       [value]="entry.period" (valueChange)="patch($index, 'period', $event)" />
+          </div>
+          <div class="elv-cell">
+            <elv-field skin="minimal" corner="sharp" density="roomy" label="GRADE / NOTE"
+                       placeholder="Graduated with distinction" icon="pi-align-left"
+                       [value]="entry.note" (valueChange)="patch($index, 'note', $event)" />
+          </div>
+        </div>
+      </div>
+    </div>
+  } @empty {
+    <div class="elv-empty">
+      <p>Nothing here yet. A bootcamp or a certification counts.</p>
+      <app-elv-button variant="neon" corner="sharp" [glow]="true" title="Add a qualification"
+                      icon="pi pi-plus" (clicked)="add()" />
+    </div>
+  }
+
+  @if (count()) {
+    <app-elv-button variant="ghost" corner="sharp" title="Add another" icon="pi pi-plus" (clicked)="add()" />
+  }
+
+</app-floor-frame>

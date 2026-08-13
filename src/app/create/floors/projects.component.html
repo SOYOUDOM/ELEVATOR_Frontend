@@ -1,0 +1,61 @@
+<app-floor-frame floorId="projects">
+
+  <div class="elv-meter">
+    <span class="elv-meter__note elv-meter__note--wide">
+      Optional floor — NEXT is open whether you fill it or not
+    </span>
+  </div>
+
+  @for (entry of store.projects(); track $index) {
+    <div class="elv-entry">
+      <div class="elv-entry__bar">
+        <span class="elv-entry__n">{{ ($index + 1).toString().padStart(2, '0') }}</span>
+        <span class="elv-entry__t">
+          @if (entry.name) { {{ entry.name }} } @else { <em>Untitled project</em> }
+        </span>
+        <button type="button" class="elv-icon-btn" (click)="remove($index)"
+                [attr.aria-label]="'Remove project ' + ($index + 1)">&#10005;</button>
+      </div>
+      <div class="elv-entry__body">
+        <div class="elv-grid">
+          <div class="elv-cell">
+            <elv-field skin="minimal" corner="sharp" density="roomy" label="PROJECT"
+                       placeholder="Ticket triage dashboard" [required]="true" icon="pi-building"
+                       [value]="entry.name" (valueChange)="patch($index, 'name', $event)" />
+          </div>
+          <div class="elv-cell">
+            <elv-field skin="minimal" corner="sharp" density="roomy" label="YOUR ROLE"
+                       placeholder="Sole developer" icon="pi-user"
+                       [value]="entry.role" (valueChange)="patch($index, 'role', $event)" />
+          </div>
+          <div class="elv-cell">
+            <elv-field skin="minimal" corner="sharp" density="roomy" label="LINK"
+                       placeholder="github.com/you/project" icon="pi-link"
+                       [value]="entry.link" (valueChange)="patch($index, 'link', $event)" />
+          </div>
+          <div class="elv-cell">
+            <elv-field skin="minimal" corner="sharp" density="roomy" label="WHEN"
+                       placeholder="2024" icon="pi-calendar"
+                       [value]="entry.period" (valueChange)="patch($index, 'period', $event)" />
+          </div>
+          <div class="elv-cell elv-cell--wide">
+            <elv-field skin="minimal" corner="sharp" label="WHAT IT DOES" [multiline]="true" [rows]="3"
+                       placeholder="The problem, and what you built to solve it."
+                       [value]="entry.desc" (valueChange)="patch($index, 'desc', $event)" />
+          </div>
+        </div>
+      </div>
+    </div>
+  } @empty {
+    <div class="elv-empty">
+      <p>Nothing here yet. Early in a career this floor does the most work.</p>
+      <app-elv-button variant="neon" corner="sharp" [glow]="true" title="Add a project"
+                      icon="pi pi-plus" (clicked)="add()" />
+    </div>
+  }
+
+  @if (count()) {
+    <app-elv-button variant="ghost" corner="sharp" title="Add another project" icon="pi pi-plus" (clicked)="add()" />
+  }
+
+</app-floor-frame>

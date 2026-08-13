@@ -1,5 +1,6 @@
     import { HttpHandler,HttpResponse, http } from "msw";
     import {handlers as generated} from './generated/handlers';
+    import { cvHandlers } from './cv-handlers';
 
     export const handlers: HttpHandler[] = [
         http.get('*/AbpUserConfiguration/GetAll',() => HttpResponse.json({
@@ -461,5 +462,10 @@
         "unAuthorizedRequest": false,
         "__abp": true
     })),
+        // The create flow's endpoints. None of these exist on the ABP backend
+        // yet, so they live entirely here — see src/mocks/cv-handlers.ts.
+        // Listed BEFORE the generated set: MSW takes the first matching
+        // handler, and the generated catch-alls would otherwise swallow them.
+        ...cvHandlers,
         ...generated,
     ];

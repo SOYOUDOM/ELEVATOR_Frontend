@@ -1,0 +1,51 @@
+<!-- The stack reserves the SCALED height: transform does not affect layout,
+     so without this the surrounding page would leave a hole. -->
+<div class="elv-sheets" [style.height]="stackHeight()">
+  <div class="elv-sheets__scale" [style.transform]="'scale(' + scale() + ')'">
+    @for (sheet of sheets(); track $index) {
+      <div class="elv-sheet" [class.elv-sheet--side]="sidebar()">
+
+        @if (sidebar()) {
+          <div class="elv-sheet__body">
+            <div class="elv-paper elv-paper--sidebar" [class.elv-paper--six]="sixSecond()"
+                 [style.--tpl-accent]="template().accent">
+              <div class="elv-pside">
+                @if (sheet.head) {
+                  <div [innerHTML]="sideHtml()"></div>
+                }
+              </div>
+              <div class="elv-pmain">
+                @for (group of sheet.groups; track group.title) {
+                  <div class="elv-psec">
+                    <h4>{{ group.title }}@if (group.continued) {<span class="elv-pcont"> (cont.)</span>}</h4>
+                    @for (item of group.items; track $index) {
+                      <div [innerHTML]="item"></div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="elv-sheet__body">
+            <div class="elv-paper" [class]="paperClass()" [style.--tpl-accent]="template().accent">
+              @if (sheet.head) {
+                <div [innerHTML]="headHtml()"></div>
+              }
+              @for (group of sheet.groups; track group.title) {
+                <div class="elv-psec">
+                  <h4>{{ group.title }}@if (group.continued) {<span class="elv-pcont"> (cont.)</span>}</h4>
+                  @for (item of group.items; track $index) {
+                    <div [innerHTML]="item"></div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <span class="elv-sheet__no">{{ $index + 1 }} / {{ pageCount() }}</span>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,39 @@
+<app-floor-frame floorId="summary">
+
+  <div class="elv-meter">
+    <app-elv-progress class="elv-meter__prog" size="small" corner="pill" tone="accent"
+                      label="CHARACTERS" [value]="length() > 400 ? 400 : length()" [max]="400"
+                      [showValue]="true" [valueText]="length() + ' of 400'" ariaLabel="Summary length" />
+    <span class="elv-meter__note">{{ note() }}</span>
+  </div>
+
+  <div class="elv-tone">
+    <span class="elv-meter__note">Tone</span>
+    @for (t of tones; track t.id) {
+      <button type="button" class="elv-chip"
+              [class.elv-chip--on]="store.summary().tone === t.id"
+              [class.elv-chip--sug]="store.summary().tone !== t.id"
+              (click)="setTone(t.id)">{{ t.label }}</button>
+    }
+  </div>
+
+  <elv-field skin="minimal" corner="sharp" label="PROFESSIONAL SUMMARY" [multiline]="true" [rows]="6"
+             placeholder="Application Support Engineer with four years keeping payment systems upright…"
+             hint="Three sentences: what you are, what you have done, what you are aiming at."
+             [value]="store.summary().text" (valueChange)="setText($event)" />
+
+  <div class="elv-actions">
+    <app-elv-button variant="neon" size="small" corner="sharp"
+                    [title]="busy() ? 'Writing…' : 'Draft one from my floors'"
+                    [loading]="busy()" (clicked)="draft()" />
+    <app-elv-button variant="ghost" size="small" corner="sharp" title="Clear" (clicked)="clear()" />
+  </div>
+
+  <div class="elv-notice elv-notice--ok">
+    <i aria-hidden="true">&#9670;</i>
+    <div><b>Assembled, not invented</b>
+      Every clause comes from something you already entered on floors 01–06. If a fact is not on those
+      floors, it does not appear here.</div>
+  </div>
+
+</app-floor-frame>

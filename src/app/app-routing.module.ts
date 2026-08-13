@@ -25,24 +25,76 @@ import { AppComponent } from './app.component';
                         data: { step: 1 },
                     },
                     {
+                        // The create flow. `step` drives the direction of the
+                        // view transition, `transition` names an effect that
+                        // replaces the slide — see @shared/router/elevator-view-transitions.
                         path: 'create',
                         canActivate: [AppRouteGuard],
+                        loadComponent: () =>
+                            import('./create/create-shell.component').then((m) => m.CreateShellComponent),
                         children: [
-                            { path: '', pathMatch: 'full', redirectTo: 'basic-info' },
+                            { path: '', pathMatch: 'full', redirectTo: 'lobby' },
+                            {
+                                path: 'lobby',
+                                data: { step: 0, transition: 'lobby' },
+                                loadComponent: () =>
+                                    import('./create/floors/lobby.component').then((m) => m.LobbyComponent),
+                            },
                             {
                                 path: 'basic-info',
+                                data: { step: 1 },
                                 loadComponent: () =>
-                                    import('./create/basic-info/basic-info.component').then(
-                                        (m) => m.BasicInfoComponent
-                                    ),
+                                    import('./create/floors/basic-info.component').then((m) => m.BasicInfoComponent),
+                            },
+                            {
+                                path: 'portrait',
                                 data: { step: 2 },
+                                loadComponent: () =>
+                                    import('./create/floors/portrait.component').then((m) => m.PortraitComponent),
+                            },
+                            {
+                                path: 'experience',
+                                data: { step: 3 },
+                                loadComponent: () =>
+                                    import('./create/floors/experience.component').then((m) => m.ExperienceComponent),
+                            },
+                            {
+                                path: 'education',
+                                data: { step: 4 },
+                                loadComponent: () =>
+                                    import('./create/floors/education.component').then((m) => m.EducationComponent),
+                            },
+                            {
+                                path: 'skills',
+                                data: { step: 5 },
+                                loadComponent: () =>
+                                    import('./create/floors/skills.component').then((m) => m.SkillsComponent),
+                            },
+                            {
+                                path: 'projects',
+                                data: { step: 6 },
+                                loadComponent: () =>
+                                    import('./create/floors/projects.component').then((m) => m.ProjectsComponent),
+                            },
+                            {
+                                path: 'summary',
+                                data: { step: 7 },
+                                loadComponent: () =>
+                                    import('./create/floors/summary.component').then((m) => m.SummaryComponent),
+                            },
+                            {
+                                path: 'template',
+                                data: { step: 8 },
+                                loadComponent: () =>
+                                    import('./create/floors/template.component').then((m) => m.TemplateComponent),
+                            },
+                            {
+                                path: 'review',
+                                data: { step: 9, transition: 'doors' },
+                                loadComponent: () =>
+                                    import('./create/floors/review.component').then((m) => m.ReviewComponent),
                             },
                         ],
-                    },
-                    {
-                        path: 'about',
-                        loadChildren: () => import('./about/about.module').then((m) => m.AboutModule),
-                        canActivate: [AppRouteGuard],
                     },
                     {
                         path: 'users',
