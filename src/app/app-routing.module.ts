@@ -35,8 +35,8 @@ import { AppComponent } from './app.component';
                         canActivate: [AppRouteGuard],
                         data: { step: 1 },
                         loadComponent: () =>
-                            import('./create/compositor/compositor.component').then(
-                                (m) => m.CompositorComponent,
+                            import('./create/builder/cv-builder.component').then(
+                                (m) => m.CvBuilderComponent,
                             ),
                     },
                     {

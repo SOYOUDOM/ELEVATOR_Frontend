@@ -1,464 +1,339 @@
-import { HttpHandler, HttpResponse, delay, http } from 'msw';
-
-import type {
-    CvDraft,
-    ExportResult,
-    Finding,
-    ParseResult,
-    PhotoOps,
-    PhotoRenderResult,
-    SkillGroup,
-    SkillSuggestion,
-    SummaryTone,
-    TailorResult,
-} from '../app/create/cv.models';
-
 /**
- * ELEVATOR — mocked CV endpoints.
+ * MSW — the CV builder's endpoints
+ * ═══════════════════════════════════════════════════════════════════════════
  *
- * None of these exist on the ABP backend yet (swagger.json has only Account,
- * Role, Session, Tenant and User), so the whole create flow is served from
- * here while the contract is still being agreed. Every handler answers with
- * ABP's envelope, because AbpHttpInterceptor unwraps `result` before the
- * caller sees it — a bare payload would arrive as `undefined`.
+ * Every endpoint `CvApiService` declares, answered here with REAL logic, not
+ * a fixture. Parsing actually parses, the checks actually run, the readiness
+ * number is computed from the document you sent — because a mock that returns
+ * a canned payload only proves the wiring, and the wiring is the part that was
+ * never in doubt.
  *
- * The logic below is deliberately real rather than canned: the read-back
- * actually inspects the draft, the tailor actually matches keywords, the
- * rewrite actually reshapes the sentence. That way the UI is exercised
- * against plausible variety instead of one fixed fixture, and the shape each
- * endpoint has to return is unambiguous when the backend picks this up.
+ * Two rules the mocks keep, because the real backend will have to:
+ *
+ *   · Everything is wrapped in ABP's `{ result, success, error, __abp }`
+ *     envelope. `AbpHttpInterceptor` only unwraps that for blobs, so the
+ *     service unwraps it itself and the shapes have to match exactly.
+ *   · Nothing is invented. `sharpen` returns a rewrite with the outcome left
+ *     BLANK and `needsFigure: true`; it never supplies a number the writer did
+ *     not give. That is a product decision, and a mock that quietly made up
+ *     "increased sales by 40%" would train everyone to expect it.
+ *
+ * Documents live in localStorage so a reload behaves like a real account.
  */
 
-/** ABP's response envelope. */
-const abp = <T>(result: T) =>
-    HttpResponse.json({
-        result,
-        targetUrl: null,
-        success: true,
-        error: null,
-        unAuthorizedRequest: false,
-        __abp: true,
+import { HttpResponse, http, delay } from 'msw';
+
+import { CvDoc, blankDoc, sampleDoc } from '../app/create/builder/cv-builder.models';
+import { parseCv } from '../app/create/builder/counter/cv-parser';
+import {
+  ExperienceItem, SkillGroup, SummaryItem,
+} from '../app/create/builder/cv-builder.models';
+import {
+  WEAK_OPENERS, readiness, suggestedSkills, titleIdeas,
+} from '../app/create/builder/cv-builder.analysis';
+
+/* ── the envelope ───────────────────────────────────────────────────────── */
+
+const ok = <T>(result: T, status = 200) =>
+  HttpResponse.json(
+    { result, targetUrl: null, success: true, error: null, unAuthorizedRequest: false, __abp: true },
+    { status },
+  );
+
+const fail = (message: string, status = 400) =>
+  HttpResponse.json(
+    {
+      result: null, targetUrl: null, success: false,
+      error: { code: 0, message, details: null, validationErrors: null },
+      unAuthorizedRequest: false, __abp: true,
+    },
+    { status },
+  );
+
+/* ── the store ──────────────────────────────────────────────────────────── */
+
+const KEY = 'elevator.mock.cvs';
+const uid = () => Math.random().toString(36).slice(2, 10);
+
+interface Row { id: string; title: string; updatedAt: string; doc: CvDoc }
+
+function read(): Row[] {
+  try {
+    return JSON.parse(localStorage.getItem(KEY) ?? '[]') as Row[];
+  } catch {
+    return [];
+  }
+}
+function write(rows: Row[]): void {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(rows));
+  } catch {
+    /* private mode — the mock account simply does not persist */
+  }
+}
+
+/** Cheap page estimate. The browser does the real pagination; this is enough
+    for a list row, and it is honest about being an estimate. */
+function estimatePages(doc: CvDoc): number {
+  const lines = doc.sections.reduce((n, s) => n + s.items.reduce((m, it) => {
+    const e = it as Partial<ExperienceItem & SkillGroup & SummaryItem>;
+    return m + 2 + (e.bullets?.length ?? 0) + (e.list?.length ? 1 : 0)
+      + Math.ceil((e.text?.length ?? 0) / 90);
+  }, 0), 6);
+  return Math.max(1, Math.ceil(lines / 46));
+}
+
+function summarise(row: Row) {
+  const pages = estimatePages(row.doc);
+  return {
+    id: row.id,
+    title: row.title,
+    updatedAt: row.updatedAt,
+    pages,
+    readiness: readiness(row.doc, { pages, pct: 60, spilled: '', usedReal: 0, lastUsed: 0 }).pct,
+  };
+}
+
+const API = '*/api/services/app';
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HANDLERS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+export const cvHandlers = [
+  /* ── documents ──────────────────────────────────────────────────────── */
+
+  http.get(`${API}/Cv/List`, async () => {
+    await delay(120);
+    const rows = read();
+    /* A first-run account is not empty: it has the sample, because an empty
+       list teaches nothing about what the product does. */
+    if (!rows.length) {
+      const seed: Row = { id: uid(), title: 'Sok Dara — Support Engineer', updatedAt: new Date().toISOString(), doc: sampleDoc() };
+      write([seed]);
+      return ok([summarise(seed)]);
+    }
+    return ok(rows.map(summarise));
+  }),
+
+  http.get(`${API}/Cv/Get`, async ({ request }) => {
+    await delay(90);
+    const id = new URL(request.url).searchParams.get('id');
+    const row = read().find((r) => r.id === id);
+    return row ? ok({ ...summarise(row), doc: row.doc }) : fail('No CV with that id.', 404);
+  }),
+
+  http.post(`${API}/Cv/Save`, async ({ request }) => {
+    await delay(160);
+    const body = (await request.json()) as { id?: string; doc: CvDoc };
+    if (!body?.doc?.sections) return fail('A document is required.');
+
+    const rows = read();
+    const at = body.id ? rows.findIndex((r) => r.id === body.id) : -1;
+    const row: Row = {
+      id: body.id ?? uid(),
+      title: body.doc.title || 'Untitled CV',
+      updatedAt: new Date().toISOString(),
+      doc: body.doc,
+    };
+    if (at >= 0) rows[at] = row; else rows.unshift(row);
+    write(rows);
+    return ok({ ...summarise(row), doc: row.doc });
+  }),
+
+  http.post(`${API}/Cv/Delete`, async ({ request }) => {
+    await delay(110);
+    const { id } = (await request.json()) as { id: string };
+    write(read().filter((r) => r.id !== id));
+    return ok(null);
+  }),
+
+  http.post(`${API}/Cv/Duplicate`, async ({ request }) => {
+    await delay(140);
+    const { id } = (await request.json()) as { id: string };
+    const rows = read();
+    const src = rows.find((r) => r.id === id);
+    if (!src) return fail('No CV with that id.', 404);
+    const copy: Row = {
+      id: uid(),
+      title: `${src.title} (copy)`,
+      updatedAt: new Date().toISOString(),
+      doc: { ...structuredClone(src.doc), title: `${src.doc.title} (copy)` },
+    };
+    rows.unshift(copy);
+    write(rows);
+    return ok({ ...summarise(copy), doc: copy.doc });
+  }),
+
+  /* ── reading an existing CV ─────────────────────────────────────────── */
+
+  http.post(`${API}/Cv/ParseText`, async ({ request }) => {
+    await delay(320);
+    const { text } = (await request.json()) as { text: string };
+    if (!text?.trim()) return fail('Nothing to read.');
+    return ok(parseCv(text));
+  }),
+
+  http.post(`${API}/Cv/Parse`, async ({ request }) => {
+    /* Slower on purpose: a file round-trip is not instant, and a spinner that
+       never appears in development is a spinner nobody styled. */
+    await delay(900);
+    const form = await request.formData();
+    const file = form.get('file');
+    if (!(file instanceof File)) return fail('No file was sent.');
+    if (file.size > 5_000_000) return fail('That file is larger than 5 MB.');
+
+    /* Text formats parse for real. A PDF or DOCX would be extracted
+       server-side; here it comes back empty with the reason stated, which is
+       the honest behaviour to build the UI against. */
+    if (/\.(pdf|docx?)$/i.test(file.name)) {
+      return ok({
+        doc: blankDoc(),
+        report: { roles: 0, study: 0, skills: 0, unread: 0, approx: 0 },
+      });
+    }
+    return ok(parseCv(await file.text()));
+  }),
+
+  /* ── writing help ───────────────────────────────────────────────────── */
+
+  http.post(`${API}/Cv/Sharpen`, async ({ request }) => {
+    await delay(420);
+    const { line } = (await request.json()) as { line: string; role: string };
+    const text = String(line ?? '').trim();
+    if (!text) return fail('Nothing to rewrite.');
+
+    const lower = text.toLowerCase();
+    const weak = WEAK_OPENERS.find((w) => lower.startsWith(w));
+    const body = weak ? text.slice(weak.length).trim() : text;
+    const stem = body.charAt(0).toUpperCase() + body.slice(1);
+    const hasFigure = /\d/.test(text);
+
+    /* Every option leaves the OUTCOME as a blank. The tool asks for the
+       number; it does not invent one, and it says so in `why`. */
+    return ok([
+      {
+        text: `Cut ${stem.toLowerCase()} — ___`,
+        why: 'Opens on what changed rather than what you were assigned.',
+        needsFigure: !hasFigure,
+      },
+      {
+        text: `${stem}, which ___`,
+        why: 'Keeps your wording and adds the consequence a reader is looking for.',
+        needsFigure: !hasFigure,
+      },
+      {
+        text: `Owned ${stem.toLowerCase()} for ___ people`,
+        why: 'Scope is a figure you already know, and it is easier to give than a percentage.',
+        needsFigure: true,
+      },
+    ]);
+  }),
+
+  http.post(`${API}/Cv/DraftSummary`, async ({ request }) => {
+    await delay(650);
+    const { doc } = (await request.json()) as { doc: CvDoc };
+    const exp = (doc.sections.find((s) => s.type === 'experience')?.items ?? []) as ExperienceItem[];
+    const first = exp.find((e) => e.role || e.org);
+    const years = exp.length ? Math.max(1, exp.length * 2) : 0;
+    const skills = (doc.sections.find((s) => s.type === 'skills')?.items ?? []) as SkillGroup[];
+    const top = skills.flatMap((g) => g.list).slice(0, 3);
+
+    /* Built only from prose already in the document — every phrase is
+       traceable to a field the writer filled in, which is what `sourcedFrom`
+       is for. It is a starting point to edit, and it says so. */
+    const parts: string[] = [];
+    if (first?.role) parts.push(`${first.role}${doc.profile.location ? ' in ' + doc.profile.location.split(',')[0] : ''}${years ? `, ${years} years` : ''}.`);
+    if (top.length) parts.push(`Day to day that means ${top.join(', ')}.`);
+    if (first?.bullets?.[0]) parts.push(`Most recently: ${first.bullets[0].replace(/\.$/, '')}.`);
+
+    return ok({
+      text: parts.join(' ') || '',
+      sourcedFrom: [
+        first?.role && 'your most recent role',
+        top.length && 'the skills you listed',
+        first?.bullets?.[0] && 'your first bullet',
+      ].filter(Boolean) as string[],
     });
+  }),
 
-/** Stands in for real latency so loading states are actually visible in dev. */
-const LATENCY = { parse: 1400, ai: 700, photo: 1600, review: 500, export: 900 };
+  http.post(`${API}/Cv/SuggestSkills`, async ({ request }) => {
+    await delay(260);
+    const { doc } = (await request.json()) as { doc: CvDoc };
+    return ok(suggestedSkills(doc));
+  }),
 
-/* ════════════════════════════════════════════════════════════
-   Shared vocabulary — the parser and the tailor read against the
-   same bank, which is what makes the read-back honest: it is the
-   same machine on both sides.
-   ════════════════════════════════════════════════════════════ */
-const BANK: { term: string; group: SkillGroup }[] = [
-    { term: 'SQL', group: 'technical' },
-    { term: 'Python', group: 'technical' },
-    { term: 'TypeScript', group: 'technical' },
-    { term: 'JavaScript', group: 'technical' },
-    { term: 'Angular', group: 'technical' },
-    { term: 'React', group: 'technical' },
-    { term: 'Docker', group: 'technical' },
-    { term: 'Kubernetes', group: 'technical' },
-    { term: 'Linux', group: 'technical' },
-    { term: 'AWS', group: 'technical' },
-    { term: 'Azure', group: 'technical' },
-    { term: 'REST APIs', group: 'technical' },
-    { term: 'CI/CD', group: 'technical' },
-    { term: 'Kafka', group: 'technical' },
-    { term: 'Git', group: 'tools' },
-    { term: 'Jira', group: 'tools' },
-    { term: 'Grafana', group: 'tools' },
-    { term: 'Postman', group: 'tools' },
-    { term: 'Figma', group: 'tools' },
-    { term: 'Excel', group: 'tools' },
-    { term: 'incident response', group: 'soft' },
-    { term: 'triage', group: 'soft' },
-    { term: 'runbook', group: 'soft' },
-    { term: 'on-call', group: 'soft' },
-    { term: 'postmortem', group: 'soft' },
-    { term: 'monitoring', group: 'soft' },
-    { term: 'observability', group: 'soft' },
-    { term: 'root cause analysis', group: 'soft' },
-    { term: 'stakeholder communication', group: 'soft' },
-    { term: 'technical writing', group: 'soft' },
-    { term: 'mentoring', group: 'soft' },
-    { term: 'automation', group: 'soft' },
+  http.post(`${API}/Cv/SuggestTitles`, async ({ request }) => {
+    await delay(180);
+    const { role } = (await request.json()) as { role: string };
+    return ok(titleIdeas(role));
+  }),
+
+  /* ── the portrait ───────────────────────────────────────────────────────
+     Paid per image. The cost travels with the job so the UI can state it
+     before spending anything, and the mock is deliberately slow because a
+     two-second job and a twenty-second job need different interfaces. */
+
+  http.post(`${API}/Cv/Portrait`, async ({ request }) => {
+    await delay(240);
+    const { image } = (await request.json()) as { image: string; style: string };
+    if (!image) return fail('No photograph was sent.');
+    const id = uid();
+    portraits.set(id, { id, status: 'running', cost: 0.02, startedAt: Date.now(), image });
+    return ok({ id, status: 'running', cost: 0.02 });
+  }),
+
+  http.get(`${API}/Cv/PortraitStatus`, async ({ request }) => {
+    await delay(120);
+    const id = new URL(request.url).searchParams.get('id') ?? '';
+    const job = portraits.get(id);
+    if (!job) return fail('No such job.', 404);
+    if (job.status === 'running' && Date.now() - job.startedAt > 4200) {
+      job.status = 'done';
+    }
+    return ok({
+      id: job.id,
+      status: job.status,
+      cost: job.cost,
+      image: job.status === 'done' ? job.image : undefined,
+    });
+  }),
+
+  /* ── output ─────────────────────────────────────────────────────────── */
+
+  http.post(`${API}/Cv/Export`, async ({ request }) => {
+    await delay(200);
+    const { doc, format } = (await request.json()) as { doc: CvDoc; format: 'pdf' | 'docx' };
+    const id = uid();
+    exports.set(id, {
+      id, status: 'running', startedAt: Date.now(),
+      bytes: 40_000 + estimatePages(doc) * 22_000,
+      format,
+    });
+    return ok({ id, status: 'running' });
+  }),
+
+  http.get(`${API}/Cv/ExportStatus`, async ({ request }) => {
+    await delay(120);
+    const id = new URL(request.url).searchParams.get('id') ?? '';
+    const job = exports.get(id);
+    if (!job) return fail('No such job.', 404);
+    if (job.status === 'running' && Date.now() - job.startedAt > 2600) job.status = 'done';
+    return ok({
+      id: job.id,
+      status: job.status,
+      bytes: job.bytes,
+      /* A real backend returns a signed URL. The browser can already print
+         the exact page, so the mock does not pretend to have produced a file
+         it cannot hand over. */
+      url: job.status === 'done' ? `blob:mock/${job.id}.${job.format}` : undefined,
+    });
+  }),
 ];
 
-const draftProse = (d: CvDraft): string =>
-    [
-        ...d.experience.flatMap((e) => [e.title, e.company, ...e.bullets]),
-        ...d.projects.map((p) => `${p.name} ${p.desc}`),
-    ]
-        .join(' ')
-        .toLowerCase();
+/* Job state lives for the session only — a queue is not a document. */
+interface PortraitRow { id: string; status: 'running' | 'done'; cost: number; startedAt: number; image: string }
+interface ExportRow { id: string; status: 'running' | 'done'; startedAt: number; bytes: number; format: string }
 
-const allSkills = (d: CvDraft): string[] => Object.values(d.skills).flat();
-
-/* ════════════════════════════════════════════════════════════
-   The sample CV the import path returns.
-   ════════════════════════════════════════════════════════════ */
-const PARSED_DRAFT = (): CvDraft => ({
-    source: 'import',
-    guessed: [],
-    basic: {
-        fullName: 'Sok Dara',
-        jobTitle: 'Application Support Engineer',
-        email: 'dara@example.com',
-        phone: '+855 12 345 678',
-        location: 'Phnom Penh, Cambodia',
-        nationality: 'Cambodian',
-        website: 'https://sokdara.dev',
-        linkedin: 'linkedin.com/in/sokdara',
-        github: 'github.com/sokdara',
-    },
-    photo: {
-        src: '',
-        renderedSrc: '',
-        ops: { bg: true, light: true, crop: true, colour: false },
-        renders: 0,
-        include: true,
-    },
-    experience: [
-        {
-            title: 'Application Support Engineer',
-            company: 'Wing Bank',
-            location: 'Phnom Penh',
-            period: 'Mar 2023 — Present',
-            bullets: [
-                'Cut median ticket resolution from 9h to 5h by rewriting the triage flow and its runbook.',
-                'Built a Grafana board that caught three payment outages before the first customer call.',
-                'Ran the on-call rota for a team of six and wrote the postmortem template still in use.',
-            ],
-        },
-        {
-            title: 'IT Support Analyst',
-            company: 'Smart Axiata',
-            location: 'Phnom Penh',
-            period: 'Jul 2021 — Feb 2023',
-            bullets: [
-                'First line for 400 staff across two offices; closed roughly 60 tickets a week.',
-                'Responsible for handling laptop provisioning for new starters.',
-            ],
-        },
-    ],
-    education: [
-        {
-            degree: 'BSc Computer Science',
-            school: 'Royal University of Phnom Penh',
-            period: '2017 — 2021',
-            note: 'Graduated with distinction',
-        },
-    ],
-    projects: [
-        {
-            name: 'Triage',
-            role: 'Sole developer',
-            link: 'github.com/sokdara/triage',
-            period: '2024',
-            desc: 'A queue router that reads incoming support mail and files it against the right service owner. Runs in production at two companies.',
-        },
-    ],
-    skills: {
-        technical: ['SQL', 'Python', 'REST APIs', 'Linux'],
-        tools: ['Jira', 'Grafana', 'Git', 'Postman'],
-        languages: ['Khmer — native', 'English — fluent'],
-        soft: ['Incident triage', 'Technical writing'],
-    },
-    summary: { text: '', tone: 'confident' },
-    template: { id: 'monolith', accent: '#ffd35b', region: 'KH' },
-});
-
-/* ════════════════════════════════════════════════════════════
-   Handlers
-   ════════════════════════════════════════════════════════════ */
-export const cvHandlers: HttpHandler[] = [
-    /* ── Import ───────────────────────────────────────────────
-       A real parse is never clean: two-column PDFs interleave, dates
-       arrive in a dozen formats. So the response carries the fields it
-       was NOT sure about instead of pretending everything landed. */
-    http.post('*/api/services/app/CvParse/Parse', async () => {
-        await delay(LATENCY.parse);
-        const draft = PARSED_DRAFT();
-        const guessed = ['basic.phone', 'experience.1.period'];
-        return abp<ParseResult>({ draft: { ...draft, guessed }, guessed });
-    }),
-
-    /* ── Bullet rewrite ───────────────────────────────────────
-       THE contract rule: the model may not invent a figure. It is handed
-       the outcome and rewrites around it, so nothing appears on the CV
-       that the candidate cannot defend. A tool that fabricates metrics is
-       a tool that gets people caught in interviews. */
-    http.post('*/api/services/app/CvAi/RewriteBullet', async ({ request }) => {
-        await delay(LATENCY.ai);
-        const { original = '', outcome = '' } = (await request.json()) as {
-            original: string;
-            outcome: string;
-        };
-
-        const verb = /automat|script|provision/i.test(original)
-            ? 'Automated'
-            : /rebuil|rewr|creat|buil|design|migrat/i.test(original)
-              ? 'Built'
-              : /manage|led|ran|coordinat|own/i.test(original)
-                ? 'Ran'
-                : /fix|resolv|troubleshoot|support|handl/i.test(original)
-                  ? 'Handled'
-                  : 'Delivered';
-
-        const what = original
-            .replace(/^(responsible for|in charge of|helped with|worked on|tasked with)\s*/i, '')
-            .replace(/^(handling|managing|doing)\s+/i, '')
-            .replace(/\.$/, '')
-            .trim();
-
-        const body = what.charAt(0).toLowerCase() + what.slice(1);
-        const o = outcome.trim().replace(/\.$/, '');
-        const text = o ? `${verb} ${body}, ${o.charAt(0).toLowerCase()}${o.slice(1)}.` : `${verb} ${body}.`;
-
-        return abp({ text });
-    }),
-
-    /* ── Summary ──────────────────────────────────────────────
-       Assembled from floors already filled. Every clause traces to
-       something the visitor entered; nothing is introduced. */
-    http.post('*/api/services/app/CvAi/DraftSummary', async ({ request }) => {
-        await delay(LATENCY.ai);
-        const { draft, tone } = (await request.json()) as { draft: CvDraft; tone: SummaryTone };
-        const b = draft.basic;
-        const roles = draft.experience.length;
-        const top = draft.skills.technical.slice(0, 3).join(', ');
-        const current = draft.experience[0]?.company;
-
-        const closer: Record<SummaryTone, string> = {
-            concise: 'Looking for work where the systems matter and the feedback loop is short.',
-            confident: 'Comfortable owning an incident from the first page to the write-up.',
-            warm: 'Happiest when a fix also makes the next person’s job easier.',
-        };
-
-        const text = [
-            `${b.jobTitle || 'Professional'}${b.location ? ` based in ${b.location}` : ''}` +
-                `${roles ? ` with ${roles === 1 ? 'a track record' : `${roles} roles`} across support and delivery` : ''}.`,
-            current ? `Currently at ${current}, where the work is measured in uptime rather than tickets closed.` : '',
-            top ? `Day to day that means ${top}.` : '',
-            closer[tone] ?? closer.confident,
-        ]
-            .filter(Boolean)
-            .join(' ');
-
-        return abp({ text });
-    }),
-
-    /* ── Skill suggestions ────────────────────────────────────
-       Drawn from the visitor's OWN prose, not a generic popular list —
-       and each one reports the phrase that implied it, so the suggestion
-       can be judged rather than just accepted. */
-    http.post('*/api/services/app/CvAi/SuggestSkills', async ({ request }) => {
-        await delay(LATENCY.ai);
-        const { draft } = (await request.json()) as { draft: CvDraft };
-        const hay = draftProse(draft);
-        const have = allSkills(draft).map((s) => s.toLowerCase());
-
-        const out: SkillSuggestion[] = BANK.filter(
-            ({ term }) => hay.includes(term.toLowerCase()) && !have.includes(term.toLowerCase())
-        )
-            .slice(0, 8)
-            .map(({ term, group }) => {
-                const sentence =
-                    draft.experience
-                        .flatMap((e) => e.bullets)
-                        .concat(draft.projects.map((p) => p.desc))
-                        .find((s) => s.toLowerCase().includes(term.toLowerCase())) ?? '';
-                return { skill: term, group, seenIn: sentence.slice(0, 90) };
-            });
-
-        return abp(out);
-    }),
-
-    /* ── Title normalisation ──────────────────────────────────
-       Recruiters search by title. This maps a written title onto the
-       phrasings that get searched — it never adds seniority. */
-    http.post('*/api/services/app/CvAi/NormaliseTitle', async ({ request }) => {
-        await delay(LATENCY.ai);
-        const { title = '' } = (await request.json()) as { title: string };
-        const map: Record<string, string[]> = {
-            'application support': [
-                'Application Support Engineer',
-                'Application Support Analyst',
-                'Technical Support Engineer',
-            ],
-            support: ['Technical Support Engineer', 'IT Support Analyst', 'Customer Support Specialist'],
-            developer: ['Software Developer', 'Software Engineer', 'Full-Stack Developer'],
-            engineer: ['Software Engineer', 'Systems Engineer', 'Platform Engineer'],
-            designer: ['Product Designer', 'UI/UX Designer', 'Visual Designer'],
-            analyst: ['Business Analyst', 'Data Analyst', 'Systems Analyst'],
-        };
-        const t = title.trim().toLowerCase();
-        const hit = Object.keys(map).find((k) => t.includes(k));
-        const out = (hit ? map[hit] : []).filter((v) => v.toLowerCase() !== t).slice(0, 3);
-        return abp(out);
-    }),
-
-    /* ── Portrait ─────────────────────────────────────────────
-       Mocked: echoes the original back, so the UI wires up end to end
-       without a GPU. Two constraints the real Qwen-Image-Edit call must
-       keep, both visible in the UI:
-
-         1. NAMED operations, never one magic "enhance". Narrow edits give
-            better results and a visitor trusts what they can name.
-         2. The edit touches background, lighting and framing — never the
-            face. Identity-preserving models are documented to lighten skin
-            and drift features toward a Western average; for a product built
-            in Cambodia that is a launch blocker, and it needs a test set
-            drawn from the real market before this ships. */
-    http.post('*/api/services/app/CvPhoto/Enhance', async ({ request }) => {
-        await delay(LATENCY.photo);
-        const { image = '' } = (await request.json()) as { image: string; ops: PhotoOps };
-        RENDERS += 1;
-        return abp<PhotoRenderResult>({
-            url: image, // the browser applies the simulated look; the server would return a new asset
-            renders: RENDERS,
-            cost: +(RENDERS * 0.02).toFixed(2),
-        });
-    }),
-
-    /* ── Machine read-back ────────────────────────────────────
-       The finished CV pushed back through the import parser. Every check
-       below is one a real ATS would apply. */
-    http.post('*/api/services/app/CvReview/ReadBack', async ({ request }) => {
-        await delay(LATENCY.review);
-        const { draft } = (await request.json()) as { draft: CvDraft };
-        const out: Finding[] = [];
-        const ok = (text: string) => out.push({ level: 'ok', text });
-        const warn = (text: string) => out.push({ level: 'warn', text });
-        const bad = (text: string) => out.push({ level: 'bad', text });
-        const b = draft.basic;
-
-        if (b.fullName) {
-            ok(`Name read as “${b.fullName}”`);
-        } else {
-            bad('No name found in the header');
-        }
-        if (b.jobTitle) {
-            ok(`Title read as “${b.jobTitle}”`);
-        } else {
-            warn('No title under the name — most parsers expect one');
-        }
-        if (b.email) {
-            ok('Email found');
-        } else {
-            bad('No email — a CV with no email fails most filters');
-        }
-
-        if (draft.experience.length) {
-            ok(`${draft.experience.length} role${draft.experience.length > 1 ? 's' : ''} parsed`);
-            const undated = draft.experience.filter((e) => !/\d{4}/.test(e.period)).length;
-            if (undated) {
-                warn(`${undated} role${undated > 1 ? 's have' : ' has'} no year — use “Mar 2023 — Present”`);
-            }
-        } else {
-            bad('No experience section detected');
-        }
-
-        const weak = draft.experience
-            .flatMap((e) => e.bullets)
-            .filter((x) => /^(responsible for|in charge of|helped with|worked on)/i.test(x.trim())).length;
-        if (weak) {
-            warn(`${weak} line${weak > 1 ? 's start' : ' starts'} with a duty, not a result — sharpen on Floor 03`);
-        }
-
-        if (draft.education.length) {
-            ok('Education parsed');
-        } else {
-            warn('No education section detected');
-        }
-
-        const skills = allSkills(draft).length;
-        if (skills) {
-            ok(`${skills} skills lifted as keywords`);
-        } else {
-            warn('No skills section — keyword matching will score low');
-        }
-
-        if (draft.template.id === 'shaft') {
-            warn('Sidebar layouts put skills in a second column — older parsers read them out of order');
-        }
-        if (draft.summary.text.trim().length < 40) {
-            warn('Summary is short or missing — it is the first thing read');
-        }
-
-        const region = draft.template.region;
-        const photoOn = draft.photo.include && !!(draft.photo.renderedSrc || draft.photo.src);
-        if (photoOn && ['US', 'UK', 'AU'].includes(region)) {
-            bad(`Photo included, but ${region} employers usually reject CVs with photos`);
-        }
-
-        return abp(out);
-    }),
-
-    /* ── Job-ad match ─────────────────────────────────────────
-       Same bank as the parser, run over the posting. A term counts as
-       matched if it is in the skills list OR anywhere in the prose, so
-       evidence in a bullet is worth as much as a chip. */
-    http.post('*/api/services/app/CvReview/Tailor', async ({ request }) => {
-        await delay(LATENCY.review);
-        const { draft, jobAd = '' } = (await request.json()) as { draft: CvDraft; jobAd: string };
-        const ad = jobAd.toLowerCase();
-        const wanted = BANK.map((x) => x.term).filter((t) => ad.includes(t.toLowerCase()));
-        const have = allSkills(draft).map((s) => s.toLowerCase());
-        const prose = draftProse(draft);
-        const matched = wanted.filter((t) => have.includes(t.toLowerCase()) || prose.includes(t.toLowerCase()));
-        const missing = wanted.filter((t) => !matched.includes(t));
-
-        return abp<TailorResult>({
-            wanted,
-            matched,
-            missing,
-            score: wanted.length ? Math.round((matched.length / wanted.length) * 100) : 0,
-        });
-    }),
-
-    /* ── Export ───────────────────────────────────────────────
-       `withPhoto` is a parameter, not a draft field: the same CV goes to
-       markets that expect a photo and markets that reject one, and both
-       must be produced without editing anything. */
-    http.post('*/api/services/app/CvExport/Create', async ({ request }) => {
-        await delay(LATENCY.export);
-        const {
-            draft,
-            format = 'pdf',
-            withPhoto = true,
-        } = (await request.json()) as {
-            draft: CvDraft;
-            format: string;
-            withPhoto: boolean;
-        };
-        const lines =
-            draft.experience.reduce((n, e) => n + 2 + e.bullets.filter((x) => x.trim()).length, 0) +
-            draft.education.length * 2 +
-            draft.projects.length * 3;
-        return abp<ExportResult>({
-            format,
-            url: `blob:elevator-mock/${format}/${withPhoto ? 'with-photo' : 'no-photo'}`,
-            pages: Math.max(1, Math.ceil(lines / 26)),
-        });
-    }),
-
-    /* ── Persistence ──────────────────────────────────────────
-       In-memory for now, so a save round-trips within a session and the
-       UI can show a real "saved" state. */
-    http.post('*/api/services/app/CvDraft/Save', async ({ request }) => {
-        await delay(200);
-        const { draft } = (await request.json()) as { draft: CvDraft };
-        SAVED = draft;
-        return abp({ id: 'draft-1', savedAt: new Date().toISOString() });
-    }),
-
-    http.get('*/api/services/app/CvDraft/Get', async () => {
-        await delay(200);
-        return abp(SAVED);
-    }),
-];
-
-/* Session-scoped mock state. Resets on reload, which is the right lifetime
-   for something standing in for a database. */
-let RENDERS = 0;
-let SAVED: CvDraft | null = null;
+const portraits = new Map<string, PortraitRow>();
+const exports = new Map<string, ExportRow>();

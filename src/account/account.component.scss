@@ -818,7 +818,7 @@
     }
 
     /* Tilt on a phone has no pointer to drive it and only costs a
-       compositor layer. */
+       builder layer. */
     .elv-auth__riser {
         width: 100%;
         perspective: none;
