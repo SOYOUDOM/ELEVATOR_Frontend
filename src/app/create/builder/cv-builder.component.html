@@ -50,12 +50,9 @@
     </div>
 
     <!-- press-only -->
-    <div class="seg bar__zoom" role="group" aria-label="Zoom">
-      <button (click)="setZoom('fit')" [attr.aria-pressed]="ui().zoom === 'fit'">FIT</button>
-      <button (click)="setZoom('0.75')" [attr.aria-pressed]="ui().zoom === '0.75'">75</button>
-      <button (click)="setZoom('1')" [attr.aria-pressed]="ui().zoom === '1'">100</button>
-      <button (click)="setZoom('1.5')" [attr.aria-pressed]="ui().zoom === '1.5'">150</button>
-    </div>
+    <app-elv-seg class="bar__zoom" label="Zoom"
+                 [options]="zoomOptions" [value]="ui().zoom"
+                 (valueChange)="setZoom($event)"></app-elv-seg>
 
     <button class="elv-cv-btn elv-cv-btn--icon bar__press" (click)="toggleScan()"
             [attr.aria-pressed]="ui().scan" title="Six-second read (S)" aria-label="Six-second read">
@@ -155,13 +152,4 @@
   </footer>
 </div>
 
-<!-- ══ TOASTS ═════════════════════════════════════════════════════════════ -->
-<div class="toasts" aria-live="polite">
-  @for (t of toasts(); track t.id) {
-    <div class="elv-cv-toast" [class.elv-cv-toast--warn]="t.tone === 'warn'">
-      <span class="elv-cv-toast__dot"></span>
-      <span>{{ t.text }}</span>
-      @if (t.action) { <button (click)="runToast(t)">{{ t.action.label }}</button> }
-    </div>
-  }
-</div>
+<app-elv-toasts></app-elv-toasts>

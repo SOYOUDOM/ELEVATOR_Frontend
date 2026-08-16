@@ -24,17 +24,21 @@ import { ThemeService } from '../../theme/theme.service';
 import { CvBuilderStore } from './cv-builder.store';
 import { countWords, gaps } from './cv-builder.analysis';
 import { PAGE, margin, pagesHtml } from './cv-builder.paginate';
+import { ElvSegComponent, ElvSegOption } from '@shared/components/elv-seg/elv-seg.component';
+import { ElvToastService } from '@shared/components/elv-toast/elv-toast.service';
+import { ElvToastsComponent } from '@shared/components/elv-toast/elv-toast.component';
 import { CounterComponent } from './counter/counter.component';
 import { RailComponent } from './press/rail.component';
 import { InspectorComponent } from './press/inspector.component';
 import { TimelineComponent } from './press/timeline.component';
 
-interface Toast { id: number; text: string; tone: string; action?: { label: string; run: () => void } }
-
 @Component({
   selector: 'elv-cv-builder',
   standalone: true,
-  imports: [RouterLink, CounterComponent, RailComponent, InspectorComponent, TimelineComponent],
+  imports: [
+    RouterLink, ElvSegComponent, ElvToastsComponent,
+    CounterComponent, RailComponent, InspectorComponent, TimelineComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './cv-builder.component.html',
   /* The state attributes live on the HOST, not on `.app`. The stylesheet
@@ -68,8 +72,14 @@ export class CvBuilderComponent implements AfterViewInit, OnDestroy {
   readonly sel = this.store.sel;
 
   readonly themeOpen = signal(false);
-  readonly toasts = signal<Toast[]>([]);
-  private toastId = 0;
+  private readonly toasts = inject(ElvToastService);
+
+  readonly zoomOptions: ElvSegOption<string>[] = [
+    { value: 'fit', label: 'FIT', title: 'Fit the page in the window' },
+    { value: '0.75', label: '75' },
+    { value: '1', label: '100', title: 'True size' },
+    { value: '1.5', label: '150' },
+  ];
 
   /* Bumped when the table's width changes, so the fit zoom recomputes. */
   private readonly viewport = signal(0);
@@ -362,15 +372,8 @@ export class CvBuilderComponent implements AfterViewInit, OnDestroy {
      TOASTS AND KEYS
      ═══════════════════════════════════════════════════════════════════════ */
 
-  toast(text: string, opts: { tone?: string; ms?: number; action?: Toast['action'] } = {}): void {
-    const id = ++this.toastId;
-    this.toasts.update((t) => [...t, { id, text, tone: opts.tone ?? '', action: opts.action }]);
-    setTimeout(() => this.toasts.update((t) => t.filter((x) => x.id !== id)), opts.ms ?? 4200);
-  }
-
-  runToast(t: Toast): void {
-    t.action?.run();
-    this.toasts.update((list) => list.filter((x) => x.id !== t.id));
+  toast(text: string, opts: { tone?: string; ms?: number; action?: { label: string; run: () => void } } = {}): void {
+    this.toasts.show(text, { tone: (opts.tone ?? '') as '' | 'warn' | 'bad', ms: opts.ms, action: opts.action });
   }
 
   @HostListener('window:keydown', ['$event'])

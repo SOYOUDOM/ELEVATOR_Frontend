@@ -1,0 +1,37 @@
+// Every value from the theme. See src/app/theme/theme.tokens.ts.
+.elv-seg {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 5px;
+  background: var(--p-elevator-panel2);
+  box-shadow: inset 0 0 0 1px var(--p-elevator-line);
+}
+
+.elv-seg button {
+  height: 24px;
+  padding: 0 9px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  border-radius: 3px;
+  font-family: var(--p-elevator-font-mono);
+  font-size: var(--p-elevator-t2xs);
+  letter-spacing: var(--p-elevator-track-mono);
+  color: var(--p-elevator-ink3);
+  transition:
+    background var(--p-elevator-t-fast) var(--p-elevator-ease),
+    color var(--p-elevator-t-fast) var(--p-elevator-ease);
+}
+
+.elv-seg button:hover { color: var(--p-elevator-ink); }
+
+.elv-seg button[aria-pressed='true'] {
+  background: var(--p-elevator-panel-raised);
+  color: var(--p-elevator-ink);
+  box-shadow: var(--p-elevator-lift1);
+}
+
+.elv-seg button:focus-visible {
+  outline: 2px solid var(--p-elevator-accent);
+  outline-offset: 1px;
+}

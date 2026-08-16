@@ -8,6 +8,7 @@
 
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 
+import { ElvRingComponent } from '@shared/components/elv-ring/elv-ring.component';
 import { CvBuilderStore } from '../cv-builder.store';
 import { Fill, itemLabelOf, readiness } from './rail.helpers';
 import { ExperienceItem, SECTION_KINDS, Section, SkillGroup } from '../cv-builder.models';
@@ -15,6 +16,7 @@ import { ExperienceItem, SECTION_KINDS, Section, SkillGroup } from '../cv-builde
 @Component({
   selector: 'elv-cv-rail',
   standalone: true,
+  imports: [ElvRingComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './rail.component.html',
 })
@@ -31,13 +33,6 @@ export class RailComponent {
   readonly ready = computed(() => readiness(this.doc(), this.fill()));
   readonly nextGap = computed(() => this.ready().tests.find(([, ok]) => !ok)?.[0] ?? '');
 
-  /** Circumference of the readiness ring — r=20, drawn once. */
-  readonly circumference = 2 * Math.PI * 20;
-  readonly dash = computed(() => `${(this.ready().pct / 100) * this.circumference} ${this.circumference}`);
-  readonly tone = computed(() => {
-    const p = this.ready().pct;
-    return p >= 85 ? '' : p >= 55 ? 'ready--warn' : 'ready--bad';
-  });
 
   kindLabel(sec: Section): string {
     return SECTION_KINDS[sec.type].label;

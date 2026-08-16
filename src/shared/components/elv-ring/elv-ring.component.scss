@@ -1,0 +1,53 @@
+// Every value from the theme. See src/app/theme/theme.tokens.ts.
+.elv-ring {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.elv-ring__dial {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  flex: none;
+}
+.elv-ring__dial svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.elv-ring__dial circle { fill: none; stroke-width: 3.5; }
+
+.elv-ring__track { stroke: var(--p-elevator-line-strong); }
+.elv-ring__arc {
+  stroke: var(--p-elevator-accent);
+  transition: stroke-dasharray var(--p-elevator-t-slow) var(--p-elevator-ease);
+}
+
+// The tone is a status, not the brand: a green accent must not make "nearly
+// there" and "something is wrong" the same colour.
+.elv-ring--good    .elv-ring__arc { stroke: var(--p-elevator-good); }
+.elv-ring--caution .elv-ring__arc { stroke: var(--p-elevator-caution); }
+.elv-ring--warn    .elv-ring__arc { stroke: var(--p-elevator-warn); }
+
+.elv-ring__pct {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--p-elevator-font-mono);
+  font-size: var(--p-elevator-tsm);
+  font-variant-numeric: tabular-nums;
+  color: var(--p-elevator-ink);
+}
+
+.elv-ring__text { min-width: 0; }
+.elv-ring__text b {
+  display: block;
+  font-size: var(--p-elevator-tsm);
+  font-weight: 600;
+  color: var(--p-elevator-ink);
+}
+.elv-ring__text span {
+  display: block;
+  font-size: var(--p-elevator-txs);
+  line-height: 1.45;
+  color: var(--p-elevator-ink3);
+}

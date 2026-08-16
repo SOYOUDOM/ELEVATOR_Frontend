@@ -4,20 +4,11 @@
 
 <!-- The readiness ring. One number, and immediately under it the next test
      it has not passed — a score you cannot act on is decoration. -->
-<div class="ready" [class]="tone()">
-  <div class="ready__ring">
-    <svg viewBox="0 0 46 46" aria-hidden="true">
-      <circle class="ready__track" cx="23" cy="23" r="20"></circle>
-      <circle class="ready__arc" cx="23" cy="23" r="20"
-              [attr.stroke-dasharray]="dash()" stroke-linecap="round"></circle>
-    </svg>
-    <span class="ready__pct num">{{ ready().pct }}</span>
-  </div>
-  <div class="ready__text">
-    <b>{{ ready().done }} of {{ ready().total }} checks</b>
-    <span>{{ nextGap() ? 'Next: ' + nextGap().toLowerCase() : 'Nothing outstanding' }}</span>
-  </div>
-</div>
+<app-elv-ring class="ready"
+              [value]="ready().pct"
+              [title]="ready().done + ' of ' + ready().total + ' checks'"
+              [caption]="nextGap() ? 'Next: ' + nextGap().toLowerCase() : 'Nothing outstanding'">
+</app-elv-ring>
 
 <div class="pane__body">
   <ul class="sections">
