@@ -1,0 +1,327 @@
+<div class="pane__head">
+  <span class="label">Inspector</span>
+  <div class="seg" role="group" aria-label="Inspector tab">
+    <button (click)="tab('content')" [attr.aria-pressed]="ui().tab === 'content'">CONTENT</button>
+    <button (click)="tab('type')" [attr.aria-pressed]="ui().tab === 'type'">TYPE</button>
+    <button (click)="tab('check')" [attr.aria-pressed]="ui().tab === 'check'">CHECK</button>
+  </div>
+</div>
+
+<div class="pane__body">
+  <!-- ══ CONTENT ══════════════════════════════════════════════════════ -->
+  @if (ui().tab === 'content') {
+    @if (sel().sec === 'profile') {
+      <div class="insp__ctx">
+        <span class="insp__kind">HEADER</span>
+        <span class="insp__what">{{ doc().profile.name || 'Unnamed' }}</span>
+      </div>
+      <div class="group">
+        <div class="grid2">
+          <label class="fld fld--wide"><span class="fld__label">Name</span>
+            <span class="fld__box"><input [value]="doc().profile.name"
+              (input)="setProfile('name', $any($event.target).value)" placeholder="Your name"></span></label>
+
+          <label class="fld fld--wide"><span class="fld__label">Title</span>
+            <span class="fld__box"><input [value]="doc().profile.role"
+              (input)="setProfile('role', $any($event.target).value)" placeholder="What you do"></span></label>
+
+          @if (roleIdeas().length) {
+            <div class="fld fld--wide">
+              <span class="fld__label">Near yours</span>
+              <div class="chips">
+                @for (t of roleIdeas(); track t) {
+                  <button class="chip chip--add" (click)="setProfile('role', t)">{{ t }}</button>
+                }
+              </div>
+            </div>
+          }
+
+          <label class="fld"><span class="fld__label">Email</span>
+            <span class="fld__box"><input [value]="doc().profile.email"
+              (input)="setProfile('email', $any($event.target).value)" placeholder="you@example.com"></span></label>
+
+          <label class="fld"><span class="fld__label">Phone</span>
+            <span class="fld__box"><input [value]="doc().profile.phone"
+              (input)="setProfile('phone', $any($event.target).value)" placeholder="+855 …"></span></label>
+
+          <label class="fld fld--wide"><span class="fld__label">Location</span>
+            <span class="fld__box"><input [value]="doc().profile.location"
+              (input)="setProfile('location', $any($event.target).value)" placeholder="City, country"></span></label>
+        </div>
+      </div>
+    } @else {
+      @if (section(); as sec) {
+      <div class="insp__ctx">
+        <span class="insp__kind">{{ kindLabel() }}</span>
+        <span class="insp__what">{{ sec.title }}</span>
+      </div>
+
+      @if (item(); as it) {
+        <div class="group">
+          @switch (sec.type) {
+            @case ('summary') {
+              <label class="fld"><span class="fld__label">Summary</span>
+                <span class="fld__box"><textarea [value]="asSummary(it).text"
+                  (input)="setField('text', $any($event.target).value)"
+                  placeholder="Three sentences: what you are, what you have done, what you are aiming at."></textarea></span>
+                <span class="fld__hint">Skip the adjectives — every other CV also claims them.</span>
+              </label>
+            }
+
+            @case ('experience') {
+              <div class="grid2">
+                <label class="fld fld--wide"><span class="fld__label">Role</span>
+                  <span class="fld__box"><input [value]="asExp(it).role"
+                    (input)="setField('role', $any($event.target).value)"></span></label>
+                <label class="fld"><span class="fld__label">Employer</span>
+                  <span class="fld__box"><input [value]="asExp(it).org"
+                    (input)="setField('org', $any($event.target).value)"></span></label>
+                <label class="fld"><span class="fld__label">Place</span>
+                  <span class="fld__box"><input [value]="asExp(it).place"
+                    (input)="setField('place', $any($event.target).value)"></span></label>
+                <label class="fld"><span class="fld__label">From</span>
+                  <span class="fld__box"><input type="month" [value]="asExp(it).from"
+                    (change)="setField('from', $any($event.target).value)"></span></label>
+                @if (!asExp(it).current) {
+                  <label class="fld"><span class="fld__label">To</span>
+                    <span class="fld__box"><input type="month" [value]="asExp(it).to"
+                      (change)="setField('to', $any($event.target).value)"></span></label>
+                }
+                <label class="fld fld--wide chip chip--add" style="justify-content:flex-start">
+                  <input type="checkbox" [checked]="asExp(it).current"
+                         (change)="setField('current', $any($event.target).checked)"> Still here
+                </label>
+              </div>
+
+              <div class="fld" style="margin-top:12px">
+                <span class="fld__label">What changed because you were there</span>
+                @for (b of asExp(it).bullets; track $index) {
+                  <span class="fld__box">
+                    <input [value]="b" (input)="setBullet($index, $any($event.target).value)"
+                           placeholder="Cut median ticket resolution from 9h to 5h.">
+                    <button class="unit" (click)="removeBullet($index)" aria-label="Remove line">✕</button>
+                  </span>
+                }
+                <button class="cmp-btn cmp-btn--sm cmp-btn--ghost" (click)="addBullet()">+ Add a line</button>
+              </div>
+            }
+
+            @case ('education') {
+              <div class="grid2">
+                <label class="fld fld--wide"><span class="fld__label">Qualification</span>
+                  <span class="fld__box"><input [value]="asEdu(it).award"
+                    (input)="setField('award', $any($event.target).value)"></span></label>
+                <label class="fld fld--wide"><span class="fld__label">Institution</span>
+                  <span class="fld__box"><input [value]="asEdu(it).org"
+                    (input)="setField('org', $any($event.target).value)"></span></label>
+                <label class="fld"><span class="fld__label">From</span>
+                  <span class="fld__box"><input type="month" [value]="asEdu(it).from"
+                    (change)="setField('from', $any($event.target).value)"></span></label>
+                <label class="fld"><span class="fld__label">To</span>
+                  <span class="fld__box"><input type="month" [value]="asEdu(it).to"
+                    (change)="setField('to', $any($event.target).value)"></span></label>
+                <label class="fld fld--wide"><span class="fld__label">Worth adding</span>
+                  <span class="fld__box"><input [value]="asEdu(it).note"
+                    (input)="setField('note', $any($event.target).value)"></span></label>
+              </div>
+            }
+
+            @case ('projects') {
+              <div class="grid2">
+                <label class="fld fld--wide"><span class="fld__label">Project</span>
+                  <span class="fld__box"><input [value]="asProj(it).name"
+                    (input)="setField('name', $any($event.target).value)"></span></label>
+                <label class="fld"><span class="fld__label">Your part</span>
+                  <span class="fld__box"><input [value]="asProj(it).role"
+                    (input)="setField('role', $any($event.target).value)"></span></label>
+                <label class="fld"><span class="fld__label">Link</span>
+                  <span class="fld__box"><input [value]="asProj(it).link"
+                    (input)="setField('link', $any($event.target).value)"></span></label>
+                <label class="fld fld--wide"><span class="fld__label">What it is</span>
+                  <span class="fld__box"><textarea [value]="asProj(it).desc"
+                    (input)="setField('desc', $any($event.target).value)"></textarea></span></label>
+              </div>
+            }
+
+            @case ('skills') {
+              <label class="fld"><span class="fld__label">Group</span>
+                <span class="fld__box"><input [value]="asSkills(it).group"
+                  (input)="setField('group', $any($event.target).value)"></span></label>
+
+              <div class="fld" style="margin-top:12px">
+                <span class="fld__label">Skills</span>
+                <div class="chips">
+                  @for (s of asSkills(it).list; track $index) {
+                    <span class="chip">{{ s }}<button (click)="removeSkill($index)" aria-label="Remove">✕</button></span>
+                  }
+                </div>
+                <span class="fld__box" style="margin-top:8px">
+                  <input #skillIn placeholder="Type a skill and press Enter"
+                         (keydown.enter)="addSkill(skillIn.value, skillIn)">
+                </span>
+                @if (skillIdeas().length) {
+                  <span class="fld__hint">From your own prose:</span>
+                  <div class="chips">
+                    @for (s of skillIdeas(); track s) {
+                      <button class="chip chip--add" (click)="addSkill(s, skillIn)">+ {{ s }}</button>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          }
+
+          <div class="addbar" style="padding-left:0;padding-right:0">
+            <button class="cmp-btn cmp-btn--sm cmp-btn--ghost" (click)="removeItem()">Remove this entry</button>
+          </div>
+        </div>
+      } @else {
+        <div class="group">
+          <p class="note"><span class="note__dot"></span>
+            <span>Nothing in {{ sec.title }} yet. Add an entry from the rail, or click the
+              greyed block on the page to start writing on it directly.</span></p>
+        </div>
+      }
+      } @else {
+        <div class="blank">
+          <svg class="blank__mark" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2">
+            <circle cx="8" cy="8" r="6.2"/><circle cx="8" cy="8" r="2.6"/>
+          </svg>
+          <p>Click anything on the page to edit it. The inspector shows only what
+             you have selected — nothing else.</p>
+        </div>
+      }
+    }
+  }
+
+  <!-- ══ TYPE ═════════════════════════════════════════════════════════ -->
+  @if (ui().tab === 'type') {
+    <div class="group">
+      <div class="group__head"><span class="label">Layout</span></div>
+      <div class="chips">
+        @for (l of layouts; track l[0]) {
+          <button class="chip" [class.chip--on]="doc().design.layout === l[0]"
+                  (click)="setDesign('layout', l[0])">{{ l[1] }}</button>
+        }
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group__head"><span class="label">Type</span></div>
+      <div class="chips">
+        <button class="chip" [class.chip--on]="doc().design.font === 'serif'"
+                (click)="setDesign('font', 'serif')">Source Serif</button>
+        <button class="chip" [class.chip--on]="doc().design.font === 'sans'"
+                (click)="setDesign('font', 'sans')">Public Sans</button>
+      </div>
+
+      <div class="fld" style="margin-top:14px">
+        <span class="fld__label">Size</span>
+        <div class="cmp-slider">
+          <input type="range" min="8.6" max="12" step="0.1" [value]="doc().design.size"
+                 (input)="setNum('size', $any($event.target).value)">
+          <span class="cmp-slider__val">{{ doc().design.size.toFixed(1) }} px</span>
+        </div>
+      </div>
+
+      <div class="fld">
+        <span class="fld__label">Leading</span>
+        <div class="cmp-slider">
+          <input type="range" min="1.1" max="1.8" step="0.02" [value]="doc().design.leading"
+                 (input)="setNum('leading', $any($event.target).value)">
+          <span class="cmp-slider__val">{{ doc().design.leading.toFixed(2) }}</span>
+        </div>
+      </div>
+
+      <div class="fld">
+        <span class="fld__label">Between sections</span>
+        <div class="cmp-slider">
+          <input type="range" min="8" max="34" step="1" [value]="doc().design.gap"
+                 (input)="setNum('gap', $any($event.target).value)">
+          <span class="cmp-slider__val">{{ doc().design.gap }} px</span>
+        </div>
+        <span class="fld__hint">{{ measureVerdict() }}</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group__head"><span class="label">Margins</span></div>
+      <div class="chips">
+        @for (m of margins; track m[0]) {
+          <button class="chip" [class.chip--on]="doc().design.margin === m[0]"
+                  (click)="setDesign('margin', m[0])">{{ m[1] }}</button>
+        }
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group__head"><span class="label">Accent</span></div>
+      <div class="chips">
+        @for (a of accents; track a) {
+          <button class="chip" [class.chip--on]="doc().design.accent === a"
+                  [style.background]="a" [style.width.px]="30" [attr.aria-label]="a"
+                  (click)="setDesign('accent', a)"></button>
+        }
+      </div>
+      <span class="fld__hint">
+        The document's own colour, not the interface's. It has to survive being
+        opened in another theme, and printed where there is no theme at all.
+      </span>
+    </div>
+
+    <div class="group">
+      <button class="cmp-btn cmp-btn--primary" style="width:100%" (click)="autoFit.emit()">Fit onto one page</button>
+      <span class="fld__hint" style="display:block;margin-top:8px">
+        Nudges leading, then size, then section spacing — in that order, and only
+        as far as it has to. It will tell you what it changed.
+      </span>
+    </div>
+  }
+
+  <!-- ══ CHECK ════════════════════════════════════════════════════════ -->
+  @if (ui().tab === 'check') {
+    <div class="group">
+      <div class="group__head">
+        <span class="label">Ready to send</span>
+        <span class="num">{{ ready().done }}/{{ ready().total }}</span>
+      </div>
+      @for (t of ready().tests; track t[0]) {
+        <div class="checkline" [class.is-ok]="t[1]">
+          <i>@if (t[1]) {
+            <svg width="8" height="8" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                 stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.4 6.4 12 13 4.6"/></svg>
+          }</i>{{ t[0] }}
+        </div>
+      }
+    </div>
+
+    <div class="group">
+      <div class="group__head">
+        <span class="label">The document</span>
+        <span class="num">{{ notes().length }}</span>
+      </div>
+      @for (n of notes(); track $index) {
+        <button class="note"
+                [class.note--magenta]="n.level === 'bad'"
+                [class.note--amber]="n.level === 'warn'"
+                style="width:100%;text-align:left;margin-bottom:8px"
+                (click)="act(n)">
+          <span class="note__dot"></span><span>{{ n.text }}</span>
+        </button>
+      }
+      @if (!notes().length) {
+        <p class="note note--jade"><span class="note__dot"></span>
+          <span>Nothing outstanding. The checks keep running as you revise.</span></p>
+      }
+    </div>
+
+    <div class="group">
+      <div class="group__head"><span class="label">As a parser reads it</span></div>
+      <pre class="readback">{{ readback() }}</pre>
+      <span class="fld__hint">
+        Most applications are read by software before a person sees them. This is
+        what survives that pass.
+      </span>
+    </div>
+  }
+</div>

@@ -35,6 +35,7 @@ import { ElevatorPreset } from './app/theme/my-preset';
 import { CommonModule } from '@angular/common';
 import { provideElvField } from '@shared/components/elv-field';
 import { provideElevatorViewTransitions } from '@shared/router/elevator-view-transitions';
+import { ThemeService } from './app/theme/theme.service';
 
 if (environment.production) {
     enableProdMode();
@@ -64,6 +65,14 @@ const bootstrap = () => {
                 provide: APP_INITIALIZER,
                 useFactory: (appInitializer: AppInitializer) => appInitializer.init(),
                 deps: [AppInitializer],
+                multi: true,
+            },
+            {
+                /* Before the first paint, so a returning user never watches
+                   the default palette flash past the one they chose. */
+                provide: APP_INITIALIZER,
+                useFactory: (theme: ThemeService) => () => theme.init(),
+                deps: [ThemeService],
                 multi: true,
             },
             {

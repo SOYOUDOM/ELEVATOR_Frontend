@@ -30,6 +30,9 @@
 import { definePreset } from '@primeng/themes';
 import Aura from '@primeng/themes/aura';
 
+import { INVARIANT_TOKENS } from './theme.tokens';
+import { BASE_THEME } from './themes';
+
 export const ElevatorPreset = definePreset(Aura, {
   /* ============================================================
      PRIMITIVE — raw scales referenced by `semantic` below.
@@ -72,38 +75,20 @@ export const ElevatorPreset = definePreset(Aura, {
       lg:   '0',
       xl:   '0',
     },
+    /* ── ELEVATOR tokens ────────────────────────────────────────────────
+       Emitted as `--p-elevator-*`. The VALUES are not written here: they
+       come from the theme registry, so the compile-time defaults and the
+       runtime switcher can never drift apart. Adding a token means adding
+       it to `theme.tokens.ts`; adding a palette means adding an object to
+       `themes.ts`. Neither one edits this file.
+
+       `BASE_THEME` is what lands on `:root`. `ThemeService` writes the same
+       property names onto <html> as inline styles, which outrank `:root`,
+       so a theme change needs no stylesheet swap and no `!important`. */
     elevator: {
-      // accent: '#5bffa6',
-      // accent: '#ffffff',
-      accent: '#ffd35b',
-      bg0: '#04060a',
-      bg1: '#070a10',
-      panel: '#0a0e15',
-      panelHi: '#111824',
-
-      ink: '#e9eef5',
-      ink2: '#aab4c2',
-      ink3: '#6b7585',
-      ink4: '#454f5e',
-
-      line: 'rgba(150,180,210,.12)',
-      lineSoft: 'rgba(150,180,210,.07)',
-      lineStrong: 'rgba(150,180,210,.22)',
-
-      // accentSoft: 'color-mix(in oklch, #5bffa6 22%, transparent)',
-      // accentGlow: 'color-mix(in oklch, #5bffa6 40%, transparent)',
-      // accentGlowExtreme: 'color-mix(in oklch, #5bffa6 90%, transparent)',
-      // accentDim: 'color-mix(in oklch, #5bffa6 55%, #0a0e14)',
-      accentSoft: 'color-mix(in oklch, #ffd35b 22%, transparent)',
-      accentGlow: 'color-mix(in oklch, #ffd35b 40%, transparent)',
-      accentGlowExtreme: 'color-mix(in oklch, #ffd35b 90%, transparent)',
-      accentDim: 'color-mix(in oklch, #ffd35b 55%, #0a0e14)',
-      corner: '13px',
-      maxw:   '1240px',
-      edgecolor: '--p-elevator-line',
-      minw: '937px',
-      navbarHeight: '88px'
-    }
+      ...BASE_THEME,
+      ...INVARIANT_TOKENS,
+    },
   },
 
   /* ============================================================
@@ -193,11 +178,16 @@ export const ElevatorPreset = definePreset(Aura, {
        ---------------------------------------------------------- */
     colorScheme: {
       light: {
+        /* PrimeNG's primary IS the theme accent, not a colour of its own.
+           Referencing the elevator tokens compiles to `var(--p-elevator-…)`,
+           so when ThemeService rewrites those variables every PrimeNG
+           component re-skins in the same frame as our own CSS. Hard-coding a
+           hex here is what makes a theme switch look half-finished. */
         primary: {
-          color: '{primary.500}',
-          contrastColor: '#022012',                /* matches .btn-primary ink */
-          hoverColor: '{primary.600}',
-          activeColor: '{primary.700}',
+          color: '{elevator.accent}',
+          contrastColor: '{elevator.accentInk}',
+          hoverColor: 'color-mix(in oklch, {elevator.accent} 88%, #ffffff)',
+          activeColor: 'color-mix(in oklch, {elevator.accent} 76%, #000000)',
         },
         highlight: {
           background: 'color-mix(in oklch, {primary.color} 22%, transparent)',
@@ -293,10 +283,10 @@ export const ElevatorPreset = definePreset(Aura, {
          ---------------------------------------------------------- */
       dark: {
         primary: {
-          color: '{primary.500}',                  /* #5bffa6 unchanged */
-          contrastColor: '#022012',
-          hoverColor: 'color-mix(in oklch, {primary.color} 92%, #ffffff)',
-          activeColor: 'color-mix(in oklch, {primary.color} 80%, #ffffff)',
+          color: '{elevator.accent}',
+          contrastColor: '{elevator.accentInk}',
+          hoverColor: 'color-mix(in oklch, {elevator.accent} 92%, #ffffff)',
+          activeColor: 'color-mix(in oklch, {elevator.accent} 80%, #ffffff)',
         },
         highlight: {
           background: 'color-mix(in oklch, {primary.color} 22%, transparent)',
@@ -417,7 +407,8 @@ export const ElevatorPreset = definePreset(Aura, {
           root: { primary: { background: '{primary.color}', hoverBackground: '{primary.hover.color}',
                              activeBackground: '{primary.active.color}', borderColor: '{primary.color}',
                              hoverBorderColor: '{primary.hover.color}', activeBorderColor: '{primary.active.color}',
-                             color: '#022012', hoverColor: '#022012', activeColor: '#022012',
+                             color: '{elevator.accentInk}', hoverColor: '{elevator.accentInk}',
+                             activeColor: '{elevator.accentInk}',
                              focusRing: { color: '{primary.color}',
                                shadow: '0 0 0 1px {primary.color}, 0 0 24px -2px color-mix(in oklch, {primary.color} 45%, transparent)' } } },
         },

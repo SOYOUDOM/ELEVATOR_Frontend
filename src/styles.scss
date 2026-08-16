@@ -46,8 +46,8 @@
 @use './styles/seam';          // .elv-seam — divider with a light that runs down it
 @use './styles/boot';          // elevator-door intro + power-on choreography
 @use './styles/fx';            // film grain + mouse-reactive glow
-@use './styles/create';        // the ten-floor create flow — global on purpose
-@use './styles/sheet';         // the A4 CV preview (rendered via innerHTML)
+@use './styles/compositor';       // the create flow — GENERATED, global on purpose
+@use './styles/compositor-host';  // its hand-written tail (keep after)
 
 // ── 6 · page level ─────────────────────────────────────────────
 @use './styles/hero';          // hero, face weave, logo outline, CTA band

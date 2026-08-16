@@ -1,0 +1,463 @@
+<nav class="docket" aria-label="Set-up steps">
+  <div class="docket__head">
+    <span class="label">Docket</span>
+    <span class="docket__no">{{ step() + 1 }} / {{ STEPS.length }}</span>
+  </div>
+
+  <ol class="docket__list">
+    @for (s of STEPS; track s.key) {
+      <li>
+        <button class="dstep" [class]="stateOf(s.key)"
+                [attr.aria-current]="$index === step()" (click)="go($index)">
+          <span class="dstep__dot">
+            <svg width="8" height="8" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                 stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 8.4 6.4 12 13 4.6"/>
+            </svg>
+          </span>
+          <span class="dstep__name">{{ s.name }}</span>
+          <span class="dstep__count">{{ count(s.key) }}</span>
+        </button>
+      </li>
+    }
+  </ol>
+
+  <div class="docket__foot">
+    <button class="cmp-btn cmp-btn--sm cmp-btn--ghost" (click)="toPress.emit()">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+           stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3.4 8h9.2M9 4.4 12.6 8 9 11.6"/>
+      </svg>
+      Open the editor
+    </button>
+    <p class="docket__note">
+      Nothing here is final. Everything can be rewritten, reordered or deleted
+      on the page afterwards.
+    </p>
+  </div>
+</nav>
+
+<div class="step">
+  <header class="step__head">
+    <p class="step__eyebrow label"><i></i>Step {{ step() + 1 }} of {{ STEPS.length }} · {{ current().name }}</p>
+    <h1 class="step__title">{{ current().title }}</h1>
+    <p class="step__lede">{{ current().lede }}</p>
+  </header>
+
+  <div class="step__body">
+    @if (current().effect) {
+      <p class="step__effect">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+             stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 1.8h5l3 3v9.4H4zM9 1.8v3h3"/>
+        </svg>
+        <span><b>On the page:</b> {{ current().effect }}</span>
+      </p>
+    }
+
+    @switch (current().key) {
+      <!-- ══ 1 · THE ROUTES ═════════════════════════════════════════════ -->
+      @case ('start') {
+        <div class="routes">
+          <button class="route" [attr.aria-expanded]="route() === 'reuse'" (click)="pickRoute('reuse')">
+            <span class="route__tag">Fastest</span>
+            <span class="route__mark">
+              <svg width="19" height="19" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                   stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5.5 5.5V3.2h7.3v7.3h-2.3M3.2 5.5h7.3v7.3H3.2z"/>
+              </svg>
+            </span>
+            <span class="route__text">
+              <b>Reuse a CV I already have</b>
+              <span>Paste it or drop the file. It is read here in your browser,
+                    nothing is uploaded, and you check every field it fills in.</span>
+            </span>
+            <span class="route__go">→</span>
+          </button>
+
+          @if (route() === 'reuse') {
+            <div class="parse">
+              <label class="parse__drop" for="cvFile">
+                <b>Choose a .txt, .md or .json file</b>
+                <span>or paste the text below — a PDF works if you copy out of it</span>
+              </label>
+              <input id="cvFile" type="file" class="vis-hidden"
+                     accept=".txt,.md,.json,.csv,text/plain" (change)="onFile($event)">
+
+              <textarea spellcheck="false" [value]="parseText()"
+                        (input)="parseText.set($any($event.target).value)"
+                        placeholder="Sok Dara
+Application Support Engineer
+dara@example.com · +855 12 345 678 · Phnom Penh, Cambodia
+
+EXPERIENCE
+Application Support Engineer — Wing Bank — Mar 2023 to Present
+- Cut median ticket resolution from 9h to 5h.
+
+EDUCATION
+BSc Computer Science — Royal University of Phnom Penh — 2017 to 2021"></textarea>
+
+              <div class="parse__foot">
+                <span class="parse__count">{{ parseWords() }}</span>
+                @if (parseText().trim()) {
+                  <button class="cmp-btn cmp-btn--sm" (click)="clearParse()">Clear</button>
+                }
+                <button class="cmp-btn cmp-btn--sm cmp-btn--primary" (click)="runParse()">Read it</button>
+              </div>
+
+              @if (report(); as r) {
+                <div class="report">
+                  <div class="report__grid">
+                    <div class="report__cell"><b>{{ r.roles }}</b><span>Roles</span></div>
+                    <div class="report__cell"><b>{{ r.study }}</b><span>Study</span></div>
+                    <div class="report__cell"><b>{{ r.skills }}</b><span>Skills</span></div>
+                    <div class="report__cell" [class.report__cell--warn]="r.unread">
+                      <b>{{ r.unread }}</b><span>Unread</span>
+                    </div>
+                  </div>
+                  <p class="note" [class.note--amber]="r.unread" [class.note--jade]="!r.unread">
+                    <span class="note__dot"></span>
+                    <span>
+                      @if (r.unread) {
+                        <b>Check the dates.</b> {{ r.unread }} {{ r.unread === 1 ? 'date was' : 'dates were' }}
+                        written in a form the parser could not read, so
+                        {{ r.unread === 1 ? 'it was' : 'they were' }} left blank rather than
+                        guessed at. Everything else is filled in — read it before you trust it.
+                      } @else {
+                        <b>Read cleanly.</b> Every date parsed. A parser still guesses at
+                        structure, so read the next four steps before sending anything to the press.
+                      }
+                      @if (r.approx) {
+                        {{ r.approx }} {{ r.approx === 1 ? 'date gave a year with no month and sits' : 'dates gave a year with no month and sit' }}
+                        on January — near enough for the page, worth correcting for the timeline.
+                      }
+                    </span>
+                  </p>
+                </div>
+              }
+            </div>
+          }
+
+          <button class="route" (click)="pickRoute('blank')">
+            <span class="route__mark">
+              <svg width="19" height="19" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                   stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 1.8h5l3 3v9.4H4zM9 1.8v3h3"/>
+              </svg>
+            </span>
+            <span class="route__text">
+              <b>Start from blank</b>
+              <span>Six short steps, all of them skippable. The page fills in beside you as you go.</span>
+            </span>
+            <span class="route__go">→</span>
+          </button>
+
+          <button class="route" (click)="pickRoute('sample')">
+            <span class="route__mark">
+              <svg width="19" height="19" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                   stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="8" cy="8" r="6.2"/><circle cx="8" cy="8" r="2.6"/>
+              </svg>
+            </span>
+            <span class="route__text">
+              <b>Open the finished sample</b>
+              <span>A complete CV with real problems left in it — a duty-first bullet,
+                    an eleven-month gap — so you can see what the checks catch first.</span>
+            </span>
+            <span class="route__go">→</span>
+          </button>
+        </div>
+      }
+
+      <!-- ══ 2 · YOU ════════════════════════════════════════════════════ -->
+      @case ('you') {
+        <div class="rowset">
+          <label class="fld fld--wide"><span class="fld__label">Full name<span class="req">·</span></span>
+            <span class="fld__box"><input [value]="doc().profile.name" placeholder="Sok Dara"
+              (input)="setProfile('name', $any($event.target).value)"></span></label>
+
+          <label class="fld fld--wide"><span class="fld__label">The job you are going for</span>
+            <span class="fld__box"><input [value]="doc().profile.role" placeholder="Application Support Engineer"
+              (input)="setProfile('role', $any($event.target).value)"></span>
+            <span class="fld__hint">Not your current title — the one on the advert. It is the
+              line a reader matches against first.</span></label>
+
+          @if (roleIdeas().length) {
+            <div class="suggest"><span>Near yours:</span>
+              @for (t of roleIdeas(); track t) {
+                <button class="chip chip--add" (click)="setProfile('role', t)">{{ t }}</button>
+              }
+            </div>
+          }
+
+          <div class="row2">
+            <label class="fld"><span class="fld__label">Email</span>
+              <span class="fld__box"><input type="email" [value]="doc().profile.email"
+                placeholder="you@example.com" (input)="setProfile('email', $any($event.target).value)"></span></label>
+            <label class="fld"><span class="fld__label">Phone</span>
+              <span class="fld__box"><input [value]="doc().profile.phone"
+                placeholder="+855 12 345 678" (input)="setProfile('phone', $any($event.target).value)"></span></label>
+          </div>
+
+          <label class="fld fld--wide"><span class="fld__label">Where you are</span>
+            <span class="fld__box"><input [value]="doc().profile.location" placeholder="Phnom Penh, Cambodia"
+              (input)="setProfile('location', $any($event.target).value)"></span>
+            <span class="fld__hint">City and country is enough. A street address is a
+              security habit worth dropping.</span></label>
+
+          <div class="row2">
+            <label class="fld"><span class="fld__label">Link</span>
+              <span class="fld__box"><input [value]="doc().profile.links[0]?.url || ''"
+                placeholder="sokdara.dev" (input)="setLink(0, $any($event.target).value)"></span></label>
+            <label class="fld"><span class="fld__label">Another link</span>
+              <span class="fld__box"><input [value]="doc().profile.links[1]?.url || ''"
+                placeholder="github.com/sokdara" (input)="setLink(1, $any($event.target).value)"></span></label>
+          </div>
+        </div>
+      }
+
+      <!-- ══ 3 · WORK ═══════════════════════════════════════════════════ -->
+      @case ('work') {
+        <div>
+          @for (it of exp(); track $index; let ei = $index) {
+            <article class="entry">
+              <header class="entry__head">
+                <span class="entry__no">{{ ($index + 1).toString().padStart(2, '0') }}</span>
+                <b class="entry__title" [class.is-empty]="!it.role">{{ it.role || 'Untitled role' }}</b>
+                <button class="entry__del" aria-label="Remove this role"
+                        (click)="removeEntry(expSecId(), ei)">✕</button>
+              </header>
+              <div class="entry__body">
+                <div class="row2">
+                  <label class="fld"><span class="fld__label">Job title</span>
+                    <span class="fld__box"><input [value]="it.role" placeholder="Application Support Engineer"
+                      (input)="setItem(expSecId(), ei, 'role', $any($event.target).value)"></span></label>
+                  <label class="fld"><span class="fld__label">Employer</span>
+                    <span class="fld__box"><input [value]="it.org" placeholder="Wing Bank"
+                      (input)="setItem(expSecId(), ei, 'org', $any($event.target).value)"></span></label>
+                </div>
+
+                <div class="row3">
+                  <label class="fld"><span class="fld__label">Place</span>
+                    <span class="fld__box"><input [value]="it.place" placeholder="Phnom Penh"
+                      (input)="setItem(expSecId(), ei, 'place', $any($event.target).value)"></span></label>
+                  <label class="fld"><span class="fld__label">From</span>
+                    <span class="fld__box"><input type="month" [value]="it.from"
+                      (change)="setItem(expSecId(), ei, 'from', $any($event.target).value)"></span></label>
+                  @if (it.current) {
+                    <div class="fld"><span class="fld__label">To</span>
+                      <span class="fld__box" style="opacity:.55"><input value="Present" disabled></span></div>
+                  } @else {
+                    <label class="fld"><span class="fld__label">To</span>
+                      <span class="fld__box"><input type="month" [value]="it.to"
+                        (change)="setItem(expSecId(), ei, 'to', $any($event.target).value)"></span></label>
+                  }
+                </div>
+
+                <label class="switch">
+                  <input type="checkbox" [checked]="it.current"
+                         (change)="setItem(expSecId(), ei, 'current', $any($event.target).checked)">
+                  <span class="switch__track"></span>
+                  Still here
+                </label>
+
+                <div class="fld">
+                  <span class="fld__label">What changed because you were there</span>
+                  <div class="bullets">
+                    @for (b of it.bullets; track j; let j = $index) {
+                      <div class="bullet" [class.bullet--flag]="bulletWhy(b)">
+                        <span class="bullet__dot"></span>
+                        <input [value]="b" placeholder="Cut median ticket resolution from 9h to 5h."
+                               (input)="setBullet(expSecId(), ei, j, $any($event.target).value)">
+                        <button class="bullet__del" aria-label="Remove this line"
+                                (click)="removeBulletRow(expSecId(), ei, j)">✕</button>
+                        @if (bulletWhy(b); as why) { <span class="bullet__why">{{ why }}</span> }
+                      </div>
+                    }
+                  </div>
+                  <button class="addrow" (click)="addBulletRow(expSecId(), ei)">+ Add a line</button>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+        <button class="addrow" (click)="addEntry('experience')">+ Add another role</button>
+      }
+
+      <!-- ══ 4 · STUDY ══════════════════════════════════════════════════ -->
+      @case ('study') {
+        <div>
+          @for (it of edu(); track $index; let ei = $index) {
+            <article class="entry">
+              <header class="entry__head">
+                <span class="entry__no">{{ ($index + 1).toString().padStart(2, '0') }}</span>
+                <b class="entry__title" [class.is-empty]="!it.award">{{ it.award || 'Untitled qualification' }}</b>
+                <button class="entry__del" aria-label="Remove"
+                        (click)="removeEntry(eduSecId(), ei)">✕</button>
+              </header>
+              <div class="entry__body">
+                <div class="row2">
+                  <label class="fld"><span class="fld__label">What you earned</span>
+                    <span class="fld__box"><input [value]="it.award" placeholder="BSc Computer Science"
+                      (input)="setItem(eduSecId(), ei, 'award', $any($event.target).value)"></span></label>
+                  <label class="fld"><span class="fld__label">Where</span>
+                    <span class="fld__box"><input [value]="it.org" placeholder="Royal University of Phnom Penh"
+                      (input)="setItem(eduSecId(), ei, 'org', $any($event.target).value)"></span></label>
+                </div>
+                <div class="row3">
+                  <label class="fld"><span class="fld__label">From</span>
+                    <span class="fld__box"><input type="month" [value]="it.from"
+                      (change)="setItem(eduSecId(), ei, 'from', $any($event.target).value)"></span></label>
+                  <label class="fld"><span class="fld__label">To</span>
+                    <span class="fld__box"><input type="month" [value]="it.to"
+                      (change)="setItem(eduSecId(), ei, 'to', $any($event.target).value)"></span></label>
+                  <label class="fld"><span class="fld__label">Worth adding</span>
+                    <span class="fld__box"><input [value]="it.note" placeholder="Graduated with distinction"
+                      (input)="setItem(eduSecId(), ei, 'note', $any($event.target).value)"></span></label>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+        <button class="addrow" (click)="addEntry('education')">+ Add another qualification</button>
+        <p class="note"><span class="note__dot"></span><span>
+          Certificates and short courses go here too. If there are more than three,
+          keep the two that match the job and drop the rest at the press — an unread
+          line still costs you a line.
+        </span></p>
+      }
+
+      <!-- ══ 5 · SKILLS ═════════════════════════════════════════════════ -->
+      @case ('skills') {
+        <div>
+          @for (g of skills(); track $index; let gi = $index) {
+            <div class="skillgroup">
+              <div class="skillgroup__head">
+                <input [value]="g.group" placeholder="GROUP"
+                       (input)="setItem(skillSecId(), gi, 'group', $any($event.target).value)">
+                <button class="entry__del" aria-label="Remove group"
+                        (click)="removeEntry(skillSecId(), gi)">✕</button>
+              </div>
+              @if (g.list.length) {
+                <div class="chips">
+                  @for (s of g.list; track j; let j = $index) {
+                    <span class="chip">{{ s }}
+                      <button aria-label="Remove" (click)="removeSkill(gi, j)">✕</button></span>
+                  }
+                </div>
+              }
+              <div class="skillentry">
+                <input #skillIn placeholder="Type a skill and press Enter"
+                       (keydown.enter)="addSkill(gi, skillIn.value, skillIn)">
+              </div>
+            </div>
+          }
+        </div>
+        <button class="addrow" (click)="addEntry('skills')">+ Add a group</button>
+
+        @if (skillIdeas().length) {
+          <div class="fld">
+            <span class="fld__label">Found in what you already wrote</span>
+            <div class="suggest">
+              @for (t of skillIdeas(); track t) {
+                <button class="chip chip--add" (click)="suggestSkill(t)">+ {{ t }}</button>
+              }
+            </div>
+            <span class="fld__hint">These are words from your own roles, not a popular
+              list. Add the ones that are true.</span>
+          </div>
+        }
+      }
+
+      <!-- ══ 6 · SUMMARY ════════════════════════════════════════════════ -->
+      @case ('summary') {
+        <label class="fld">
+          <span class="fld__label">Summary</span>
+          <span class="fld__box">
+            <textarea [value]="summary()?.text || ''" (input)="setSummary($any($event.target).value)"
+              placeholder="Application support engineer in Phnom Penh, four years keeping payment systems upright. I own incidents from the first page to the write-up, and I would rather fix the runbook than answer the same ticket twice."></textarea>
+          </span>
+          <span class="fld__hint">{{ summaryVerdict() }}</span>
+        </label>
+
+        <p class="note note--cyan"><span class="note__dot"></span><span>
+          <b>Three sentences, in this order:</b> what you are and for how long ·
+          the thing you are actually good at · what you want next. Skip the
+          adjectives — “passionate”, “detail-oriented” and “team player” are claims
+          every other CV also makes, so they carry no information.
+        </span></p>
+      }
+
+      <!-- ══ 7 · THE MANIFEST ═══════════════════════════════════════════ -->
+      @case ('press') {
+        <div class="estimate" [class.estimate--over]="estimate().over">
+          <div class="estimate__page">
+            <div class="estimate__fill" [style.height.%]="estimate().pct"></div>
+          </div>
+          <div class="estimate__text">
+            <b>{{ estimate().head }}</b>
+            <span>{{ estimate().body }}</span>
+          </div>
+        </div>
+
+        <div class="fld">
+          <span class="fld__label">On the docket</span>
+          <div class="manifest">
+            @for (row of manifest(); track row.name) {
+              <button class="manifest__row"
+                      [class.manifest__row--has]="row.has" [class.manifest__row--empty]="!row.has"
+                      (click)="go(row.step)">
+                <span class="manifest__mark">{{ row.has ? '✓' : '+' }}</span>
+                <span class="manifest__name"><b>{{ row.name }}</b>
+                  <span>{{ row.has ? 'go back and change it' : 'add it now' }}</span></span>
+                <span class="manifest__val">{{ row.val }}</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (holes().length) {
+          <p class="note note--magenta"><span class="note__dot"></span><span>
+            <b>{{ holes().length === 1 ? 'A gap in the dates.' : holes().length + ' gaps in the dates.' }}</b>
+            @for (g of holes(); track g.from) { {{ gapText(g) }}@if (!$last) {; } }.
+            Nobody is required to explain a gap, but the timeline at the press makes it
+            visible so you can decide what to do about it rather than be asked cold.
+          </span></p>
+        }
+
+        @if (notes().length) {
+          <div class="fld">
+            <span class="fld__label">
+              {{ notes().length }} thing{{ notes().length === 1 ? '' : 's' }} the checks will raise
+            </span>
+            @for (n of notes().slice(0, 4); track $index) {
+              <p class="note" [class.note--amber]="n.level === 'warn'" [class.note--magenta]="n.level === 'bad'">
+                <span class="note__dot"></span><span>{{ n.text }}</span></p>
+            }
+            <span class="fld__hint">All of these are addressable at the press, where you
+              can see the line they concern.</span>
+          </div>
+        } @else {
+          <p class="note note--jade"><span class="note__dot"></span><span>
+            <b>{{ ready().pct }}% ready.</b> Nothing outstanding. The editor will keep
+            checking as you revise.
+          </span></p>
+        }
+      }
+    }
+  </div>
+
+  @if (!isFirst()) {
+    <footer class="step__foot">
+      <button class="cmp-btn" (click)="go(step() - 1)">← Back</button>
+      <span class="step__spacer"></span>
+      @if (!isLast()) {
+        <span class="step__hint">Skipping leaves the section empty, not deleted.</span>
+        <button class="cmp-btn" (click)="skip()">Skip</button>
+        <button class="cmp-btn cmp-btn--primary" (click)="go(step() + 1)">Continue</button>
+      } @else {
+        <button class="cmp-btn cmp-btn--primary press-go" (click)="toPress.emit()">→ Send to the press</button>
+      }
+    </footer>
+  }
+</div>

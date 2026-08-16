@@ -2,8 +2,13 @@
 // BASE · element-level defaults + the one global override
 // ════════════════════════════════════════════════════════════
 
+// The ground comes from the theme, not from here. It used to be #020202 in
+// four places, which meant every theme switched the panels and left the page
+// behind it black — the one surface nobody thinks to check, because it is
+// usually covered.
 html {
-  background: #020202;
+  background: var(--p-elevator-bg0);
+  color-scheme: dark;                 // replaced at runtime by ThemeService
 }
 
 body {
@@ -18,9 +23,9 @@ body {
 // equal specificity with `body{background-color:#fff}`, and AccountComponent
 // adds AdminLTE's `login-page` class (`.login-page{background-color:#e9ecef}`)
 // on /account/login. Out-specify both instead of reaching for !important.
-html body { background: #020202; }
-html body.login-page { background: #020202; }
-html body.register-page { background: #020202; }
+html body { background: var(--p-elevator-bg0); }
+html body.login-page { background: var(--p-elevator-bg0); }
+html body.register-page { background: var(--p-elevator-bg0); }
 
 // Kept from the old file (was commented out there too):
 // .group{
