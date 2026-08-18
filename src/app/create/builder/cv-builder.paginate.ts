@@ -27,7 +27,7 @@
  */
 
 import {
-  CvDoc, EducationItem, ExperienceItem, ProjectItem, SECTION_KINDS,
+  CvDoc, Design, EducationItem, ExperienceItem, ProjectItem, SECTION_KINDS,
   SkillGroup, SummaryItem, SectionItem, Section, SectionType, itemHasContent,
 } from './cv-builder.models';
 import { Fill, formatRange } from './cv-builder.analysis';
@@ -216,7 +216,36 @@ export function docClasses(doc: CvDoc): string {
   const layout: Record<string, string> = {
     classic: '', rule: 'doc--rule', quiet: 'doc--quiet', centred: 'doc--centred', split: 'doc--split',
   };
-  return ['doc', d.font === 'sans' ? 'doc--sans' : '', layout[d.layout] ?? ''].filter(Boolean).join(' ');
+  /* `doc--sans` only turns off the serif's old-style figures. Any face the
+     reader picked off their own machine is a sans until proven otherwise —
+     lining figures are the safe default for a CV either way. */
+  return ['doc', d.font === 'serif' ? '' : 'doc--sans', layout[d.layout] ?? ''].filter(Boolean).join(' ');
+}
+
+/**
+ * The CSS the document's `--doc-font` is set to.
+ *
+ * THREE things have to agree on this: the mounted page, the ruler that
+ * measured it, and the status strip that reports it. They disagreed the
+ * moment the face stopped being a two-way switch, so the mapping lives here
+ * and nowhere else — a paginator that measures Georgia and mounts Helvetica
+ * is off by a line on every page.
+ *
+ * `serif` and `sans` stay as the two bundled faces. Anything else is a family
+ * the reader chose off their own machine, quoted and given the bundled sans
+ * as the fallback for every other machine the file is opened on.
+ */
+export function fontStack(design: Design): string {
+  if (design.font === 'serif') return 'var(--p-elevator-font-serif)';
+  if (design.font === 'sans') return 'var(--p-elevator-font-sans)';
+  return `"${design.font.replace(/["\\]/g, '')}", var(--p-elevator-font-sans)`;
+}
+
+/** What the status strip calls the current face. */
+export function fontLabel(design: Design): string {
+  if (design.font === 'serif') return 'Source Serif';
+  if (design.font === 'sans') return 'Public Sans';
+  return design.font;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -247,8 +276,7 @@ export class Ruler {
     el.style.setProperty('--doc-size', `${cv.design.size}px`);
     el.style.setProperty('--doc-leading', String(cv.design.leading));
     el.style.setProperty('--doc-gap', String(cv.design.gap));
-    el.style.setProperty('--doc-font', cv.design.font === 'serif'
-      ? 'var(--p-elevator-font-serif)' : 'var(--p-elevator-font-sans)');
+    el.style.setProperty('--doc-font', fontStack(cv.design));
     el.style.setProperty('--doc-accent', cv.design.accent);
     el.innerHTML = html;
     return el.getBoundingClientRect().height;

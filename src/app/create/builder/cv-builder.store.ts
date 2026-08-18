@@ -41,7 +41,17 @@ export interface UiState {
   timeline: boolean;
   rail: boolean;
   inspector: boolean;
+  /** Pane widths in px, written by the drag handles. */
+  railW: number;
+  inspectorW: number;
 }
+
+/** What a pane may be dragged to. Below the floor a pane cannot show a row
+    of fields; above the ceiling it starts eating the page it exists to serve. */
+export const PANE_LIMITS = {
+  rail: { min: 190, max: 460 },
+  inspector: { min: 240, max: 560 },
+} as const;
 
 const STORE_KEY = 'builder.v1';
 
@@ -67,6 +77,8 @@ export class CvBuilderStore {
     timeline: true,
     rail: true,
     inspector: true,
+    railW: 268,
+    inspectorW: 340,
   });
   readonly ui = this._ui.asReadonly();
 

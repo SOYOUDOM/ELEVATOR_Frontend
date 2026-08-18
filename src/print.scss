@@ -1,0 +1,44 @@
+// ════════════════════════════════════════════════════════════
+// ELEVATOR — the last word on print
+// ------------------------------------------------------------
+// REGISTERED LAST in angular.json's `styles` array, and that position is the
+// whole point of the file.
+//
+// AdminLTE bundles Bootstrap's print stylesheet, which declares
+//
+//     @page { size: a3; }
+//     body  { min-width: 992px !important; }
+//
+// `@page` carries no specificity at all — the last one in the bundle simply
+// wins — and the vendor sheet is concatenated AFTER src/styles.scss. So every
+// export left the builder on a 297 × 420mm sheet with the A4 proof sitting in
+// one corner of it, which is the margin nobody could find in our own CSS: it
+// was never ours. `min-width` did the same to the body, holding it 992px wide
+// so the sheet could not be the page.
+//
+// Nothing else belongs here. Page furniture, what prints and what does not,
+// all of that is scoped to the builder in styles/_cv-builder.scss. This file
+// exists only to outrank a vendor.
+// ════════════════════════════════════════════════════════════
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    min-width: 0 !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: var(--p-elevator-paper) !important;
+  }
+
+  // The app's ground texture is chrome, and chrome does not print.
+  body::before {
+    display: none !important;
+  }
+}

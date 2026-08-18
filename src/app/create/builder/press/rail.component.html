@@ -57,8 +57,11 @@
   </ul>
 
   <div class="addbar">
-    <button class="elv-cv-btn elv-cv-btn--sm" (click)="add('experience')">+ Role</button>
-    <button class="elv-cv-btn elv-cv-btn--sm" (click)="add('education')">+ Study</button>
-    <button class="elv-cv-btn elv-cv-btn--sm" (click)="add('projects')">+ Project</button>
+    <app-elv-button variant="ghost" size="small" corner="sharp" icon="pi pi-plus"
+                    title="Role" (clicked)="add('experience')"></app-elv-button>
+    <app-elv-button variant="ghost" size="small" corner="sharp" icon="pi pi-plus"
+                    title="Study" (clicked)="add('education')"></app-elv-button>
+    <app-elv-button variant="ghost" size="small" corner="sharp" icon="pi pi-plus"
+                    title="Project" (clicked)="add('projects')"></app-elv-button>
   </div>
 </div>

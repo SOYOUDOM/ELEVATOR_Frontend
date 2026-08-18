@@ -9,9 +9,11 @@
  *   CHECK   — every finding, plus the document as a parser sees it.
  */
 
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { ElvButtonComponent } from '@shared/components/elv-button/elv-button.component';
+import { ElvSegComponent, ElvSegOption } from '@shared/components/elv-seg/elv-seg.component';
 import { CvBuilderStore } from '../cv-builder.store';
 import {
   EducationItem, ExperienceItem, LayoutName, MarginName, ProjectItem,
@@ -21,11 +23,12 @@ import {
   DocNote, Fill, documentNotes, machineReadBack, readiness, suggestedSkills, titleIdeas,
 } from '../cv-builder.analysis';
 import { contentBox } from '../cv-builder.paginate';
+import { FontChoice, LocalFontsService } from './local-fonts.service';
 
 @Component({
   selector: 'elv-cv-inspector',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, ElvButtonComponent, ElvSegComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './inspector.component.html',
 })
@@ -73,6 +76,12 @@ export class InspectorComponent {
     return `Measure is about ${m} characters, which is inside the comfortable 45–85.`;
   });
 
+  readonly tabs: ElvSegOption<'content' | 'type' | 'check'>[] = [
+    { value: 'content', label: 'CONTENT', title: 'The fields of what is selected' },
+    { value: 'type', label: 'TYPE', title: 'Typesetting' },
+    { value: 'check', label: 'CHECK', title: 'Findings' },
+  ];
+
   readonly layouts: Array<[LayoutName, string]> = [
     ['classic', 'Classic'], ['rule', 'Ruled'], ['quiet', 'Quiet'],
     ['centred', 'Centred'], ['split', 'Two column'],
@@ -81,6 +90,28 @@ export class InspectorComponent {
   readonly accents = ['#0089b8', '#c4126f', '#0d7a55', '#a8690a', '#5b53d8', '#2b2f36'];
 
   tab(v: 'content' | 'type' | 'check'): void { this.store.patchUi({ tab: v }); }
+
+  /* ── the faces ────────────────────────────────────────────────────────────
+     The two bundled faces are always the first two rows. The reader's own
+     fonts are appended only if they ask for them and the machine agrees —
+     see LocalFontsService for why that is a click and not a page load. */
+
+  readonly fonts = inject(LocalFontsService);
+  readonly fontList = this.fonts.all;
+  readonly fontState = this.fonts.state;
+  readonly fontFilter = signal('');
+
+  readonly shownFonts = computed<FontChoice[]>(() => {
+    const q = this.fontFilter().trim().toLowerCase();
+    const all = this.fontList();
+    return q ? all.filter((f) => f.label.toLowerCase().includes(q)) : all;
+  });
+
+  loadLocalFonts(): void { void this.fonts.load(); }
+
+  setFont(value: string): void {
+    this.store.edit('design', (d) => { d.design.font = value; });
+  }
 
   /* ── field writes ─────────────────────────────────────────────────────── */
 

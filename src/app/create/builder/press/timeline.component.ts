@@ -7,16 +7,18 @@
  * show you — a list of jobs cannot reveal the months between them.
  */
 
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 
+import { ElvButtonComponent } from '@shared/components/elv-button/elv-button.component';
 import { CvBuilderStore } from '../cv-builder.store';
-import { Gap, Span, durationText, fromMonths, gaps, nowMonths, spans } from '../cv-builder.analysis';
+import { Gap, Span, durationText, fromMonths, gaps, nowMonths, spans, toYm } from '../cv-builder.analysis';
 
 interface Placed extends Span { left: number; width: number; lane: number }
 
 @Component({
   selector: 'elv-cv-timeline',
   standalone: true,
+  imports: [ElvButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './timeline.component.html',
 })
@@ -101,5 +103,110 @@ export class TimelineComponent {
 
   hide(): void {
     this.store.patchUi({ timeline: false });
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     DRAGGING A SPAN
+     ───────────────────────────────────────────────────────────────────────
+     The bar is the date. Typing "2021-03" into a field and then checking the
+     chart is two steps and a translation; grabbing the end of a bar and
+     pulling it to 2021 is one, and it is the step where the mistake would
+     have shown up anyway — the gap either opens or closes under your hand.
+
+     Three grips: the two ends move one date each, the body moves both and
+     keeps the duration. Everything snaps to the month, because the model
+     stores months and a CV has never once needed a day.
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  /* `laneBox`, not `lanes`: a template reference variable shadows the
+     component member of the same name, so `#lanes` on this div turned every
+     `lanes()` call in the template into a call on an HTMLDivElement and the
+     whole timeline rendered blank. */
+  private readonly lanesEl = viewChild<ElementRef<HTMLElement>>('laneBox');
+
+  /** What is under the hand right now, so the axis can show its dates. */
+  readonly drag = signal<{ from: number; to: number; label: string } | null>(null);
+
+  startDrag(s: Placed, grip: 'from' | 'to' | 'move', ev: PointerEvent): void {
+    /* An open-ended role has no end date to drag — its right edge IS the
+       present, and the present is not ours to move. */
+    if (grip === 'to' && s.open) return;
+
+    ev.preventDefault();
+    ev.stopPropagation();
+    const r = this.range();
+    const host = this.lanesEl()?.nativeElement;
+    if (!r || !host) return;
+
+    const target = ev.currentTarget as HTMLElement;
+    target.setPointerCapture?.(ev.pointerId);
+
+    const width = host.getBoundingClientRect().width;
+    const perPx = r.span / Math.max(1, width);
+    const startX = ev.clientX;
+    const from0 = s.from;
+    const to0 = s.to;
+    this.store.commit('dates');
+
+    const move = (e: PointerEvent) => {
+      const shift = Math.round((e.clientX - startX) * perPx);
+      let from = from0;
+      let to = to0;
+
+      if (grip === 'move') { from = from0 + shift; to = to0 + shift; }
+      /* A start may not pass its own end, and vice versa: a role that ended
+         before it began is not a date the reader meant to enter. */
+      else if (grip === 'from') from = Math.min(from0 + shift, to0);
+      else to = Math.max(to0 + shift, from0);
+
+      from = Math.max(r.from, from);
+      this.drag.set({ from, to, label: s.label });
+      this.write(s, from, to);
+    };
+
+    const up = () => {
+      target.releasePointerCapture?.(ev.pointerId);
+      target.removeEventListener('pointermove', move);
+      target.removeEventListener('pointerup', up);
+      target.removeEventListener('pointercancel', up);
+      this.drag.set(null);
+      this.store.save();
+    };
+
+    target.addEventListener('pointermove', move);
+    target.addEventListener('pointerup', up);
+    target.addEventListener('pointercancel', up);
+  }
+
+  /** Keyboard equivalent: the selected bar moves a month at a time. */
+  keyDrag(s: Placed, ev: KeyboardEvent): void {
+    const dir = ev.key === 'ArrowLeft' ? -1 : ev.key === 'ArrowRight' ? 1 : 0;
+    if (!dir || !(ev.altKey || ev.shiftKey)) return;
+    ev.preventDefault();
+    this.store.commit('dates');
+    /* Shift moves the whole role; alt stretches the end. */
+    if (ev.shiftKey) this.write(s, s.from + dir, s.to + dir);
+    else this.write(s, s.from, Math.max(s.from, s.to + dir));
+    this.store.save();
+  }
+
+  /** One write for every grip — the model is the same three fields either way. */
+  private write(s: Placed, from: number, to: number): void {
+    this.store.editQuiet((d) => {
+      const sec = d.sections.find((x) => x.id === s.secId);
+      const item = sec?.items[s.item] as { from?: string; to?: string; current?: boolean } | undefined;
+      if (!item) return;
+      item.from = toYm(from);
+      /* An open role keeps running to the present — writing an end date onto
+         it would silently close a job the reader still has. */
+      if (!s.open) item.to = toYm(to);
+    });
+  }
+
+  /** The read-out that follows the hand while a bar is being dragged. */
+  dragLabel(): string {
+    const d = this.drag();
+    if (!d) return '';
+    return `${fromMonths(d.from)} — ${fromMonths(d.to)} · ${durationText(d.to - d.from + 1)}`;
   }
 }

@@ -98,8 +98,8 @@ const ELEVATOR_DARK: ThemeTokens = {
   lift3: '0 10px 34px -8px rgba(0, 0, 0, .58), 0 2px 8px rgba(0, 0, 0, .34)',
   lift4: '0 28px 70px -18px rgba(0, 0, 0, .70), 0 4px 14px rgba(0, 0, 0, .40)',
 
-  fontUi: "'Sora', system-ui, sans-serif",
-  fontMono: "'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace",
+  fontUi: "'Chakra Petch', system-ui, sans-serif",
+  fontMono: "'Share Tech Mono', ui-monospace, 'SFMono-Regular', monospace",
   fontSerif: "'Source Serif 4', Georgia, 'Times New Roman', serif",
   fontSans: "'Public Sans', system-ui, sans-serif",
   fontDisplay: "'Varino', 'Orbitron', system-ui, sans-serif",
@@ -170,8 +170,8 @@ const PRESS_LIGHT: ThemeTokens = {
   lift3: '0 10px 34px -8px rgba(20, 22, 26, .26), 0 2px 8px rgba(20, 22, 26, .10)',
   lift4: '0 28px 70px -18px rgba(20, 22, 26, .40), 0 4px 14px rgba(20, 22, 26, .12)',
 
-  fontUi: "'Sora', system-ui, sans-serif",
-  fontMono: "'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace",
+  fontUi: "'Chakra Petch', system-ui, sans-serif",
+  fontMono: "'Share Tech Mono', ui-monospace, 'SFMono-Regular', monospace",
   fontSerif: "'Source Serif 4', Georgia, 'Times New Roman', serif",
   fontSans: "'Public Sans', system-ui, sans-serif",
   fontDisplay: "'Sora', system-ui, sans-serif",

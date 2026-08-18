@@ -18,6 +18,7 @@
 
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 
+import { ElvButtonComponent } from '@shared/components/elv-button/elv-button.component';
 import { CvBuilderStore } from '../cv-builder.store';
 import {
   EducationItem, ExperienceItem, SkillGroup, SummaryItem, newItem,
@@ -34,6 +35,7 @@ interface StepDef { key: StepKey; name: string; title: string; lede: string; eff
 @Component({
   selector: 'elv-cv-counter',
   standalone: true,
+  imports: [ElvButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './counter.component.html',
 })

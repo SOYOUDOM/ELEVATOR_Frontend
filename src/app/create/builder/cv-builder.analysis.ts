@@ -32,6 +32,13 @@ export function fromMonths(n: number): string {
   return `${MONTHS[n % 12]} ${Math.floor(n / 12)}`;
 }
 
+/** The inverse of `toMonths` — an absolute month back to the `YYYY-M` the
+    model stores. Dragging a span on the timeline writes through this. */
+export function toYm(n: number): string {
+  const m = Math.round(n);
+  return `${Math.floor(m / 12)}-${(m % 12) + 1}`;
+}
+
 export function nowMonths(): number {
   const d = new Date();
   return d.getFullYear() * 12 + d.getMonth();

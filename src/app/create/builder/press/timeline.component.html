@@ -1,13 +1,18 @@
 <div class="elv-cv-timeline__head">
   <span class="label">Career</span>
   <span class="elv-cv-timeline__spacer"></span>
+  @if (drag(); as d) {
+    <span class="elv-cv-timeline__read num">{{ d.label }} · {{ dragLabel() }}</span>
+  }
   <div class="elv-cv-timeline__legend" aria-hidden="true">
     <span class="elv-cv-timeline__key elv-cv-timeline__key--work"><i></i>Work</span>
     <span class="elv-cv-timeline__key elv-cv-timeline__key--study"><i></i>Study</span>
     <span class="elv-cv-timeline__key elv-cv-timeline__key--proj"><i></i>Projects</span>
     <span class="elv-cv-timeline__key elv-cv-timeline__key--gap"><i></i>Gaps</span>
   </div>
-  <button class="elv-cv-btn elv-cv-btn--sm" (click)="hide()">Hide</button>
+  <app-elv-button variant="ghost" size="small" corner="sharp" [iconOnly]="true"
+                  icon="pi pi-times" ariaLabel="Hide the timeframe"
+                  (clicked)="hide()"></app-elv-button>
 </div>
 
 <div class="elv-cv-timeline__body">
@@ -21,7 +26,7 @@
       <span class="axis__now" [style.left.%]="nowLeft()"></span>
     </div>
 
-    <div class="lanes">
+    <div class="lanes" #laneBox>
       <!-- Gaps are drawn UNDER the spans and across every lane: a hole in the
            record is a fact about the whole career, not about one row. -->
       @for (g of holes(); track g.from) {
@@ -33,13 +38,34 @@
       @for (lane of lanes(); track $index) {
         <div class="lane">
           @for (s of lane; track s.secId + ':' + s.item) {
-            <button class="span"
-                    [class.span--study]="s.kind === 'study'"
-                    [class.span--proj]="s.kind === 'proj'"
-                    [class.span--open]="s.open"
-                    [class.is-sel]="isSel(s)"
-                    [style.left.%]="s.left" [style.width.%]="s.width"
-                    [title]="s.label" (click)="pick(s)">{{ s.label }}</button>
+            <!-- The bar itself moves the whole role; the two grips move one
+                 date each. `touch-action: none` on all three, or a touch drag
+                 scrolls the panel instead of moving the date. -->
+            <div class="span"
+                 [class.span--study]="s.kind === 'study'"
+                 [class.span--proj]="s.kind === 'proj'"
+                 [class.span--open]="s.open"
+                 [class.is-sel]="isSel(s)"
+                 [style.left.%]="s.left" [style.width.%]="s.width"
+                 [title]="s.label + ' — drag to move, drag an end to stretch'">
+              <button class="span__body" (click)="pick(s)"
+                      (pointerdown)="startDrag(s, 'move', $event)"
+                      (keydown)="keyDrag(s, $event)"
+                      [attr.aria-label]="s.label + ', ' + s.from + ' to ' + s.to
+                        + '. Shift with the arrow keys to move it, alt to change its end.'">{{ s.label }}</button>
+
+              <span class="span__grip span__grip--from" role="slider"
+                    tabindex="0" aria-label="Start date"
+                    [attr.aria-valuetext]="s.label + ' starts here'"
+                    (pointerdown)="startDrag(s, 'from', $event)"></span>
+
+              @if (!s.open) {
+                <span class="span__grip span__grip--to" role="slider"
+                      tabindex="0" aria-label="End date"
+                      [attr.aria-valuetext]="s.label + ' ends here'"
+                      (pointerdown)="startDrag(s, 'to', $event)"></span>
+              }
+            </div>
           }
         </div>
       }

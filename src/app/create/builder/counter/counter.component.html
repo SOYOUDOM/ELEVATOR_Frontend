@@ -23,13 +23,9 @@
   </ol>
 
   <div class="docket__foot">
-    <button class="elv-cv-btn elv-cv-btn--sm elv-cv-btn--ghost" (click)="toPress.emit()">
-      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor"
-           stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M3.4 8h9.2M9 4.4 12.6 8 9 11.6"/>
-      </svg>
-      Open the editor
-    </button>
+    <app-elv-button variant="ghost" size="small" corner="sharp" [block]="true"
+                    title="Open the editor" icon="pi pi-arrow-right" iconPos="right"
+                    (clicked)="toPress.emit()"></app-elv-button>
     <p class="docket__note">
       Nothing here is final. Everything can be rewritten, reordered or deleted
       on the page afterwards.
@@ -100,9 +96,11 @@ BSc Computer Science — Royal University of Phnom Penh — 2017 to 2021"></text
               <div class="parse__foot">
                 <span class="parse__count">{{ parseWords() }}</span>
                 @if (parseText().trim()) {
-                  <button class="elv-cv-btn elv-cv-btn--sm" (click)="clearParse()">Clear</button>
+                  <app-elv-button variant="ghost" size="small" corner="sharp"
+                                  title="Clear" (clicked)="clearParse()"></app-elv-button>
                 }
-                <button class="elv-cv-btn elv-cv-btn--sm elv-cv-btn--primary" (click)="runParse()">Read it</button>
+                <app-elv-button variant="primary" size="small" corner="sharp"
+                                title="Read it" (clicked)="runParse()"></app-elv-button>
               </div>
 
               @if (report(); as r) {
@@ -449,14 +447,19 @@ BSc Computer Science — Royal University of Phnom Penh — 2017 to 2021"></text
 
   @if (!isFirst()) {
     <footer class="step__foot">
-      <button class="elv-cv-btn" (click)="go(step() - 1)">← Back</button>
+      <app-elv-button variant="ghost" corner="sharp" title="Back"
+                      icon="pi pi-arrow-left" (clicked)="go(step() - 1)"></app-elv-button>
       <span class="step__spacer"></span>
       @if (!isLast()) {
         <span class="step__hint">Skipping leaves the section empty, not deleted.</span>
-        <button class="elv-cv-btn" (click)="skip()">Skip</button>
-        <button class="elv-cv-btn elv-cv-btn--primary" (click)="go(step() + 1)">Continue</button>
+        <app-elv-button variant="ghost" corner="sharp" title="Skip" (clicked)="skip()"></app-elv-button>
+        <app-elv-button variant="primary" corner="sharp" title="Continue"
+                        icon="pi pi-arrow-right" iconPos="right"
+                        (clicked)="go(step() + 1)"></app-elv-button>
       } @else {
-        <button class="elv-cv-btn elv-cv-btn--primary press-go" (click)="toPress.emit()">→ Send to the press</button>
+        <app-elv-button variant="primary" corner="sharp" customClass="press-go"
+                        title="Send to the press" icon="pi pi-arrow-right" iconPos="right"
+                        (clicked)="toPress.emit()"></app-elv-button>
       }
     </footer>
   }

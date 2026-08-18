@@ -1,10 +1,7 @@
 <div class="pane__head">
   <span class="label">Inspector</span>
-  <div class="seg" role="group" aria-label="Inspector tab">
-    <button (click)="tab('content')" [attr.aria-pressed]="ui().tab === 'content'">CONTENT</button>
-    <button (click)="tab('type')" [attr.aria-pressed]="ui().tab === 'type'">TYPE</button>
-    <button (click)="tab('check')" [attr.aria-pressed]="ui().tab === 'check'">CHECK</button>
-  </div>
+  <app-elv-seg label="Inspector tab" [options]="tabs" [value]="ui().tab"
+               (valueChange)="tab($event)"></app-elv-seg>
 </div>
 
 <div class="pane__body">
@@ -102,7 +99,8 @@
                     <button class="unit" (click)="removeBullet($index)" aria-label="Remove line">✕</button>
                   </span>
                 }
-                <button class="elv-cv-btn elv-cv-btn--sm elv-cv-btn--ghost" (click)="addBullet()">+ Add a line</button>
+                <app-elv-button variant="ghost" size="small" corner="sharp" icon="pi pi-plus"
+                                title="Add a line" (clicked)="addBullet()"></app-elv-button>
               </div>
             }
 
@@ -172,7 +170,8 @@
           }
 
           <div class="addbar" style="padding-left:0;padding-right:0">
-            <button class="elv-cv-btn elv-cv-btn--sm elv-cv-btn--ghost" (click)="removeItem()">Remove this entry</button>
+            <app-elv-button variant="ghost" size="small" corner="sharp" icon="pi pi-trash"
+                            title="Remove this entry" (clicked)="removeItem()"></app-elv-button>
           </div>
         </div>
       } @else {
@@ -207,13 +206,75 @@
     </div>
 
     <div class="group">
-      <div class="group__head"><span class="label">Type</span></div>
-      <div class="chips">
-        <button class="chip" [class.chip--on]="doc().design.font === 'serif'"
-                (click)="setDesign('font', 'serif')">Source Serif</button>
-        <button class="chip" [class.chip--on]="doc().design.font === 'sans'"
-                (click)="setDesign('font', 'sans')">Public Sans</button>
+      <div class="group__head">
+        <span class="label">Face</span>
+        @if (fontState() === 'granted') {
+          <span class="group__note num">{{ fontList().length - 2 }} on this machine</span>
+        }
       </div>
+
+      <!-- Every row previews itself. A list of font names set in one face is a
+           list of words, not a choice between letterforms. -->
+      <div class="faces" role="listbox" aria-label="Typeface">
+        @for (f of shownFonts(); track f.value) {
+          <button class="face" role="option"
+                  [attr.aria-selected]="doc().design.font === f.value"
+                  [class.face--on]="doc().design.font === f.value"
+                  (click)="setFont(f.value)">
+            <span class="face__name" [style.font-family]="f.stack">{{ f.label }}</span>
+            <span class="face__where">{{ f.source === 'bundled' ? 'Bundled' : 'Yours' }}</span>
+          </button>
+        } @empty {
+          <p class="fld__hint">Nothing matches “{{ fontFilter() }}”.</p>
+        }
+      </div>
+
+      @switch (fontState()) {
+        <!-- `idle` and `loading` share a case: the button is the same button,
+             and while the browser's permission prompt is open it should read
+             as busy rather than vanish, or a reader who dismisses the prompt
+             is left looking at a control that is no longer there. -->
+        @case ('idle') {
+          <app-elv-button variant="ghost" size="small" corner="sharp" [block]="true"
+                          icon="pi pi-desktop" title="Use a font from this computer"
+                          customClass="faces__ask" (clicked)="loadLocalFonts()"></app-elv-button>
+          <span class="fld__hint">
+            Your browser will ask before sharing the list. The two faces above
+            travel with the file; anything off this machine will fall back to
+            Public Sans on a reader who does not have it.
+          </span>
+        }
+        @case ('loading') {
+          <app-elv-button variant="ghost" size="small" corner="sharp" [block]="true"
+                          [loading]="true" title="Waiting for your browser"
+                          customClass="faces__ask"></app-elv-button>
+          <span class="fld__hint">Your browser is asking whether to share the list.</span>
+        }
+        @case ('granted') {
+          <label class="fld" style="margin-top:10px">
+            <span class="fld__label">Find a face</span>
+            <span class="fld__box"><input [value]="fontFilter()"
+              (input)="fontFilter.set($any($event.target).value)"
+              placeholder="Garamond, Inter, …"></span>
+          </label>
+        }
+        @case ('denied') {
+          <span class="fld__hint">
+            No font list from this browser — either it was declined, or it is
+            not Chromium. The two bundled faces are always available.
+          </span>
+        }
+        @case ('unsupported') {
+          <span class="fld__hint">
+            This browser has no way to list your installed fonts. The two
+            bundled faces are always available.
+          </span>
+        }
+      }
+    </div>
+
+    <div class="group">
+      <div class="group__head"><span class="label">Setting</span></div>
 
       <div class="fld" style="margin-top:14px">
         <span class="fld__label">Size</span>
@@ -270,7 +331,8 @@
     </div>
 
     <div class="group">
-      <button class="elv-cv-btn elv-cv-btn--primary" style="width:100%" (click)="autoFit.emit()">Fit onto one page</button>
+      <app-elv-button variant="primary" corner="sharp" [block]="true"
+                      title="Fit onto one page" (clicked)="autoFit.emit()"></app-elv-button>
       <span class="fld__hint" style="display:block;margin-top:8px">
         Nudges leading, then size, then section spacing — in that order, and only
         as far as it has to. It will tell you what it changed.

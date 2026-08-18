@@ -8,6 +8,7 @@
 
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 
+import { ElvButtonComponent } from '@shared/components/elv-button/elv-button.component';
 import { ElvRingComponent } from '@shared/components/elv-ring/elv-ring.component';
 import { CvBuilderStore } from '../cv-builder.store';
 import { Fill, itemLabelOf, readiness } from './rail.helpers';
@@ -16,7 +17,7 @@ import { ExperienceItem, SECTION_KINDS, Section, SkillGroup } from '../cv-builde
 @Component({
   selector: 'elv-cv-rail',
   standalone: true,
-  imports: [ElvRingComponent],
+  imports: [ElvButtonComponent, ElvRingComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './rail.component.html',
 })

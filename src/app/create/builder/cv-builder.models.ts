@@ -44,7 +44,13 @@ export type MarginName = 'tight' | 'normal' | 'roomy';
 
 export interface Design {
   layout: LayoutName;
-  font: 'serif' | 'sans';
+  /**
+   * `'serif'` and `'sans'` are the two bundled faces. Any other value is the
+   * literal family name of a font the reader picked off their own machine —
+   * see `fontStack()` in the paginator, which is the only place this is
+   * turned into CSS.
+   */
+  font: 'serif' | 'sans' | (string & {});
   /**
    * The document's accent. Deliberately NOT a theme token: this one is the
    * candidate's choice about their own CV, and it has to survive the reader

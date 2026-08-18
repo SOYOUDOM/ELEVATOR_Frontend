@@ -21,9 +21,10 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 
 import { ThemeService } from '../../theme/theme.service';
-import { CvBuilderStore } from './cv-builder.store';
+import { CvBuilderStore, PANE_LIMITS } from './cv-builder.store';
 import { countWords, gaps } from './cv-builder.analysis';
-import { PAGE, margin, pagesHtml } from './cv-builder.paginate';
+import { PAGE, fontLabel, fontStack, margin, pagesHtml } from './cv-builder.paginate';
+import { ElvButtonComponent } from '@shared/components/elv-button/elv-button.component';
 import { ElvSegComponent, ElvSegOption } from '@shared/components/elv-seg/elv-seg.component';
 import { ElvToastService } from '@shared/components/elv-toast/elv-toast.service';
 import { ElvToastsComponent } from '@shared/components/elv-toast/elv-toast.component';
@@ -36,7 +37,7 @@ import { TimelineComponent } from './press/timeline.component';
   selector: 'elv-cv-builder',
   standalone: true,
   imports: [
-    RouterLink, ElvSegComponent, ElvToastsComponent,
+    RouterLink, ElvButtonComponent, ElvSegComponent, ElvToastsComponent,
     CounterComponent, RailComponent, InspectorComponent, TimelineComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,6 +53,9 @@ import { TimelineComponent } from './press/timeline.component';
     '[attr.data-inspector]': `ui().inspector ? 'on' : 'off'`,
     '[attr.data-timeline]': `ui().timeline ? 'on' : 'off'`,
     '[attr.data-scan]': `ui().scan ? 'on' : 'off'`,
+    '[attr.data-resizing]': `dragging() ? 'true' : null`,
+    '[style.--elv-cv-rail-w.px]': `ui().railW`,
+    '[style.--elv-cv-inspector-w.px]': `ui().inspectorW`,
     '[attr.data-guides]': `ui().guides ? 'on' : 'off'`,
     '[attr.data-baseline]': `ui().baseline ? 'on' : 'off'`,
     '[attr.data-mode]': `'edit'`,
@@ -112,6 +116,11 @@ export class CvBuilderComponent implements AfterViewInit, OnDestroy {
        through this call. */
     return this.sanitizer.bypassSecurityTrustHtml(html);
   });
+
+  /** The CSS face the page is mounted in — the paginator's own mapping, so
+      the mounted page and the measured page cannot disagree. */
+  readonly docFont = computed(() => fontStack(this.doc().design));
+  readonly fontLabel = computed(() => fontLabel(this.doc().design));
 
   readonly words = computed(() => countWords(this.doc()));
   readonly holes = computed(() => gaps(this.doc()).length);
@@ -273,7 +282,82 @@ export class CvBuilderComponent implements AfterViewInit, OnDestroy {
 
   private reflow(): void { setTimeout(() => this.viewport.update((n) => n + 1), 240); }
 
+  /* ═══════════════════════════════════════════════════════════════════════
+     RESIZING THE PANES
+     ───────────────────────────────────────────────────────────────────────
+     Pointer events rather than mouse events, so a pen and a touch drag work
+     for free, and `setPointerCapture` so the drag survives the pointer
+     leaving the 11px handle — which it does immediately, every time.
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  readonly dragging = signal<'rail' | 'inspector' | null>(null);
+
+  startResize(pane: 'rail' | 'inspector', ev: PointerEvent): void {
+    ev.preventDefault();
+    const handle = ev.target as HTMLElement;
+    handle.setPointerCapture?.(ev.pointerId);
+    this.dragging.set(pane);
+
+    const startX = ev.clientX;
+    const startW = pane === 'rail' ? this.ui().railW : this.ui().inspectorW;
+
+    const move = (e: PointerEvent) => {
+      /* The inspector grows leftwards, so its delta is the mirror of the
+         rail's. Everything else about the two drags is identical. */
+      const delta = pane === 'rail' ? e.clientX - startX : startX - e.clientX;
+      this.setPaneWidth(pane, startW + delta);
+    };
+    const up = () => {
+      handle.releasePointerCapture?.(ev.pointerId);
+      handle.removeEventListener('pointermove', move);
+      handle.removeEventListener('pointerup', up);
+      handle.removeEventListener('pointercancel', up);
+      this.dragging.set(null);
+      this.store.save();
+      this.reflow();
+    };
+
+    handle.addEventListener('pointermove', move);
+    handle.addEventListener('pointerup', up);
+    handle.addEventListener('pointercancel', up);
+  }
+
+  /** Arrow keys move a handle too — a resize only a mouse can perform is not
+      one every user has. */
+  keyResize(pane: 'rail' | 'inspector', ev: KeyboardEvent): void {
+    const dir = ev.key === 'ArrowLeft' ? -1 : ev.key === 'ArrowRight' ? 1 : 0;
+    if (!dir) return;
+    ev.preventDefault();
+    const step = (ev.shiftKey ? 32 : 8) * (pane === 'rail' ? dir : -dir);
+    this.setPaneWidth(pane, (pane === 'rail' ? this.ui().railW : this.ui().inspectorW) + step);
+    this.store.save();
+    this.reflow();
+  }
+
+  private setPaneWidth(pane: 'rail' | 'inspector', px: number): void {
+    const { min, max } = PANE_LIMITS[pane];
+    const w = Math.round(Math.min(max, Math.max(min, px)));
+    this.store.patchUi(pane === 'rail' ? { railW: w } : { inspectorW: w });
+    this.viewport.update((n) => n + 1);
+  }
+
   print(): void { this.document.defaultView?.print(); }
+
+  /**
+   * EXPORT — the browser's own print-to-PDF, which is the only path that
+   * renders the page with real text rather than a picture of it. A CV that
+   * an applicant-tracking system cannot read is not an export.
+   *
+   * The page is deselected first: a selection ring is an editing state, and
+   * it has no business appearing in the file the reader sends out.
+   */
+  exportPdf(): void {
+    this.store.select(null, null);
+    this.toast('Choose “Save as PDF” as the destination, and leave margins at “None” — the sheet already carries its own.',
+      { ms: 6000 });
+    /* One frame, so the ring is gone from the paint the print snapshot takes. */
+    requestAnimationFrame(() => this.print());
+  }
 
   loadSample(): void {
     this.store.loadSample();
