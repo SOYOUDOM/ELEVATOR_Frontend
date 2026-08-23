@@ -1,7 +1,12 @@
+<!-- No backdrop-blur: a blur on a FIXED bar re-filters the content scrolling
+     underneath it every frame, which measured ~10ms per frame on this page.
+     Over a near-black palette the glass showed almost nothing anyway — a
+     96%-opaque bar hides what was behind it more cleanly than a smear. Put
+     `backdrop-blur-md` back and drop the alpha to /30 if you want the glass. -->
 <div class="fixed top-0 inset-x-0 z-50 flex items-center justify-between
             h-[var(--p-elevator-navbar-height)] px-6 sm:px-12
             border-b border-[var(--p-elevator-line-soft)]
-            bg-[var(--p-elevator-bg0)]/30 backdrop-blur-md">
+            bg-[color-mix(in_oklch,var(--p-elevator-bg0)_96%,transparent)]">
 
   <!-- LEFT: hamburger (mobile) + logo -->
   <div class="flex items-center shrink-0">

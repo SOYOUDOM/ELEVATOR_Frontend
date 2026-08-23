@@ -17,6 +17,17 @@ import { seedProfile } from './data/profile.fixture';
  */
 const STORAGE_KEY = 'elv-mock-db';
 
+/**
+ * A dev session creates a CV every time someone presses "Start Building", and
+ * they were never removed — after an afternoon of clicking through the flows
+ * the store held dozens of documents (each with a photo data URI) and the whole
+ * thing was re-serialised on every autosave. Keep the recent ones; that is all
+ * a mock backend is for.
+ */
+const MAX_CVS = 25;
+/** Writes are coalesced: autosave fires roughly once per second while typing. */
+const PERSIST_DEBOUNCE_MS = 400;
+
 interface MockDbShape {
     cvs: CvDocument[];
     profile: ProfessionalProfile | null;
@@ -39,7 +50,7 @@ class MockDb {
     }
 
     insertCv(cv: CvDocument): CvDocument {
-        this.state.cvs = [cv, ...this.state.cvs];
+        this.state.cvs = [cv, ...this.state.cvs].slice(0, MAX_CVS);
         this.persist();
         return cv;
     }
@@ -90,14 +101,23 @@ class MockDb {
     /** Development helper — restores every fixture. Never exposed as an endpoint. */
     reset(): void {
         this.state = seed();
-        this.persist();
+        this.flush();
     }
 
+    private timer?: ReturnType<typeof setTimeout>;
+
     private persist(): void {
+        clearTimeout(this.timer);
+        this.timer = setTimeout(() => this.flush(), PERSIST_DEBOUNCE_MS);
+    }
+
+    private flush(): void {
+        clearTimeout(this.timer);
+        this.timer = undefined;
         try {
             sessionStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
         } catch {
-            /* private mode: the store simply stays in memory for this tab */
+            /* private mode, or the quota is full: the store stays in memory */
         }
     }
 }

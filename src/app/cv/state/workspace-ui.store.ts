@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 
 import type { CvSectionId } from '../models/cv-content.model';
 
@@ -54,8 +54,13 @@ export class WorkspaceUiStore {
     /** Mobile/tablet: which of the three panes is on screen. */
     readonly mobilePane = signal<'builder' | 'preview' | 'inspector'>('preview');
 
+    private saveTimer?: ReturnType<typeof setTimeout>;
+
     constructor() {
         this.restore();
+        // A half-written preference is worse than a stale one: flush whatever
+        // the debounce is still holding when the workspace closes.
+        inject(DestroyRef).onDestroy(() => this.flush());
     }
 
     setRail(id: RailItemId): void {
@@ -108,7 +113,21 @@ export class WorkspaceUiStore {
         this.persist();
     }
 
+    /**
+     * Coalesced. A resize drag calls this on every pointermove, and
+     * localStorage.setItem is synchronous — writing a JSON blob per frame is a
+     * main-thread stall in the middle of the one gesture that has to stay
+     * smooth. Nothing here needs to survive the next 250ms.
+     */
     private persist(): void {
+        clearTimeout(this.saveTimer);
+        this.saveTimer = setTimeout(() => this.flush(), 250);
+    }
+
+    private flush(): void {
+        clearTimeout(this.saveTimer);
+        this.saveTimer = undefined;
+
         const snapshot: PersistedWorkspace = {
             leftWidth: this.leftWidth(),
             rightWidth: this.rightWidth(),
