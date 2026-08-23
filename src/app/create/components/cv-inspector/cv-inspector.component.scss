@@ -46,6 +46,8 @@
 }
 
 .insp__scroll {
+    /* Reserved, so gaining a scrollbar never reflows what is under the pointer. */
+    scrollbar-gutter: stable;
     flex: 1;
     min-height: 0;
     overflow-y: auto;
@@ -164,6 +166,46 @@
     background: #0f766e;
 }
 
+.insp__thumb[data-template='executive'] {
+    display: grid;
+    grid-template-columns: 34% 1fr;
+    grid-auto-rows: min-content;
+    gap: 3px;
+}
+
+.insp__thumb[data-template='executive'] .insp__thumb-bar {
+    grid-column: 1 / -1;
+    background: #1e3a5f;
+}
+
+.insp__thumb[data-template='minimal'] .insp__thumb-bar {
+    height: 3px;
+    width: 40%;
+    background: #2b2b2b;
+}
+
+.insp__thumb[data-template='academic'] .insp__thumb-bar {
+    align-self: center;
+    width: 70%;
+    height: 4px;
+    background: #3f3f3f;
+}
+
+.insp__thumb[data-template='banner'] {
+    padding: 0 0 6px;
+}
+
+.insp__thumb[data-template='banner'] .insp__thumb-bar {
+    height: 16px;
+    background: #b3261e;
+    margin-bottom: 3px;
+}
+
+.insp__thumb[data-template='banner'] .insp__thumb-line,
+.insp__thumb[data-template='banner'] .insp__thumb-block {
+    margin: 0 6px;
+}
+
 .insp__template-name {
     line-height: 1.3;
 }
@@ -184,10 +226,35 @@
     font-variant-numeric: tabular-nums;
 }
 
-.insp__row--range {
+.insp__row--range,
+.insp__row--stack {
     flex-direction: column;
     align-items: stretch;
     gap: 4px;
+}
+
+.insp__select {
+    width: 100%;
+    padding: 7px 8px;
+    background: var(--p-elevator-panel-hi);
+    border: 1px solid var(--p-elevator-line);
+    color: var(--p-elevator-ink);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.insp__select:focus-visible {
+    outline: 1px solid var(--p-elevator-accent);
+    outline-offset: -1px;
+}
+
+/* The native list is drawn by the OS; give it a readable surface where the
+   platform honours these (Chromium on Windows and Linux). */
+.insp__select option,
+.insp__select optgroup {
+    background: var(--p-elevator-panel);
+    color: var(--p-elevator-ink);
 }
 
 .insp__row--range span {

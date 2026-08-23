@@ -44,6 +44,62 @@
                         </fieldset>
                     }
 
+                    @case ('photo') {
+                        <fieldset class="cv-form__photo">
+                            <legend class="cv-form__legend">{{ field.label }}</legend>
+
+                            <div class="cv-form__photo-row">
+                                <span class="cv-form__photo-frame" aria-hidden="true">
+                                    @if (photoValue(field); as photo) {
+                                        <img [src]="photo" alt="" />
+                                    } @else {
+                                        <i class="pi pi-user"></i>
+                                    }
+                                </span>
+
+                                <div class="cv-form__photo-actions">
+                                    <!-- The input is the control; the button is the affordance.
+                                         Screen readers get the button's label, not "choose file". -->
+                                    <input
+                                        #photoInput
+                                        type="file"
+                                        class="cv-form__photo-input"
+                                        [attr.accept]="photoAccept"
+                                        (change)="onPhotoChosen(field, $event)"
+                                        tabindex="-1"
+                                        aria-hidden="true" />
+
+                                    <app-elv-button
+                                        size="small"
+                                        corner="sharp"
+                                        variant="outline"
+                                        icon="pi pi-upload"
+                                        [title]="photoValue(field) ? 'Replace' : 'Upload photo'"
+                                        [loading]="photoBusy()"
+                                        (clicked)="photoInput.click()" />
+
+                                    @if (photoValue(field)) {
+                                        <app-elv-button
+                                            size="small"
+                                            corner="sharp"
+                                            variant="ghost"
+                                            icon="pi pi-trash"
+                                            title="Remove"
+                                            (clicked)="setPhoto(field, null)" />
+                                    }
+                                </div>
+                            </div>
+
+                            @if (field.hint) {
+                                <p class="cv-form__hint">{{ field.hint }}</p>
+                            }
+
+                            @if (photoError(); as message) {
+                                <p class="cv-form__error" role="alert">{{ message }}</p>
+                            }
+                        </fieldset>
+                    }
+
                     @case ('string-list') {
                         <fieldset class="cv-form__list">
                             <legend class="cv-form__legend">{{ field.label }}</legend>

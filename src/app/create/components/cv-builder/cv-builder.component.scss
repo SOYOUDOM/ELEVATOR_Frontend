@@ -39,6 +39,8 @@
 }
 
 .bld__sections {
+    /* Reserved, so gaining a scrollbar never reflows what is under the pointer. */
+    scrollbar-gutter: stable;
     flex: 1;
     min-height: 0;
     overflow-y: auto;

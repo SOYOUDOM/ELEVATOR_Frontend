@@ -78,6 +78,15 @@ Create a CV. The single entry point for two of the three starting paths.
 **The autosave endpoint.** Must be a true PATCH: branches the client does not
 send are left untouched.
 
+> **Sizing note.** `content.personal.photoUrl` is a **data URI**, so the photo
+> travels inside the document rather than as a separate upload. The client
+> downscales to a 512px longest edge and re-encodes before storing (see
+> `models/cv-photo.ts`), which keeps it in the low tens of KB — but size the
+> request body limit and the column for it, and expect a `content` branch on the
+> wire whenever the photo changes. If photos ever need to be larger, the change
+> is a `POST /api/cvs/:cvId/photo` returning a URL, and `photoUrl` holds that
+> instead; nothing else in the model moves.
+
 - **Request** — `UpdateCvRequest`, every field optional:
   ```ts
   { name?, targetRole?, content?: Partial<CvContent>, design?: Partial<CvDesign>, options?: Partial<CvOptions> }
@@ -216,11 +225,19 @@ send are left untouched.
 Two things this feature could have had an API for, and does not.
 
 **Templates.** `CV_TEMPLATES` in `src/app/cv/templates/cv-templates.ts` is a
-frontend constant. A template is a name, a capability set and a stylesheet that
-reads the `--cv-*` variables the preview emits — shipping one is a frontend
-release. There is no `GET /api/cv-templates` and none is mocked. Revisit only if
-templates become user- or admin-authored; the `CvTemplate` interface is already
-shaped like what such an endpoint would return.
+frontend constant — seven of them today (Modern Professional, Classic Serif,
+Compact Two-Column, Executive, Minimal, Academic, Banner). A template is a name,
+a capability set and a stylesheet that reads the `--cv-*` variables the preview
+emits, so shipping one is a frontend release. There is no `GET /api/cv-templates`
+and none is mocked. Revisit only if templates become user- or admin-authored; the
+`CvTemplate` interface is already shaped like what such an endpoint would return.
+
+**Fonts.** `CvDesign.fontFamily` is a CSS family NAME (`"Georgia"`), not an enum,
+because the picker can offer fonts installed on the reader's own machine via the
+Local Font Access API. The backend stores and returns the string unchanged — it
+never needs to know the list. Documents written before this was widened hold
+`'sans' | 'serif' | 'mono' | 'grotesk'`; the frontend maps those in
+`models/cv-fonts.ts`, so **no data migration is required**.
 
 **Export.** Export is the browser's own print-to-PDF against `src/styles/_print.scss`.
 The document already renders at real page dimensions in millimetres and the print

@@ -49,6 +49,13 @@
 }
 .elv-btn:hover:not(.elv-btn--disabled):not(.elv-btn--loading)::before { transform: translateX(130%); }
 
+/* BLOCK buttons skip the sweep. On a 40px chip the band reads as a
+   highlight; across a full-width button it is a screen-wide flash, and
+   when the button sits at the edge of a scrolling panel the pointer
+   crossing the scrollbar restarts it over and over. The border and fill
+   transitions still give the hover its feedback. */
+.elv-btn--block::before { content: none; }
+
 .elv-btn__content { position: relative; z-index: 1; display: inline-flex; align-items: center;
   justify-content: center; gap: var(--_icon-gap);
   i { font-size: .9em; line-height: 1; } }

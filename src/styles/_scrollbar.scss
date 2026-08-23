@@ -1,0 +1,97 @@
+// ════════════════════════════════════════════════════════════
+// SCROLLBARS
+//
+// A hairline amber rail on near-black, matching the rest of the
+// ELEVATOR chrome. Two declarations, because the two engines
+// expose completely different surfaces:
+//
+//   • scrollbar-width / scrollbar-color — the standard property.
+//     Firefox honours it; Chromium 121+ does too.
+//   • ::-webkit-scrollbar-* — the older Chromium pseudo-elements,
+//     which give the padding, the glow and the removal of the
+//     stepper arrows that the standard property cannot express.
+//
+// Chromium applies the standard property when it is set and
+// ignores the pseudo-elements for that element, so `scrollbar-color`
+// is scoped to Firefox via @supports to keep the richer treatment
+// everywhere else.
+//
+// The thumb is drawn with a transparent border plus
+// `background-clip: content-box`: that is what makes a 4px bar
+// inside a 12px hit target, so it stays easy to grab while reading
+// as a hairline.
+// ════════════════════════════════════════════════════════════
+
+:root {
+    --elv-sb-size: 12px;
+    --elv-sb-inset: 4px;
+    --elv-sb-track: #05070c;
+    --elv-sb-thumb: var(--p-elevator-accent, #ffd35b);
+}
+
+// ── Firefox ───────────────────────────────────────────────────
+@supports (-moz-appearance: none) {
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--elv-sb-thumb) var(--elv-sb-track);
+    }
+}
+
+// ── Chromium / WebKit ─────────────────────────────────────────
+::-webkit-scrollbar {
+    width: var(--elv-sb-size);
+    height: var(--elv-sb-size);
+}
+
+::-webkit-scrollbar-track {
+    background: var(--elv-sb-track);
+    border-left: 1px solid var(--p-elevator-line-soft, rgba(150, 180, 210, 0.07));
+}
+
+::-webkit-scrollbar-track:horizontal {
+    border-left: 0;
+    border-top: 1px solid var(--p-elevator-line-soft, rgba(150, 180, 210, 0.07));
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: color-mix(in oklch, var(--elv-sb-thumb) 78%, transparent);
+    background-clip: content-box;
+    border: var(--elv-sb-inset) solid transparent;
+    border-radius: 999px;
+    // The glow is drawn INSIDE the thumb: an outer box-shadow on a
+    // scrollbar part is clipped by the track and just looks dirty.
+    box-shadow: inset 0 0 6px color-mix(in oklch, var(--elv-sb-thumb) 60%, transparent);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--elv-sb-thumb);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background-color: color-mix(in oklch, var(--elv-sb-thumb) 92%, #fff);
+}
+
+::-webkit-scrollbar-corner {
+    background: var(--elv-sb-track);
+}
+
+// No stepper arrows — the concept has a clean rail, and the arrows
+// are also a hover target right beside the thumb.
+::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+// The CV is the user's document, not our chrome: if it ever scrolls
+// (a long field inside the editor), it gets the platform default
+// rather than ELEVATOR's gold.
+.cv-doc ::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--cv-text, #11161f) 35%, transparent);
+    box-shadow: none;
+}
+
+.cv-doc ::-webkit-scrollbar-track {
+    background: color-mix(in srgb, var(--cv-text, #11161f) 8%, var(--cv-page, #fff));
+    border: 0;
+}

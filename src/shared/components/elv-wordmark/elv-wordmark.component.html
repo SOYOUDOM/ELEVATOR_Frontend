@@ -1,0 +1,17 @@
+<a
+    class="brand-name flex items-baseline gap-[1px] leading-none select-none whitespace-nowrap tracking-[0.12em] uppercase justify-center items-center gap-2"
+    [style.font-size]="scale()"
+    [attr.href]="href()"
+    aria-label="ELEVATOR">
+    <img src="/Logo.png" alt="" [class]="logoClass()" class="object-contain" />
+    <span
+        class="brand-lead text-[var(--p-elevator-accent)] drop-shadow-[0_0_8px_var(--p-elevator-accent-glow)]"
+        aria-hidden="true">
+        E
+    </span>
+    <span class="text-[var(--p-elevator-ink)]" aria-hidden="true">
+        @for (letter of brandLetters; track $index) {
+            <span class="brand-l" [style.--i]="$index">{{ letter }}</span>
+        }
+    </span>
+</a>

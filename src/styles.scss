@@ -48,6 +48,8 @@
 
 // ── 6 · page level ─────────────────────────────────────────────
 @use './styles/hero';          // hero, face weave, logo outline, CTA band
+@use './styles/scrollbar';     // .elv scrollbars — hairline amber rail on near-black
+@use './styles/workspace';     // html[data-workspace] — the Create route owns the viewport
 @use './styles/print';         // export/print — strips every trace of the app
 
 @import "tailwindcss";

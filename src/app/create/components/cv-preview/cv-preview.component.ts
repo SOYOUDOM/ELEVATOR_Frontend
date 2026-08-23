@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 
-import { CV_FONT_STACKS, type CvDesign, type CvOptions } from '@app/cv/models/cv-design.model';
+import type { CvDesign, CvOptions } from '@app/cv/models/cv-design.model';
+import { resolveFontStack } from '@app/cv/models/cv-fonts';
 import type { CvContent, CvSectionId } from '@app/cv/models/cv-content.model';
 import { type CvDateRange, formatCvDate, formatCvRange } from '@app/cv/models/cv-date';
 import { CvEditableDirective } from '@app/cv/directives/cv-editable.directive';
@@ -41,7 +42,7 @@ export class CvPreviewComponent {
     /** False for a clean preview or an export render — no click-to-edit chrome. */
     readonly interactive = input(true);
 
-    readonly fontStack = computed(() => CV_FONT_STACKS[this.design().fontFamily]);
+    readonly fontStack = computed(() => resolveFontStack(this.design().fontFamily));
 
     /** Sections in the user's order, minus the ones they switched off. */
     readonly visibleSections = computed<CvSectionId[]>(() => {

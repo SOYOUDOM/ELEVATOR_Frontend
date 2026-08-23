@@ -6,6 +6,7 @@ import {
     effect,
     inject,
     input,
+    signal,
     untracked,
 } from '@angular/core';
 
@@ -15,7 +16,14 @@ import { ElvToggleComponent } from '@shared/components/elv-toggle/elv-toggle.com
 
 import type { CvSectionId } from '@app/cv/models/cv-content.model';
 import { type CvDateRange, parseMonthInput, toMonthInput } from '@app/cv/models/cv-date';
-import type { CvFieldSpec, CvListFieldSpec, CvRangeFieldSpec, CvTextFieldSpec } from '@app/cv/schema/cv-field.types';
+import type {
+    CvFieldSpec,
+    CvListFieldSpec,
+    CvPhotoFieldSpec,
+    CvRangeFieldSpec,
+    CvTextFieldSpec,
+} from '@app/cv/schema/cv-field.types';
+import { PHOTO_ACCEPT, photoToDataUrl, validatePhoto } from '@app/cv/models/cv-photo';
 import { isListSection, sectionSpec } from '@app/cv/schema/cv-section-schema';
 import { CvEditorStore } from '@app/cv/state/cv-editor.store';
 import { CvSelectionStore } from '@app/cv/state/cv-selection.store';
@@ -69,6 +77,11 @@ export class CvRecordFormComponent {
 
     readonly fields = computed(() => this.spec().fields as CvFieldSpec<unknown>[]);
 
+    readonly photoAccept = PHOTO_ACCEPT;
+    /** Set when a chosen image could not be used. Cleared by the next attempt. */
+    readonly photoError = signal<string | null>(null);
+    readonly photoBusy = signal(false);
+
     constructor() {
         effect(() => {
             const request = this.selection.focusRequest();
@@ -97,6 +110,10 @@ export class CvRecordFormComponent {
         return field as CvListFieldSpec<unknown>;
     }
 
+    asPhoto(field: CvFieldSpec<unknown>): CvPhotoFieldSpec<unknown> {
+        return field as CvPhotoFieldSpec<unknown>;
+    }
+
     textValue(field: CvFieldSpec<unknown>): string {
         const record = this.record();
         return record ? this.asText(field).read(record) : '';
@@ -105,6 +122,11 @@ export class CvRecordFormComponent {
     rangeValue(field: CvFieldSpec<unknown>): CvDateRange {
         const record = this.record();
         return record ? this.asRange(field).read(record) : { start: null, end: null, isPresent: false };
+    }
+
+    photoValue(field: CvFieldSpec<unknown>): string | null {
+        const record = this.record();
+        return record ? this.asPhoto(field).read(record) : null;
     }
 
     listValue(field: CvFieldSpec<unknown>): string[] {
@@ -183,6 +205,42 @@ export class CvRecordFormComponent {
                 spec.read(record).filter((_, position) => position !== index)
             )
         );
+    }
+
+    /**
+     * Decodes and downscales before writing. The result is a data URI inside the
+     * document, so the photo survives a reload and reaches the PDF without a
+     * second request — see cv-photo.ts for why it is shrunk first.
+     */
+    async onPhotoChosen(field: CvFieldSpec<unknown>, event: Event): Promise<void> {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+        input.value = '';
+        if (!file) {
+            return;
+        }
+
+        const rejection = validatePhoto(file);
+        if (rejection) {
+            this.photoError.set(rejection.message);
+            return;
+        }
+
+        this.photoError.set(null);
+        this.photoBusy.set(true);
+        try {
+            const dataUrl = await photoToDataUrl(file);
+            this.setPhoto(field, dataUrl);
+        } catch {
+            this.photoError.set('We could not read that image. Try a PNG or JPEG.');
+        } finally {
+            this.photoBusy.set(false);
+        }
+    }
+
+    setPhoto(field: CvFieldSpec<unknown>, value: string | null): void {
+        const spec = this.asPhoto(field);
+        this.editor.setFieldValue(this.sectionId(), this.recordId(), (record) => spec.write(record, value));
     }
 
     onFieldFocus(field: CvFieldSpec<unknown>): void {

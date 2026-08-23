@@ -14,7 +14,7 @@ import type { CvDateRange } from '../models/cv-date';
  */
 
 export type CvTextControl = 'text' | 'email' | 'tel' | 'url' | 'textarea';
-export type CvFieldControl = CvTextControl | 'month-range' | 'string-list';
+export type CvFieldControl = CvTextControl | 'month-range' | 'string-list' | 'photo';
 
 export interface CvFieldBase<TRecord> {
     /** Also the `fieldId` in a CvEditTarget. Unique within its section. */
@@ -55,7 +55,18 @@ export interface CvListFieldSpec<TRecord> extends CvFieldBase<TRecord> {
     write(record: TRecord, value: string[]): TRecord;
 }
 
-export type CvFieldSpec<TRecord> = CvTextFieldSpec<TRecord> | CvRangeFieldSpec<TRecord> | CvListFieldSpec<TRecord>;
+export interface CvPhotoFieldSpec<TRecord> extends CvFieldBase<TRecord> {
+    control: 'photo';
+    /** Data URI, or null when the user has not added one. */
+    read(record: TRecord): string | null;
+    write(record: TRecord, value: string | null): TRecord;
+}
+
+export type CvFieldSpec<TRecord> =
+    | CvTextFieldSpec<TRecord>
+    | CvRangeFieldSpec<TRecord>
+    | CvListFieldSpec<TRecord>
+    | CvPhotoFieldSpec<TRecord>;
 
 /** True when the user has actually put something in this field. */
 export function fieldIsFilled<T>(field: CvFieldSpec<T>, record: T): boolean {
@@ -66,6 +77,8 @@ export function fieldIsFilled<T>(field: CvFieldSpec<T>, record: T): boolean {
         }
         case 'string-list':
             return field.read(record).some((entry) => entry.trim().length > 0);
+        case 'photo':
+            return !!field.read(record);
         default:
             return field.read(record).trim().length > 0;
     }

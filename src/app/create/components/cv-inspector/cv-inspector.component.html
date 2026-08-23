@@ -89,17 +89,61 @@
             <section class="insp__card">
                 <h3 class="insp__card-title">Typography</h3>
 
-                <div class="insp__chips" role="group" aria-label="Font family">
-                    @for (font of fonts; track font.id) {
+                <label class="insp__row insp__row--stack">
+                    <span>Font</span>
+                    <select
+                        class="insp__select"
+                        [style.font-family]="fontStackFor(currentFont())"
+                        [value]="currentFont()"
+                        (change)="setFont($event)">
+                        @for (group of fontGroups(); track group.label) {
+                            <optgroup [label]="group.label">
+                                @for (option of group.options; track option.id) {
+                                    <option [value]="option.id" [style.font-family]="option.stack">
+                                        {{ option.label }}
+                                    </option>
+                                }
+                            </optgroup>
+                        }
+                    </select>
+                </label>
+
+                <!-- Local Font Access: gesture-gated and Chromium-only, so it is
+                     a button the user presses, never something we do on load. -->
+                @switch (localFonts.state()) {
+                    @case ('idle') {
                         <app-elv-button
                             size="small"
                             corner="sharp"
-                            variant="ghost"
-                            [selected]="design.fontFamily === font.id"
-                            [title]="font.label"
-                            (clicked)="setFont(font.id)" />
+                            variant="outline"
+                            icon="pi pi-desktop"
+                            title="Use fonts from this computer"
+                            [block]="true"
+                            (clicked)="loadLocalFonts()" />
                     }
-                </div>
+                    @case ('loading') {
+                        <p class="insp__card-note">Asking your browser for the font list…</p>
+                    }
+                    @case ('granted') {
+                        <p class="insp__card-note">
+                            {{ localFonts.families().length }} fonts found on this computer. They are listed above.
+                        </p>
+                    }
+                    @case ('denied') {
+                        <p class="insp__card-note">
+                            Your browser did not share the font list. The fonts above still work everywhere.
+                        </p>
+                    }
+                    @case ('error') {
+                        <p class="insp__card-note">We could not read the fonts on this computer.</p>
+                    }
+                    @default {
+                        <p class="insp__card-note">
+                            This browser cannot list your installed fonts. Chrome and Edge can — the fonts above work in
+                            every browser.
+                        </p>
+                    }
+                }
 
                 <label class="insp__row insp__row--range">
                     <span>

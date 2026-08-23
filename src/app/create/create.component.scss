@@ -12,9 +12,10 @@
 
 :host {
     display: block;
-    /* app-header reserves the navbar in normal flow (see _header.scss),
-       so the workspace claims exactly what is left of the viewport. */
-    height: calc(100dvh - var(--p-elevator-navbar-height));
+    /* Workspace mode hides app-header, so the editor owns the whole
+       viewport. 100dvh rather than a % chain: it holds even if a shell
+       ancestor loses its definite height. */
+    height: 100dvh;
 }
 
 .ws {
@@ -23,6 +24,11 @@
     height: 100%;
     min-height: 0;
     background: var(--p-elevator-bg1);
+    /* Nothing may spill out of the workspace box. A pane that reports a
+       taller-than-viewport height gets clipped here and scrolls inside
+       itself, instead of handing the document a second scrollbar and a
+       run of empty page under the timeline. */
+    overflow: hidden;
 }
 
 .ws__center {
@@ -243,6 +249,9 @@
 
     .ws {
         height: auto;
+        /* Stacked panes are taller than the viewport by design here, so the
+           clip has to come off or the lower sections become unreachable. */
+        overflow: visible;
     }
 
     .ws__body {

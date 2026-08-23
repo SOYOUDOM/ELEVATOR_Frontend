@@ -5,12 +5,9 @@ import { ElvFieldComponent } from '@shared/components/elv-field';
 import { ElvToggleComponent } from '@shared/components/elv-toggle/elv-toggle.component';
 
 import type { CvSectionId } from '@app/cv/models/cv-content.model';
-import {
-    CV_DESIGN_LIMITS,
-    type CvDateStylePref,
-    type CvFontFamilyId,
-    type CvHeaderAlign,
-} from '@app/cv/models/cv-design.model';
+import { CV_DESIGN_LIMITS, type CvDateStylePref, type CvHeaderAlign } from '@app/cv/models/cv-design.model';
+import { CV_FONT_PRESETS, type CvFontOption, normalizeFontFamily, resolveFontStack } from '@app/cv/models/cv-fonts';
+import { LocalFontsService } from '@app/cv/state/local-fonts.service';
 import { CV_SECTIONS, sectionSpec } from '@app/cv/schema/cv-section-schema';
 import { CvEditorStore } from '@app/cv/state/cv-editor.store';
 import { type InspectorTab, WorkspaceUiStore } from '@app/cv/state/workspace-ui.store';
@@ -56,12 +53,45 @@ export class CvInspectorComponent {
         { id: 'options', label: 'Options', icon: 'pi-sliders-h' },
     ];
 
-    readonly fonts: { id: CvFontFamilyId; label: string }[] = [
-        { id: 'sans', label: 'Sans' },
-        { id: 'serif', label: 'Serif' },
-        { id: 'grotesk', label: 'Grotesk' },
-        { id: 'mono', label: 'Mono' },
-    ];
+    readonly localFonts = inject(LocalFontsService);
+
+    /**
+     * Curated presets plus whatever the machine reported, in one list the
+     * <select> renders as three <optgroup>s. The user's current font is added
+     * even when it is neither — a CV written on another computer must not
+     * silently lose its typeface just because this machine has not been asked
+     * for its font list.
+     */
+    readonly fontGroups = computed<{ label: string; options: CvFontOption[] }[]>(() => {
+        const current = normalizeFontFamily(this.design()?.fontFamily);
+        const presets = [...CV_FONT_PRESETS];
+        const local = this.localFonts.families().map<CvFontOption>((family) => ({
+            id: family,
+            label: family,
+            group: 'local',
+            stack: resolveFontStack(family),
+        }));
+
+        const known = new Set([...presets, ...local].map((option) => option.id));
+        const orphan: CvFontOption[] = known.has(current)
+            ? []
+            : [
+                  {
+                      id: current,
+                      label: `${current} (from this CV)`,
+                      group: 'document',
+                      stack: resolveFontStack(current),
+                  },
+              ];
+
+        return [
+            { label: 'Document fonts', options: [...orphan, ...presets.filter((o) => o.group === 'document')] },
+            { label: 'ELEVATOR fonts', options: presets.filter((o) => o.group === 'elevator') },
+            { label: 'From this computer', options: local },
+        ].filter((group) => group.options.length > 0);
+    });
+
+    readonly currentFont = computed(() => normalizeFontFamily(this.design()?.fontFamily));
 
     readonly dateStyles: { id: CvDateStylePref; label: string }[] = [
         { id: 'short', label: 'Mar 2023' },
@@ -108,8 +138,17 @@ export class CvInspectorComponent {
         this.editor.updateDesign({ [key]: Number((event.target as HTMLInputElement).value) });
     }
 
-    setFont(fontFamily: CvFontFamilyId): void {
-        this.editor.updateDesign({ fontFamily });
+    setFont(event: Event): void {
+        this.editor.updateDesign({ fontFamily: (event.target as HTMLSelectElement).value });
+    }
+
+    /** Must run from the click — the Local Font Access prompt is gesture-gated. */
+    loadLocalFonts(): void {
+        void this.localFonts.load();
+    }
+
+    fontStackFor(family: string): string {
+        return resolveFontStack(family);
     }
 
     setColumns(columns: 1 | 2): void {

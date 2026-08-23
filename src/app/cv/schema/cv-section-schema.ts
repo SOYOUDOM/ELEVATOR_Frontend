@@ -141,6 +141,15 @@ const personalSection: CvSingletonSection<CvPersonalInfo> = {
             read: (r) => r.website,
             write: (r, v) => ({ ...r, website: v }),
         },
+        {
+            control: 'photo',
+            id: 'photo',
+            label: 'Photo',
+            span: 'full',
+            hint: 'Optional. Only appears on templates that have somewhere to put it, and only while Design › Show photo is on.',
+            read: (r) => r.photoUrl,
+            write: (r, v) => ({ ...r, photoUrl: v }),
+        },
     ],
 };
 

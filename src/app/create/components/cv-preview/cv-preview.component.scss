@@ -280,6 +280,114 @@
     }
 }
 
+/* Executive — tinted sidebar on the LEFT. The bleed is done with a
+   negative margin against the page padding, so `marginMm` stays a
+   number the Design slider can actually represent. */
+.cv-doc[data-template='executive'] {
+    .cv-body {
+        grid-template-columns: 62mm 1fr;
+        gap: 7mm;
+        /* Stretch, so the tint runs the full height of the page rather than
+           stopping wherever the sidebar's own content happens to end. */
+        align-items: stretch;
+    }
+    .cv-side {
+        order: -1;
+        background: color-mix(in srgb, var(--cv-accent) 9%, var(--cv-page));
+        /* Bleeds left and down to the page edge, but NOT up: a negative top
+           margin here would slide the panel under the masthead and cut the
+           contact line in half. */
+        margin: 0 0 calc(-1 * var(--cv-margin)) calc(-1 * var(--cv-margin));
+        padding: 6mm 5mm var(--cv-margin) var(--cv-margin);
+        border-left: 0;
+    }
+    .cv-section__title {
+        letter-spacing: 0.16em;
+    }
+    .cv-section--ruled .cv-section__title {
+        border-bottom-color: color-mix(in srgb, var(--cv-accent) 40%, transparent);
+    }
+}
+
+/* Minimal — every rule removed, the spacing does the separating. */
+.cv-doc[data-template='minimal'] {
+    .cv-name {
+        font-weight: 300;
+        letter-spacing: -0.02em;
+    }
+    .cv-role {
+        color: var(--cv-muted);
+        font-weight: 400;
+    }
+    .cv-section__title {
+        font-size: calc(8pt * var(--cv-scale));
+        letter-spacing: 0.24em;
+        color: var(--cv-muted);
+    }
+    .cv-section--ruled .cv-section__title {
+        border-bottom: 0;
+        padding-bottom: 0;
+    }
+    .cv-bullets li::marker {
+        color: var(--cv-muted);
+    }
+}
+
+/* Academic — dense, ruled, built for a long record. */
+.cv-doc[data-template='academic'] {
+    .cv-name {
+        font-size: calc(18pt * var(--cv-scale));
+        font-weight: 600;
+        letter-spacing: 0.02em;
+    }
+    .cv-role {
+        color: var(--cv-muted);
+        font-weight: 400;
+    }
+    .cv-section__title {
+        color: var(--cv-text);
+        font-size: calc(9pt * var(--cv-scale));
+        letter-spacing: 0.1em;
+    }
+    .cv-section--ruled .cv-section__title {
+        border-bottom-color: var(--cv-text);
+    }
+    .cv-entry + .cv-entry {
+        margin-top: 2.5mm;
+    }
+    .cv-entry__title {
+        font-size: calc(10pt * var(--cv-scale));
+    }
+}
+
+/* Banner — accent masthead, name reversed out. Still real text, so a
+   parser reads it exactly like every other template. */
+.cv-doc[data-template='banner'] {
+    .cv-head {
+        background: var(--cv-accent);
+        margin: calc(-1 * var(--cv-margin)) calc(-1 * var(--cv-margin)) var(--cv-section-gap);
+        padding: var(--cv-margin);
+        align-items: center;
+    }
+    .cv-name,
+    .cv-role,
+    .cv-contact {
+        color: #fff;
+    }
+    .cv-role {
+        opacity: 0.92;
+    }
+    .cv-contact__icon {
+        color: rgba(255, 255, 255, 0.75);
+    }
+    .cv-photo {
+        border: 2px solid rgba(255, 255, 255, 0.8);
+    }
+    .cv-section__title {
+        letter-spacing: 0.16em;
+    }
+}
+
 /* ── EDITOR AFFORDANCES ──────────────────────────────────────
    Only ever inside .is-interactive, so a clean preview and the
    print pipeline get plain markup with no chrome to strip.

@@ -104,9 +104,11 @@
     color: var(--p-elevator-ink3);
 }
 
+/* Explicit, because Tailwind's preflight removes markers from every ul. */
 .ats__tips {
     margin: 0;
     padding-left: 16px;
+    list-style: disc outside;
     font-size: 11px;
     line-height: 1.55;
     color: var(--p-elevator-ink4);

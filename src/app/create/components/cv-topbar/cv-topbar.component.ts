@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, output } f
 
 import { ElvButtonComponent } from '@shared/components/elv-button/elv-button.component';
 import { ElvFieldComponent } from '@shared/components/elv-field';
+import { ElvWordmarkComponent } from '@shared/components/elv-wordmark/elv-wordmark.component';
 
 import { CvEditorStore } from '@app/cv/state/cv-editor.store';
 import { WORKSPACE_LIMITS, WorkspaceUiStore } from '@app/cv/state/workspace-ui.store';
@@ -9,9 +10,11 @@ import { WORKSPACE_LIMITS, WorkspaceUiStore } from '@app/cv/state/workspace-ui.s
 /**
  * ELEVATOR — the workspace toolbar.
  *
- * NO LOGO HERE, deliberately. The Create route is a child of the app shell, so
- * app-header is already on screen with the ELEVATOR wordmark — adding a second
- * one would be recreating a logo the product already has, one row above it.
+ * This is the workspace's ONLY bar. The site header — wordmark plus the
+ * marketing nav — is hidden in workspace mode, because an editor has no use for
+ * "Templates / About / Login" and the approved concept shows one bar, not two.
+ * The wordmark here is the shared elv-wordmark the header itself mounts, so
+ * there is still exactly one definition of the mark.
  *
  * The save indicator never lies. It reports the store's actual state, including
  * "Save failed", and offers the retry rather than quietly showing a tick.
@@ -22,7 +25,7 @@ import { WORKSPACE_LIMITS, WorkspaceUiStore } from '@app/cv/state/workspace-ui.s
     templateUrl: './cv-topbar.component.html',
     styleUrl: './cv-topbar.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [ElvButtonComponent, ElvFieldComponent],
+    imports: [ElvButtonComponent, ElvFieldComponent, ElvWordmarkComponent],
     host: { class: 'tb' },
 })
 export class CvTopbarComponent {

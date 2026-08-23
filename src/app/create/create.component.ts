@@ -88,6 +88,16 @@ export class CreateComponent {
     readonly zoomScale = computed(() => this.ui.previewZoom() / 100);
 
     constructor() {
+        // WORKSPACE MODE. Set before the first render, cleared on the way out.
+        // It hands styles/_workspace.scss three jobs the component itself
+        // cannot do from inside emulated encapsulation: lock the document
+        // scrollport so the editor can never produce a page-level scrollbar
+        // with empty space under it, give the shell chain a definite height,
+        // and hide the marketing header the concept does not have.
+        const root = this.document.documentElement;
+        root.setAttribute('data-workspace', 'on');
+        this.destroyRef.onDestroy(() => root.removeAttribute('data-workspace'));
+
         this.route.paramMap
             .pipe(
                 map((params) => params.get('cvId')),

@@ -63,7 +63,14 @@
         </div>
 
         @if (design().showPhoto && content().personal.photoUrl) {
-            <img class="cv-photo" [src]="content().personal.photoUrl" alt="" />
+            <img
+                class="cv-photo"
+                [src]="content().personal.photoUrl"
+                alt=""
+                cvEditable="personal"
+                cvField="photo"
+                cvEditableLabel="Change photo"
+                [cvEditableInteractive]="interactive()" />
         }
     </header>
 

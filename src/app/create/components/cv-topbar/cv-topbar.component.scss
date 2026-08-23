@@ -1,19 +1,41 @@
+/* Three tracks rather than space-between: the centre group stays put
+   when the save label changes length, instead of sliding the actions. */
 :host {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
-    justify-content: space-between;
     gap: 16px;
     padding: 8px 14px;
     background: var(--p-elevator-panel);
     border-bottom: 1px solid var(--p-elevator-line);
 }
 
-.tb__left,
+.tb__brand {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.tb__center,
 .tb__right {
     display: flex;
     align-items: center;
     gap: 8px;
     min-width: 0;
+}
+
+.tb__right {
+    justify-content: flex-end;
+}
+
+@media (max-width: 1100px) {
+    :host {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+
+    .tb__brand .brand-name span:last-child {
+        display: none;
+    }
 }
 
 .tb__save {

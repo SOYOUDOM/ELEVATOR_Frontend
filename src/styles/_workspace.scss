@@ -1,0 +1,68 @@
+// ════════════════════════════════════════════════════════════
+// WORKSPACE MODE
+//
+// The Create route is an application surface, not a page: it fills
+// the viewport exactly, and only its own panes scroll. Everything
+// here hangs off html[data-workspace='on'], which CreateComponent
+// sets in its constructor and clears on destroy.
+//
+// WHY IT IS GLOBAL RATHER THAN SCOPED TO THE COMPONENT: the things
+// that have to change — the document scrollport, the page shell's
+// min-height, the fixed app header — are all ANCESTORS of the route
+// component, and emulated encapsulation cannot reach up.
+//
+// The page-level scroll this kills is not cosmetic. .elv-page carries
+// `min-height: 100vh` and the shell adds the navbar spacer on top of
+// it, so any pane that reported a taller-than-viewport height handed
+// the document a second scrollbar and a run of empty black below the
+// timeline with nothing in it.
+// ════════════════════════════════════════════════════════════
+
+// The lock is DESKTOP ONLY. Below 1024px the workspace deliberately
+// stacks into full-width sections (see create.component.scss), and a
+// stacked layout inside `overflow: hidden` would put half the editor
+// somewhere the user cannot reach.
+@media (min-width: 1024px) {
+    html[data-workspace='on'] {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    html[data-workspace='on'] body {
+        height: 100%;
+        overflow: hidden;
+        // Stops the workspace's inner scrollers from chaining into a
+        // rubber-band on the document once they hit their end.
+        overscroll-behavior: none;
+    }
+
+    // The shell chain, given a definite height so the workspace can ask
+    // for 100% and mean it.
+    html[data-workspace='on'] .wrapper,
+    html[data-workspace='on'] .route-shell,
+    html[data-workspace='on'] .elv-content {
+        height: 100%;
+        min-height: 0;
+    }
+
+    // .elv-page's own min-height is what would otherwise force a
+    // viewport-tall box UNDER a viewport-tall workspace.
+    html[data-workspace='on'] .elv-page {
+        min-height: 0;
+    }
+}
+
+// Starfield and scan-lines belong to the marketing pages. Behind a
+// dense editor they are noise — and the scan-line layer sits at
+// z-index 60, above every panel.
+html[data-workspace='on'] .elv-page::before,
+html[data-workspace='on'] .elv-page::after {
+    display: none;
+}
+
+// The marketing nav has no place in the editor: the workspace carries
+// its own bar with the wordmark, the save state and the actions, which
+// is what the approved concept shows.
+html[data-workspace='on'] app-header {
+    display: none;
+}

@@ -1,10 +1,17 @@
-<div class="tb__left">
+<!-- The workspace's only bar. The app header is hidden in workspace mode
+     (styles/_workspace.scss), so the wordmark lives here — the same
+     elv-wordmark the site header mounts, not a second copy. -->
+<div class="tb__brand">
+    <elv-wordmark scale="1.15rem" logoClass="h-5 w-auto" />
+</div>
+
+<div class="tb__center">
     <elv-field
         density="compact"
         labelMode="hidden"
         label="CV name"
         icon="pi-file"
-        width="280px"
+        width="260px"
         [value]="document()?.name ?? ''"
         (valueChange)="setName($event)" />
 

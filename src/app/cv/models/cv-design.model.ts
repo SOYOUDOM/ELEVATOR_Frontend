@@ -1,4 +1,5 @@
 import type { CvSectionId } from './cv-content.model';
+import { DEFAULT_CV_FONT } from './cv-fonts';
 
 /**
  * ELEVATOR — the CV's DESIGN.
@@ -14,7 +15,6 @@ import type { CvSectionId } from './cv-content.model';
  * content is untouched, only the consumer of these variables changes.
  */
 
-export type CvFontFamilyId = 'sans' | 'serif' | 'mono' | 'grotesk';
 export type CvHeaderAlign = 'left' | 'center';
 export type CvDateStylePref = 'short' | 'long' | 'numeric';
 
@@ -24,7 +24,13 @@ export interface CvDesign {
     accentColor: string;
     textColor: string;
     pageColor: string;
-    fontFamily: CvFontFamilyId;
+    /**
+     * A CSS family NAME — 'Georgia', 'Inter', or anything the user picked off
+     * their own machine. Documents written before this was widened still hold
+     * 'sans' / 'serif' / 'mono' / 'grotesk'; resolveFontStack() maps those, so
+     * nothing needs migrating. See models/cv-fonts.ts.
+     */
+    fontFamily: string;
     /** Multiplier on the template's base size. 0.85 – 1.25. */
     fontScale: number;
     lineHeight: number;
@@ -51,13 +57,6 @@ export interface CvOptions {
     footerNote: string;
 }
 
-export const CV_FONT_STACKS: Record<CvFontFamilyId, string> = {
-    sans: "'Inter', 'Helvetica Neue', Arial, sans-serif",
-    serif: "'Georgia', 'Times New Roman', serif",
-    mono: "'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace",
-    grotesk: "'Space Grotesk', 'Inter', system-ui, sans-serif",
-};
-
 export const CV_DESIGN_LIMITS = {
     fontScale: { min: 0.85, max: 1.25, step: 0.05 },
     lineHeight: { min: 1.15, max: 1.75, step: 0.05 },
@@ -71,7 +70,7 @@ export function defaultCvDesign(templateId = 'modern'): CvDesign {
         accentColor: '#1f4fd8',
         textColor: '#11161f',
         pageColor: '#ffffff',
-        fontFamily: 'sans',
+        fontFamily: DEFAULT_CV_FONT,
         fontScale: 1,
         lineHeight: 1.4,
         marginMm: 16,

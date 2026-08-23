@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { LayoutStoreService } from '@shared/layout/layout-store.service';
 import { RouterLink } from '@angular/router';
 import { LocalizePipe } from '@shared/pipes/localize.pipe';
+import { ElvWordmarkComponent } from '@shared/components/elv-wordmark/elv-wordmark.component';
 
 @Component({
     selector: 'header-left-navbar',
@@ -9,11 +10,10 @@ import { LocalizePipe } from '@shared/pipes/localize.pipe';
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
     host: { class: 'flex items-center' },
-    // imports: [RouterLink, LocalizePipe],
+    imports: [ElvWordmarkComponent],
 })
 export class HeaderLeftNavbarComponent implements OnInit {
-    sidebarExpanded: boolean = false;
-    brandLetters = 'LEVATOR'.split('');
+    sidebarExpanded = false;
     constructor(private _layoutStore: LayoutStoreService) {}
 
     ngOnInit(): void {
