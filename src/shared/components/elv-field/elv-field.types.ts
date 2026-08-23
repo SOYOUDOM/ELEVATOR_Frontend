@@ -27,7 +27,17 @@ export type ElvStatus = 'idle' | 'success' | 'error' | 'warning' | 'loading';
 /** When validation visuals are allowed to appear. */
 export type ElvValidateOn = 'touched' | 'dirty' | 'always' | 'never';
 
-export type ElvFieldType = 'text' | 'email' | 'password' | 'search' | 'tel' | 'url' | 'number' | 'date' | 'time';
+export type ElvFieldType =
+    | 'text'
+    | 'email'
+    | 'password'
+    | 'search'
+    | 'tel'
+    | 'url'
+    | 'number'
+    | 'date'
+    | 'month'
+    | 'time';
 
 export type ElvValue = string | number | null;
 

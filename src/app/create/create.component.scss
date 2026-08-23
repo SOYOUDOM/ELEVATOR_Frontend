@@ -1,0 +1,285 @@
+/* ════════════════════════════════════════════════════════════
+   CREATE WORKSPACE — ELEVATOR chrome.
+
+   Every colour here is a --p-elevator-* token. The document in the
+   middle reads --cv-* and nothing else; the two systems meet only
+   at the edge of the page.
+
+   Heights are explicit and nothing is position:fixed — .route-shell
+   in the app shell keeps a transform, which would capture a fixed
+   child as its containing block.
+   ════════════════════════════════════════════════════════════ */
+
+:host {
+    display: block;
+    /* app-header reserves the navbar in normal flow (see _header.scss),
+       so the workspace claims exactly what is left of the viewport. */
+    height: calc(100dvh - var(--p-elevator-navbar-height));
+}
+
+.ws {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    background: var(--p-elevator-bg1);
+}
+
+.ws__center {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    padding: 32px;
+    overflow: auto;
+}
+
+.ws__topbar {
+    flex: none;
+}
+
+.ws__body {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 64px var(--ws-left) 6px minmax(0, 1fr) 6px var(--ws-right);
+}
+
+/* ── rail ───────────────────────────────────────────────────── */
+.ws__rail {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 4px;
+    background: var(--p-elevator-panel);
+    border-right: 1px solid var(--p-elevator-line);
+    overflow-y: auto;
+}
+
+.ws__rail-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 2px;
+    background: none;
+    border: 1px solid transparent;
+    color: var(--p-elevator-ink3);
+    font: inherit;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    text-align: center;
+    cursor: pointer;
+}
+
+.ws__rail-btn i {
+    font-size: 15px;
+}
+
+.ws__rail-btn:hover {
+    color: var(--p-elevator-ink);
+    background: var(--p-elevator-panel-hi);
+}
+
+.ws__rail-btn:focus-visible {
+    outline: none;
+    border-color: var(--p-elevator-accent);
+}
+
+.ws__rail-btn.is-active {
+    color: var(--p-elevator-accent);
+    background: color-mix(in oklch, var(--p-elevator-accent) 12%, transparent);
+    border-color: color-mix(in oklch, var(--p-elevator-accent) 34%, transparent);
+}
+
+/* ── panels ─────────────────────────────────────────────────── */
+.ws__panel {
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--p-elevator-panel);
+}
+
+.ws__panel--left {
+    border-right: 1px solid var(--p-elevator-line);
+}
+
+.ws__panel--right {
+    border-left: 1px solid var(--p-elevator-line);
+}
+
+/* ── the stage ──────────────────────────────────────────────── */
+.ws__stage {
+    min-width: 0;
+    min-height: 0;
+    background:
+        radial-gradient(
+            ellipse 60% 40% at 50% 0%,
+            color-mix(in oklch, var(--p-elevator-accent) 4%, transparent),
+            transparent 70%
+        ),
+        var(--p-elevator-bg0);
+}
+
+.ws__stage-scroll {
+    height: 100%;
+    overflow: auto;
+    padding: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* Scaling a transform does not change layout size, so the wrapper is
+   given the scaled box explicitly — otherwise the scroller reserves
+   room for the unscaled page and the document floats in dead space. */
+.ws__zoom {
+    --ws-zoom: 1;
+    width: calc(210mm * var(--ws-zoom));
+    height: calc(297mm * var(--ws-zoom));
+    flex: none;
+}
+
+.ws__zoom > * {
+    display: block;
+    transform: scale(var(--ws-zoom));
+    transform-origin: top left;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+}
+
+/* ── resize grips ───────────────────────────────────────────── */
+.ws__grip {
+    background: var(--p-elevator-line-soft);
+    position: relative;
+}
+
+.ws__grip--v {
+    cursor: col-resize;
+}
+
+.ws__grip--h {
+    height: 6px;
+    cursor: row-resize;
+}
+
+.ws__grip:hover,
+.ws__grip:focus-visible,
+.ws__grip.is-dragging {
+    background: var(--p-elevator-accent);
+    outline: none;
+}
+
+/* ── timeline ───────────────────────────────────────────────── */
+.ws__timeline {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: var(--p-elevator-panel);
+}
+
+.ws__timeline > app-career-timeline {
+    flex: 1;
+    min-height: 0;
+}
+
+.ws__timeline-toggle {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px;
+    background: var(--p-elevator-bg1);
+    border: 0;
+    border-top: 1px solid var(--p-elevator-line-soft);
+    color: var(--p-elevator-ink3);
+    font: inherit;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.ws__timeline-toggle:hover {
+    color: var(--p-elevator-accent);
+}
+
+/* ── clean preview ──────────────────────────────────────────
+   Everything except the document steps aside, on screen. The
+   printed page gets the same treatment from styles/_print.scss,
+   whether or not this mode is on.
+   ───────────────────────────────────────────────────────────── */
+.ws.is-clean .ws__rail,
+.ws.is-clean .ws__panel,
+.ws.is-clean .ws__grip,
+.ws.is-clean .ws__timeline {
+    display: none;
+}
+
+.ws.is-clean .ws__body {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────
+   Below 1280px the inspector folds away; below 1024px the whole
+   thing stacks and the panels become full-width sections rather
+   than four unusable slivers.
+   ───────────────────────────────────────────────────────────── */
+@media (max-width: 1279px) {
+    .ws__body {
+        grid-template-columns: 64px var(--ws-left) 6px minmax(0, 1fr);
+    }
+
+    .ws__panel--right,
+    .ws__grip--v:last-of-type {
+        display: none;
+    }
+}
+
+@media (max-width: 1023px) {
+    :host {
+        height: auto;
+    }
+
+    .ws {
+        height: auto;
+    }
+
+    .ws__body {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ws__rail {
+        flex-direction: row;
+        overflow-x: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--p-elevator-line);
+    }
+
+    .ws__rail-btn {
+        flex: 1 0 auto;
+        min-width: 72px;
+    }
+
+    .ws__panel,
+    .ws__panel--right {
+        display: block;
+        border: 0;
+        border-bottom: 1px solid var(--p-elevator-line);
+        max-height: 70vh;
+        overflow: auto;
+    }
+
+    .ws__grip {
+        display: none;
+    }
+
+    .ws__stage-scroll {
+        padding: 16px;
+    }
+
+    .ws__timeline {
+        height: auto !important;
+    }
+}

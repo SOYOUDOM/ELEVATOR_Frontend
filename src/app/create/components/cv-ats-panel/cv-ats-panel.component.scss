@@ -1,0 +1,113 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--p-elevator-line-soft);
+    background: var(--p-elevator-panel);
+}
+
+.ats__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--p-elevator-ink);
+}
+
+.ats__title i {
+    color: var(--p-elevator-accent);
+}
+
+.ats__score {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.ats__verdict {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 12px;
+    color: var(--p-elevator-ink3);
+}
+
+.ats__verdict strong {
+    font-size: 13px;
+    color: var(--p-elevator-accent);
+}
+
+.ats__checks {
+    font-variant-numeric: tabular-nums;
+    color: var(--p-elevator-ink4);
+}
+
+.ats__issues {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.ats__issue-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+    padding: 7px 8px;
+    background: var(--p-elevator-panel-hi);
+    border: 1px solid var(--p-elevator-line-soft);
+    color: var(--p-elevator-ink2);
+    font: inherit;
+    font-size: 12px;
+    line-height: 1.45;
+    text-align: left;
+    cursor: pointer;
+}
+
+.ats__issue-btn:hover {
+    border-color: var(--p-elevator-line-strong);
+    color: var(--p-elevator-ink);
+}
+
+.ats__issue-btn:focus-visible {
+    outline: 1px solid var(--p-elevator-accent);
+    outline-offset: -1px;
+}
+
+.ats__issue-dot {
+    width: 6px;
+    height: 6px;
+    margin-top: 5px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--p-elevator-ink4);
+}
+
+.ats__issue[data-severity='critical'] .ats__issue-dot {
+    background: #e5484d;
+}
+
+.ats__issue[data-severity='warning'] .ats__issue-dot {
+    background: var(--p-elevator-accent);
+}
+
+.ats__clean,
+.ats__idle {
+    margin: 0;
+    font-size: 12px;
+    color: var(--p-elevator-ink3);
+}
+
+.ats__tips {
+    margin: 0;
+    padding-left: 16px;
+    font-size: 11px;
+    line-height: 1.55;
+    color: var(--p-elevator-ink4);
+}

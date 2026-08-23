@@ -130,6 +130,13 @@
   &:hover:not(.elv-btn--disabled):not(.elv-btn--loading) {
     filter: drop-shadow(0 0 6px var(--_neon-glow)) drop-shadow(0 0 22px var(--_neon-glow)); } }
 
+/* SELECTED — a pressed toolbar / tab / rail button. Reads the button's own
+   --_accent, so it works on every variant without a variant of its own. */
+.elv-btn--selected { --_fill: color-mix(in oklch, var(--_accent) 14%, var(--_panel));
+  --_border: var(--_accent); --_text: var(--_accent); }
+.elv-btn--selected::after { content: ''; position: absolute; inset: auto 0 0 0; height: 2px;
+  background: var(--_accent); box-shadow: 0 0 12px var(--_accent); pointer-events: none; }
+
 .elv-btn--disabled { opacity: .45; pointer-events: none; cursor: not-allowed; filter: grayscale(.3); animation: none; }
 .elv-btn--loading { cursor: progress; pointer-events: none; }
 

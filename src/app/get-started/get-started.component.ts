@@ -12,10 +12,14 @@ import {
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { RevealDirective } from '@shared/directives/reveal.directive';
 
+import { CV_IMPORT_LIMITS } from '@app/cv/api/cv-import-api.service';
+import { CvStartService, type StartPathId } from '@app/cv/state/cv-start.service';
+
 import { ElvAlertComponent } from '@shared/components/elv-alert/elv-alert.component';
 import { ElvButtonComponent } from '@shared/components/elv-button/elv-button.component';
 import { ElvCardComponent } from '@shared/components/elv-card/elv-card.component';
 import { ElvChipComponent } from '@shared/components/elv-chip/elv-chip.component';
+import { ElvEmptyStateComponent } from '@shared/components/elv-empty-state/elv-empty-state.component';
 import { ElvProgressComponent } from '@shared/components/elv-progress/elv-progress.component';
 import { ElvCheckboxComponent } from '@shared/components/elv-checkbox';
 import { ElvAccordionComponent, ElvAccordionPanelComponent } from '@shared/components/elv-accordion';
@@ -24,7 +28,12 @@ import { Stat, StatsComponent } from '@shared/components/stats/stats.component';
 import { FooterComponent } from '../layout/footer.component';
 
 /* ── Page data shapes ─────────────────────────────────────────── */
-type EntranceId = 'blank' | 'import' | 'rebuild';
+/**
+ * The three doors, and the only three. Each id maps 1:1 onto a method on
+ * CvStartService, so there is no translation table between what the page shows
+ * and what the app does.
+ */
+type EntranceId = StartPathId;
 
 interface Entrance {
     id: EntranceId;
@@ -35,6 +44,8 @@ interface Entrance {
     title: string;
     text: string;
     best: string;
+    /** Label on the button that actually starts this path. */
+    cta: string;
 }
 
 interface PrepItem {
@@ -93,6 +104,7 @@ interface Faq {
         ElvButtonComponent,
         ElvCardComponent,
         ElvChipComponent,
+        ElvEmptyStateComponent,
         ElvProgressComponent,
         ElvCheckboxComponent,
         ElvAccordionComponent,
@@ -111,34 +123,37 @@ export class GetStartedComponent {
 
     readonly entrances: Entrance[] = [
         {
-            id: 'import',
+            id: 'scratch',
             num: '01',
-            icon: 'pi-upload',
-            tag: 'FASTEST',
-            eta: '~2 MIN',
-            title: 'Bring your old CV',
-            text: 'Drop a PDF or DOCX. We read it, rebuild the layout, and keep every word you wrote.',
-            best: 'Best if you already have something on paper.',
-        },
-        {
-            id: 'rebuild',
-            num: '02',
-            icon: 'pi-sparkles',
-            tag: 'LEAST EFFORT',
-            eta: '~4 MIN',
-            title: 'Rebuild from scraps',
-            text: 'A LinkedIn export, an old cover letter, three bullet points in a note. The AI turns it into a full CV.',
-            best: 'Best if your CV is scattered across five files.',
-        },
-        {
-            id: 'blank',
-            num: '03',
             icon: 'pi-pencil',
             tag: 'MOST CONTROL',
             eta: '~6 MIN',
-            title: 'Start from a blank floor',
-            text: 'Nothing to upload. Answer a short run of prompts and the AI drafts each section alongside you.',
+            title: 'Start from Scratch',
+            text: 'Build your CV step by step with full control. An empty draft opens in the studio and every section fills in as you type.',
             best: 'Best for a first CV, or a clean restart.',
+            cta: 'START BUILDING',
+        },
+        {
+            id: 'import',
+            num: '02',
+            icon: 'pi-upload',
+            tag: 'FASTEST',
+            eta: '~2 MIN',
+            title: 'Import Existing CV',
+            text: 'Upload the CV you already have. We read the information out of it — the words, not the layout — and you pick a new template afterwards.',
+            best: 'Best if you already have something on paper.',
+            cta: 'CHOOSE A FILE',
+        },
+        {
+            id: 'profile',
+            num: '03',
+            icon: 'pi-database',
+            tag: 'INSTANT',
+            eta: '~30 SEC',
+            title: 'Use Saved Information',
+            text: 'Start instantly from the information you saved last time. It is copied into a new CV, so editing this one never touches your saved profile.',
+            best: 'Best when you are tailoring a CV to a specific job.',
+            cta: 'USE MY INFORMATION',
         },
     ];
 
@@ -314,9 +329,65 @@ export class GetStartedComponent {
     // ── DI ────────────────────────────────────────────────────
     private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
     private readonly destroyRef = inject(DestroyRef);
+    /** Owns all three starting flows. This page only decides which one to call. */
+    readonly start = inject(CvStartService);
+
+    readonly acceptedFiles = CV_IMPORT_LIMITS.acceptAttr;
+
+    /** The saved-information door is only real if there is something saved. */
+    readonly profileReady = computed(() => this.start.profileState() === 'available');
+    readonly profileChecking = computed(() => this.start.profileState() === 'loading');
+    readonly profileMissing = computed(() => this.start.profileState() === 'missing');
+
+    readonly launching = computed(() => this.start.busy() !== null);
+
+    readonly launchLabel = computed(() => this.pickedEntrance()?.cta ?? 'CHOOSE AN ENTRANCE');
+
+    /** Blocked only for a door that genuinely cannot open. */
+    readonly launchBlocked = computed(() => {
+        const picked = this.picked();
+        if (!picked) {
+            return true;
+        }
+        return picked === 'profile' && !this.profileReady();
+    });
 
     constructor() {
+        // Resolves the third card. Nothing else on the page waits for it.
+        this.start.loadProfile();
         afterNextRender(() => this.wire());
+    }
+
+    /* ── Starting a CV ────────────────────────────────────────── */
+    /**
+     * One button, three destinations. Import is the odd one out: it needs a
+     * file before anything can happen, so it opens the picker and the real work
+     * starts in onFileChosen().
+     */
+    launch(fileInput?: HTMLInputElement): void {
+        switch (this.picked()) {
+            case 'scratch':
+                this.start.startFromScratch();
+                return;
+            case 'profile':
+                this.start.startFromProfile();
+                return;
+            case 'import':
+                fileInput?.click();
+                return;
+            default:
+                this.scrollTo('gs-entrance');
+        }
+    }
+
+    onFileChosen(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+        if (file) {
+            this.start.startImport(file);
+        }
+        // Reset so choosing the same file twice still fires a change event.
+        input.value = '';
     }
 
     /* ── Choice handlers ──────────────────────────────────────── */

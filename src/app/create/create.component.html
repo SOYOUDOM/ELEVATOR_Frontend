@@ -1,0 +1,149 @@
+<!-- ============================================================
+     CREATE WORKSPACE
+
+       ┌──────────────────────── TOOLBAR ────────────────────────┐
+       │ RAIL │ BUILDER │····· CV PREVIEW ·····│ INSPECTOR        │
+       ├──────────────────── CAREER TIMELINE ────────────────────┤
+
+     The document is the only lit surface. Everything around it is
+     ELEVATOR chrome, and none of it crosses into the page.
+     ============================================================ -->
+<div class="ws" [class.is-clean]="cleanPreview()">
+    @if (!cvId()) {
+        <div class="ws__center">
+            <app-elv-empty-state
+                variant="empty"
+                icon="pi-file"
+                title="No CV open"
+                text="Pick how you want to start and the workspace opens with your CV in it."
+                actionTitle="Go to Get Started"
+                routerLink="/app/get-started" />
+        </div>
+    } @else if (status() === 'loading') {
+        <div class="ws__center" role="status" aria-live="polite">
+            <app-elv-skeleton shape="block" width="210mm" height="60vh" ariaLabel="Loading your CV" />
+        </div>
+    } @else if (status() === 'error') {
+        <div class="ws__center">
+            <app-elv-alert
+                tone="danger"
+                skin="soft"
+                corner="sharp"
+                icon="pi-exclamation-triangle"
+                title="We could not open that CV"
+                [text]="loadError()?.message ?? 'Something went wrong.'">
+                <div alert-actions>
+                    <app-elv-button
+                        size="small"
+                        corner="sharp"
+                        title="Try again"
+                        icon="pi pi-refresh"
+                        (clicked)="reload()" />
+                    <app-elv-button
+                        size="small"
+                        corner="sharp"
+                        variant="ghost"
+                        title="Get Started"
+                        url="/app/get-started" />
+                </div>
+            </app-elv-alert>
+        </div>
+    } @else if (status() === 'ready') {
+        @if (editor.document(); as cv) {
+            <app-cv-topbar
+                class="ws__topbar"
+                [cleanPreview]="cleanPreview()"
+                (toggleClean)="toggleClean()"
+                (exportCv)="exportCv()"
+                (saveToProfile)="saveToProfile()" />
+
+            <div
+                class="ws__body"
+                [style.--ws-left]="ui.leftWidth() + 'px'"
+                [style.--ws-right]="ui.rightWidth() + 'px'"
+                [style.--ws-timeline]="ui.timelineOpen() ? ui.timelineHeight() + 'px' : '0px'">
+                <!-- ── rail ─────────────────────────────────────────── -->
+                <nav class="ws__rail" aria-label="Workspace sections">
+                    @for (item of rail; track item.id) {
+                        <button
+                            type="button"
+                            class="ws__rail-btn"
+                            [class.is-active]="ui.rail() === item.id"
+                            [attr.aria-current]="ui.rail() === item.id"
+                            (click)="selectRail(item.id)">
+                            <i class="pi {{ item.icon }}" aria-hidden="true"></i>
+                            <span>{{ item.label }}</span>
+                        </button>
+                    }
+                </nav>
+
+                <!-- ── builder ──────────────────────────────────────── -->
+                <section class="ws__panel ws__panel--left" aria-label="CV builder">
+                    <app-cv-builder />
+                </section>
+
+                <span
+                    class="ws__grip ws__grip--v"
+                    elvPanelResize="x"
+                    elvPanelResizeLabel="Resize the builder panel"
+                    (resized)="ui.setLeftWidth(ui.leftWidth() + $event)"></span>
+
+                <!-- ── document ─────────────────────────────────────── -->
+                <section class="ws__stage" aria-label="CV preview">
+                    <div class="ws__stage-scroll">
+                        <!-- The zoom wrapper scales for the screen only; the article
+                         inside keeps its real millimetre dimensions, which is
+                         what the printer and the PDF read. -->
+                        <div class="ws__zoom" [style.--ws-zoom]="zoomScale()">
+                            <app-cv-preview
+                                [content]="cv.content"
+                                [design]="cv.design"
+                                [options]="cv.options"
+                                [interactive]="!cleanPreview()" />
+                        </div>
+                    </div>
+                </section>
+
+                <span
+                    class="ws__grip ws__grip--v"
+                    elvPanelResize="x"
+                    [elvPanelResizeDirection]="-1"
+                    elvPanelResizeLabel="Resize the inspector panel"
+                    (resized)="ui.setRightWidth(ui.rightWidth() + $event)"></span>
+
+                <!-- ── inspector ────────────────────────────────────── -->
+                <section class="ws__panel ws__panel--right" aria-label="Document settings">
+                    <app-cv-inspector />
+                </section>
+            </div>
+
+            <!-- ── timeline ─────────────────────────────────────────── -->
+            @if (ui.timelineOpen()) {
+                <span
+                    class="ws__grip ws__grip--h"
+                    elvPanelResize="y"
+                    [elvPanelResizeDirection]="-1"
+                    elvPanelResizeLabel="Resize the career timeline"
+                    (resized)="ui.setTimelineHeight(ui.timelineHeight() + $event)"></span>
+            }
+
+            <section
+                class="ws__timeline"
+                aria-label="Career timeline"
+                [style.height]="ui.timelineOpen() ? ui.timelineHeight() + 'px' : 'auto'">
+                @if (ui.timelineOpen()) {
+                    <app-career-timeline />
+                }
+
+                <button type="button" class="ws__timeline-toggle" (click)="ui.toggleTimeline()">
+                    <i
+                        class="pi"
+                        [class.pi-chevron-down]="ui.timelineOpen()"
+                        [class.pi-chevron-up]="!ui.timelineOpen()"
+                        aria-hidden="true"></i>
+                    {{ ui.timelineOpen() ? 'Hide timeline' : 'Show career timeline' }}
+                </button>
+            </section>
+        }
+    }
+</div>

@@ -1,7 +1,11 @@
     import { HttpHandler,HttpResponse, http } from "msw";
     import {handlers as generated} from './generated/handlers';
+    import { cvMockHandlers } from './cv';
 
     export const handlers: HttpHandler[] = [
+        // CV builder endpoints first: they are hand-written and specific, and
+        // must win over anything the msw-auto-mock generator produced.
+        ...cvMockHandlers,
         http.get('*/AbpUserConfiguration/GetAll',() => HttpResponse.json({
         "result": {
             "multiTenancy": {

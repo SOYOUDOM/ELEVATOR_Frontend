@@ -45,6 +45,7 @@
           pRipple
           [style.background-color]="fillColor"
           [attr.aria-label]="ariaLabel || title || null"
+          [attr.aria-pressed]="selected ? true : null"
           [attr.aria-busy]="loading || null"
           (click)="onClick($event)">
     <ng-container *ngTemplateOutlet="inner"></ng-container>

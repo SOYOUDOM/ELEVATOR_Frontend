@@ -1,0 +1,109 @@
+<!-- Rendered entirely from the section registry. Adding a field here means
+     editing cv-section-schema.ts, not this file. -->
+@if (record(); as record) {
+    <div class="cv-form__grid">
+        @for (field of fields(); track field.id) {
+            <div
+                class="cv-form__cell"
+                [class.cv-form__cell--half]="field.span === 'half'"
+                [attr.data-field-id]="field.id">
+                @switch (field.control) {
+                    @case ('month-range') {
+                        <fieldset class="cv-form__range">
+                            <legend class="cv-form__legend">{{ field.label }}</legend>
+
+                            <div class="cv-form__range-row">
+                                <elv-field
+                                    type="month"
+                                    density="compact"
+                                    label="From"
+                                    [value]="monthValue(field, 'start')"
+                                    [error]="errorFor(field)"
+                                    (valueChange)="setMonth(field, 'start', $event)"
+                                    (focused)="onFieldFocus(field)" />
+
+                                @if (asRange(field).allowEnd) {
+                                    <elv-field
+                                        type="month"
+                                        density="compact"
+                                        label="To"
+                                        [value]="monthValue(field, 'end')"
+                                        [disabled]="rangeValue(field).isPresent"
+                                        (valueChange)="setMonth(field, 'end', $event)"
+                                        (focused)="onFieldFocus(field)" />
+                                }
+                            </div>
+
+                            @if (asRange(field).allowPresent) {
+                                <app-elv-toggle
+                                    size="small"
+                                    label="Still here"
+                                    [checked]="rangeValue(field).isPresent"
+                                    (checkedChange)="setPresent(field, $event)" />
+                            }
+                        </fieldset>
+                    }
+
+                    @case ('string-list') {
+                        <fieldset class="cv-form__list">
+                            <legend class="cv-form__legend">{{ field.label }}</legend>
+                            @if (field.hint) {
+                                <p class="cv-form__hint">{{ field.hint }}</p>
+                            }
+
+                            @for (item of listValue(field); track $index) {
+                                <div class="cv-form__list-row">
+                                    <elv-field
+                                        density="compact"
+                                        labelMode="hidden"
+                                        [label]="asList(field).itemNoun + ' ' + ($index + 1)"
+                                        [placeholder]="field.placeholder || ''"
+                                        [value]="item"
+                                        (valueChange)="setListItem(field, $index, $event)"
+                                        (focused)="onFieldFocus(field)" />
+
+                                    <app-elv-button
+                                        size="small"
+                                        corner="sharp"
+                                        variant="ghost"
+                                        [iconOnly]="true"
+                                        icon="pi pi-times"
+                                        [ariaLabel]="'Remove ' + asList(field).itemNoun + ' ' + ($index + 1)"
+                                        (clicked)="removeListItem(field, $index)" />
+                                </div>
+                            }
+
+                            <app-elv-button
+                                size="small"
+                                corner="sharp"
+                                variant="ghost"
+                                icon="pi pi-plus"
+                                [title]="'Add ' + asList(field).itemNoun"
+                                (clicked)="addListItem(field)" />
+                        </fieldset>
+                    }
+
+                    @default {
+                        <elv-field
+                            [type]="asText(field).control === 'textarea' ? 'text' : asText(field).control"
+                            [multiline]="asText(field).control === 'textarea'"
+                            [rows]="asText(field).rows ?? 3"
+                            [maxlength]="asText(field).maxLength ?? null"
+                            [counter]="!!asText(field).maxLength"
+                            [label]="field.label"
+                            [placeholder]="field.placeholder || ''"
+                            [hint]="field.hint || ''"
+                            [icon]="field.icon || ''"
+                            [required]="!!field.required"
+                            [value]="textValue(field)"
+                            [error]="errorFor(field)"
+                            (valueChange)="setText(field, $event)"
+                            (focused)="onFieldFocus(field)" />
+                    }
+                }
+            </div>
+        }
+    </div>
+} @else {
+    <p class="cv-form__missing">That record is no longer here. Pick another from the list above.</p>
+}

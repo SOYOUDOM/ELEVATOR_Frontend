@@ -1,0 +1,304 @@
+<div class="insp__tabs" role="tablist" aria-label="Document settings">
+    @for (tab of tabs; track tab.id) {
+        <button
+            type="button"
+            role="tab"
+            class="insp__tab"
+            [class.is-active]="ui.inspectorTab() === tab.id"
+            [attr.aria-selected]="ui.inspectorTab() === tab.id"
+            [attr.tabindex]="ui.inspectorTab() === tab.id ? 0 : -1"
+            (click)="setTab(tab.id)">
+            <i class="pi {{ tab.icon }}" aria-hidden="true"></i>
+            {{ tab.label }}
+        </button>
+    }
+</div>
+
+<div class="insp__scroll">
+    @if (design(); as design) {
+        <!-- ══ TEMPLATE ═══════════════════════════════════════════ -->
+        @if (ui.inspectorTab() === 'template') {
+            <section class="insp__card">
+                <h3 class="insp__card-title">{{ activeTemplate().name }}</h3>
+                <p class="insp__card-note">{{ activeTemplate().description }}</p>
+
+                <ul class="insp__templates">
+                    @for (template of templates; track template.id) {
+                        <li>
+                            <button
+                                type="button"
+                                class="insp__template"
+                                [class.is-active]="design.templateId === template.id"
+                                [attr.aria-current]="design.templateId === template.id"
+                                (click)="setTemplate(template.id)">
+                                <!-- A miniature of the real thing: same variables,
+                                     no second renderer to keep in sync. -->
+                                <span class="insp__thumb" [attr.data-template]="template.id" aria-hidden="true">
+                                    <span class="insp__thumb-bar"></span>
+                                    <span class="insp__thumb-line"></span>
+                                    <span class="insp__thumb-line insp__thumb-line--short"></span>
+                                    <span class="insp__thumb-block"></span>
+                                    <span class="insp__thumb-block"></span>
+                                </span>
+                                <span class="insp__template-name">{{ template.name }}</span>
+                            </button>
+                        </li>
+                    }
+                </ul>
+
+                <p class="insp__card-note">Switching template keeps every word — only the presentation changes.</p>
+            </section>
+        }
+
+        <!-- ══ DESIGN ═════════════════════════════════════════════ -->
+        @if (ui.inspectorTab() === 'design') {
+            <section class="insp__card">
+                <h3 class="insp__card-title">Colours</h3>
+
+                <label class="insp__row">
+                    <span>Accent</span>
+                    <input
+                        type="color"
+                        class="insp__color"
+                        [value]="design.accentColor"
+                        [disabled]="!activeTemplate().capabilities.customizableColors"
+                        (input)="setColor('accentColor', $event)" />
+                </label>
+
+                <label class="insp__row">
+                    <span>Text</span>
+                    <input
+                        type="color"
+                        class="insp__color"
+                        [value]="design.textColor"
+                        [disabled]="!activeTemplate().capabilities.customizableColors"
+                        (input)="setColor('textColor', $event)" />
+                </label>
+
+                <label class="insp__row">
+                    <span>Page</span>
+                    <input
+                        type="color"
+                        class="insp__color"
+                        [value]="design.pageColor"
+                        [disabled]="!activeTemplate().capabilities.customizableColors"
+                        (input)="setColor('pageColor', $event)" />
+                </label>
+            </section>
+
+            <section class="insp__card">
+                <h3 class="insp__card-title">Typography</h3>
+
+                <div class="insp__chips" role="group" aria-label="Font family">
+                    @for (font of fonts; track font.id) {
+                        <app-elv-button
+                            size="small"
+                            corner="sharp"
+                            variant="ghost"
+                            [selected]="design.fontFamily === font.id"
+                            [title]="font.label"
+                            (clicked)="setFont(font.id)" />
+                    }
+                </div>
+
+                <label class="insp__row insp__row--range">
+                    <span>
+                        Font size
+                        <em>{{ design.fontScale.toFixed(2) }}×</em>
+                    </span>
+                    <input
+                        type="range"
+                        [min]="limits.fontScale.min"
+                        [max]="limits.fontScale.max"
+                        [step]="limits.fontScale.step"
+                        [value]="design.fontScale"
+                        (input)="setNumber('fontScale', $event)" />
+                </label>
+
+                <label class="insp__row insp__row--range">
+                    <span>
+                        Line height
+                        <em>{{ design.lineHeight.toFixed(2) }}</em>
+                    </span>
+                    <input
+                        type="range"
+                        [min]="limits.lineHeight.min"
+                        [max]="limits.lineHeight.max"
+                        [step]="limits.lineHeight.step"
+                        [value]="design.lineHeight"
+                        (input)="setNumber('lineHeight', $event)" />
+                </label>
+            </section>
+
+            <section class="insp__card">
+                <h3 class="insp__card-title">Page</h3>
+
+                <label class="insp__row insp__row--range">
+                    <span>
+                        Margin
+                        <em>{{ design.marginMm }}mm</em>
+                    </span>
+                    <input
+                        type="range"
+                        [min]="limits.marginMm.min"
+                        [max]="limits.marginMm.max"
+                        [step]="limits.marginMm.step"
+                        [value]="design.marginMm"
+                        (input)="setNumber('marginMm', $event)" />
+                </label>
+
+                <label class="insp__row insp__row--range">
+                    <span>
+                        Section gap
+                        <em>{{ design.sectionGapMm }}mm</em>
+                    </span>
+                    <input
+                        type="range"
+                        [min]="limits.sectionGapMm.min"
+                        [max]="limits.sectionGapMm.max"
+                        [step]="limits.sectionGapMm.step"
+                        [value]="design.sectionGapMm"
+                        (input)="setNumber('sectionGapMm', $event)" />
+                </label>
+
+                <div class="insp__chips" role="group" aria-label="Columns">
+                    <app-elv-button
+                        size="small"
+                        corner="sharp"
+                        variant="ghost"
+                        title="One column"
+                        [selected]="design.columns === 1"
+                        [disabled]="!supportsColumns(1)"
+                        (clicked)="setColumns(1)" />
+                    <app-elv-button
+                        size="small"
+                        corner="sharp"
+                        variant="ghost"
+                        title="Two columns"
+                        [selected]="design.columns === 2"
+                        [disabled]="!supportsColumns(2)"
+                        (clicked)="setColumns(2)" />
+                </div>
+
+                <div class="insp__chips" role="group" aria-label="Header alignment">
+                    <app-elv-button
+                        size="small"
+                        corner="sharp"
+                        variant="ghost"
+                        title="Left"
+                        [selected]="design.headerAlign === 'left'"
+                        (clicked)="setAlign('left')" />
+                    <app-elv-button
+                        size="small"
+                        corner="sharp"
+                        variant="ghost"
+                        title="Centred"
+                        [selected]="design.headerAlign === 'center'"
+                        (clicked)="setAlign('center')" />
+                </div>
+
+                <app-elv-toggle
+                    size="small"
+                    label="Show photo"
+                    [checked]="design.showPhoto"
+                    [disabled]="!activeTemplate().capabilities.photo"
+                    (checkedChange)="setPhoto($event)" />
+            </section>
+
+            <section class="insp__card">
+                <h3 class="insp__card-title">Sections</h3>
+                <p class="insp__card-note">Order and visibility. Hiding a section keeps its content.</p>
+
+                <ul class="insp__sections">
+                    @for (row of sectionRows(); track row.id; let i = $index; let last = $last) {
+                        <li class="insp__section">
+                            <i class="pi {{ row.icon }}" aria-hidden="true"></i>
+                            <span class="insp__section-name">{{ row.label }}</span>
+
+                            <app-elv-button
+                                size="small"
+                                corner="sharp"
+                                variant="ghost"
+                                [iconOnly]="true"
+                                icon="pi pi-arrow-up"
+                                [disabled]="i === 0"
+                                [ariaLabel]="'Move ' + row.label + ' up'"
+                                (clicked)="moveSection(row.id, -1)" />
+                            <app-elv-button
+                                size="small"
+                                corner="sharp"
+                                variant="ghost"
+                                [iconOnly]="true"
+                                icon="pi pi-arrow-down"
+                                [disabled]="last"
+                                [ariaLabel]="'Move ' + row.label + ' down'"
+                                (clicked)="moveSection(row.id, 1)" />
+                            <app-elv-toggle
+                                size="small"
+                                [ariaLabel]="'Show ' + row.label"
+                                [checked]="row.visible"
+                                (checkedChange)="toggleSection(row.id, $event)" />
+                        </li>
+                    }
+                </ul>
+            </section>
+        }
+
+        <!-- ══ OPTIONS ════════════════════════════════════════════ -->
+        @if (ui.inspectorTab() === 'options' && options(); as options) {
+            <section class="insp__card">
+                <h3 class="insp__card-title">Dates</h3>
+
+                <div class="insp__chips" role="group" aria-label="Date format">
+                    @for (style of dateStyles; track style.id) {
+                        <app-elv-button
+                            size="small"
+                            corner="sharp"
+                            variant="ghost"
+                            [selected]="options.dateStyle === style.id"
+                            [title]="style.label"
+                            (clicked)="setDateStyle(style.id)" />
+                    }
+                </div>
+
+                <elv-field
+                    density="compact"
+                    label="Word for an ongoing role"
+                    [value]="options.presentLabel"
+                    (valueChange)="setPresentLabel($event)" />
+            </section>
+
+            <section class="insp__card">
+                <h3 class="insp__card-title">Document</h3>
+
+                <app-elv-toggle
+                    size="small"
+                    label="Contact icons"
+                    [checked]="options.showContactIcons"
+                    (checkedChange)="setOptionFlag('showContactIcons', $event)" />
+                <app-elv-toggle
+                    size="small"
+                    label="Rules under section titles"
+                    [checked]="options.showSectionRules"
+                    (checkedChange)="setOptionFlag('showSectionRules', $event)" />
+                <app-elv-toggle
+                    size="small"
+                    label="Closing note"
+                    [checked]="options.showFooterNote"
+                    (checkedChange)="setOptionFlag('showFooterNote', $event)" />
+
+                @if (options.showFooterNote) {
+                    <elv-field
+                        density="compact"
+                        label="Closing note"
+                        [value]="options.footerNote"
+                        (valueChange)="setFooterNote($event)" />
+                }
+            </section>
+        }
+    }
+
+    <!-- Always visible: they act on whatever is selected, not on a tab. -->
+    <app-cv-ai-tools id="insp-ai" />
+    <app-cv-ats-panel id="insp-ats" />
+</div>

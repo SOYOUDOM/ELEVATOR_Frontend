@@ -27,6 +27,15 @@ module.exports = function (config) {
         },
         reporters:
             config.angularCli && config.angularCli.codeCoverage ? ['progress', 'coverage-istanbul'] : ['progress'],
+        // ChromeHeadlessCI exists so the suite can run without a display —
+        // the sandbox flags are what a container needs. `npm test` still
+        // defaults to a real Chrome for local work.
+        customLaunchers: {
+            ChromeHeadlessCI: {
+                base: 'ChromeHeadless',
+                flags: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
+            },
+        },
         port: 9876,
         colors: true,
         logLevel: config.LOG_INFO,

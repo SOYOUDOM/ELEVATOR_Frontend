@@ -1,0 +1,257 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+    background: var(--p-elevator-panel);
+    border-top: 1px solid var(--p-elevator-line);
+}
+
+.tl__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--p-elevator-line-soft);
+}
+
+.tl__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--p-elevator-ink);
+}
+
+.tl__title i {
+    color: var(--p-elevator-accent);
+}
+
+.tl__sub {
+    margin: 2px 0 0;
+    font-size: 11px;
+    color: var(--p-elevator-ink3);
+}
+
+.tl__tools {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tl__zoom-label {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--p-elevator-ink3);
+}
+
+.tl__zoom-value {
+    min-width: 46px;
+    text-align: center;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: var(--p-elevator-ink2);
+}
+
+.tl__scroller {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 0 16px 12px;
+}
+
+.tl__track {
+    position: relative;
+    min-width: 100%;
+    padding-top: 26px;
+}
+
+/* ── ruler ──────────────────────────────────────────────────── */
+.tl__ruler {
+    position: absolute;
+    inset: 0 0 0 var(--tl-head, 150px);
+    pointer-events: none;
+}
+
+.tl__tick {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    border-left: 1px solid var(--p-elevator-line-soft);
+}
+
+.tl__tick.is-major {
+    border-left-color: var(--p-elevator-line);
+}
+
+.tl__tick-label {
+    position: absolute;
+    top: 0;
+    left: 6px;
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+    color: var(--p-elevator-ink4);
+}
+
+.tl__tick.is-major .tl__tick-label {
+    color: var(--p-elevator-ink3);
+}
+
+/* ── today marker: the only "now" in the whole feature ──────── */
+.tl__today {
+    position: absolute;
+    top: 4px;
+    bottom: 0;
+    left: 0;
+    margin-left: var(--tl-head, 150px);
+    width: 0;
+    border-left: 1px solid var(--p-elevator-accent);
+    box-shadow: 0 0 12px var(--p-elevator-accent-glow);
+    pointer-events: none;
+    z-index: 3;
+}
+
+.tl__today-flag {
+    position: absolute;
+    top: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 1px 6px;
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    color: #04060a;
+    background: var(--p-elevator-accent);
+    white-space: nowrap;
+}
+
+/* ── rows ───────────────────────────────────────────────────── */
+.tl__row {
+    display: grid;
+    grid-template-columns: var(--tl-head, 150px) 1fr;
+    align-items: stretch;
+    border-top: 1px solid var(--p-elevator-line-soft);
+}
+
+.tl__row-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 12px 12px 0;
+    font-size: 12px;
+    color: var(--p-elevator-ink2);
+}
+
+.tl__row-head i {
+    color: var(--p-elevator-accent);
+    font-size: 12px;
+}
+
+.tl__lane {
+    position: relative;
+    min-height: 52px;
+    padding: 8px 0;
+}
+
+.tl__bar {
+    position: absolute;
+    top: 8px;
+    min-height: 36px;
+    min-width: 26px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1px;
+    padding: 4px 8px;
+    overflow: hidden;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    color: var(--p-elevator-ink);
+    background: color-mix(in oklch, var(--tl-tone) 26%, var(--p-elevator-panel-hi));
+    border: 1px solid color-mix(in oklch, var(--tl-tone) 55%, transparent);
+    border-left: 3px solid var(--tl-tone);
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease;
+}
+
+/* Category tones are workspace chrome, not CV colours — they say
+   "work vs study vs project", and never reach the document. */
+.tl__lane[data-category='experience'] {
+    --tl-tone: #4f7fe0;
+}
+.tl__lane[data-category='education'] {
+    --tl-tone: #3f9d6b;
+}
+.tl__lane[data-category='projects'] {
+    --tl-tone: #c9922f;
+}
+
+.tl__bar:hover {
+    background: color-mix(in oklch, var(--tl-tone) 40%, var(--p-elevator-panel-hi));
+}
+
+.tl__bar:focus-visible {
+    outline: 2px solid var(--p-elevator-accent);
+    outline-offset: 1px;
+}
+
+.tl__bar.is-selected {
+    border-color: var(--p-elevator-accent);
+    box-shadow: 0 0 0 1px var(--p-elevator-accent);
+}
+
+.tl__bar.is-undated {
+    border-style: dashed;
+    opacity: 0.75;
+}
+
+.tl__bar-label {
+    font-size: 12px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tl__bar-dates {
+    font-size: 10px;
+    color: var(--p-elevator-ink2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* The add affordance rides at the end of the lane, out of the bars' way. */
+.tl__add {
+    position: absolute;
+    right: 0;
+    bottom: 4px;
+    opacity: 0.6;
+    transition: opacity 0.15s ease;
+}
+
+.tl__lane:hover .tl__add,
+.tl__lane:focus-within .tl__add {
+    opacity: 1;
+}
+
+.tl__empty {
+    margin: 0;
+    padding: 0 16px 14px;
+    font-size: 12px;
+    color: var(--p-elevator-ink3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tl__bar,
+    .tl__add {
+        transition: none;
+    }
+}

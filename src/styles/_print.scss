@@ -1,0 +1,70 @@
+// ════════════════════════════════════════════════════════════
+// PRINT / EXPORT
+//
+// The exported PDF must contain the user's CV and NOTHING else —
+// no editor outlines, no timeline, no inspector, no ELEVATOR
+// chrome, no starfield.
+//
+// The mechanism is visibility rather than display: hiding
+// everything with `display:none` would collapse the ancestors the
+// document is nested inside and take the document with it.
+// `visibility:hidden` keeps the boxes and stops the paint, then
+// the document alone is turned back on and lifted to the page
+// origin.
+//
+// Nothing in the app has to remember to "prepare for export" —
+// the same markup the editor renders is what prints.
+// ════════════════════════════════════════════════════════════
+
+@media print {
+    html,
+    body {
+        background: #fff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    // A4, no browser furniture. The document owns its own margins
+    // (--cv-margin), which is why the page box has none.
+    @page {
+        size: A4;
+        margin: 0;
+    }
+
+    body * {
+        visibility: hidden !important;
+        box-shadow: none !important;
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .cv-doc,
+    .cv-doc * {
+        visibility: visible !important;
+    }
+
+    .cv-doc {
+        position: absolute !important;
+        inset: 0 auto auto 0 !important;
+        width: 210mm !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+    }
+
+    // The zoom wrapper is a screen affordance. At print time the page
+    // is drawn at its true millimetre size, whatever the editor was
+    // showing — zoom is display scale, never document geometry.
+    .ws__zoom,
+    .ws__zoom > * {
+        width: auto !important;
+        height: auto !important;
+        transform: none !important;
+    }
+
+    // The page shell's starfield and scan-lines are fixed pseudo
+    // elements, so they would otherwise repeat on every sheet.
+    .elv-page::before,
+    .elv-page::after {
+        display: none !important;
+    }
+}

@@ -1,5 +1,8 @@
 {
     "extends": "./tsconfig.json",
-    "files": ["test.ts", "polyfills.ts"],
-    "include": ["src/**/*.d.ts", "typings.d.ts", "src/**/*.spec.ts", "**/*.spec.ts"]
+    "compilerOptions": {
+        "types": ["jasmine", "node"]
+    },
+    "files": ["polyfills.ts"],
+    "include": ["**/*.d.ts", "typings.d.ts", "**/*.spec.ts"]
 }

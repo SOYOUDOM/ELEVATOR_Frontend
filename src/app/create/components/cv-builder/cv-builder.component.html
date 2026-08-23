@@ -1,0 +1,134 @@
+<header class="bld__head">
+    <div>
+        <h2 class="bld__title">
+            <i class="pi pi-pencil" aria-hidden="true"></i>
+            Build Your CV
+        </h2>
+        <p class="bld__sub">Add your information. Changes update in real-time.</p>
+    </div>
+    <app-elv-progress
+        shape="ring"
+        size="small"
+        tone="accent"
+        [value]="overall()"
+        [showValue]="true"
+        ariaLabel="CV completion" />
+</header>
+
+<div class="bld__sections">
+    @for (row of rows(); track row.id) {
+        <section class="bld__section" [class.is-open]="isOpen(row.id)">
+            <h3 class="bld__row-heading">
+                <button
+                    type="button"
+                    class="bld__row"
+                    [attr.aria-expanded]="isOpen(row.id)"
+                    [attr.aria-controls]="'bld-panel-' + row.id"
+                    (click)="toggleSection(row.id)">
+                    <i class="pi {{ row.icon }} bld__row-icon" aria-hidden="true"></i>
+                    <span class="bld__row-label">{{ row.label }}</span>
+
+                    @if (row.isList && row.count) {
+                        <span class="bld__row-count">{{ row.count }}</span>
+                    }
+
+                    <span
+                        class="bld__row-dot"
+                        [class.is-full]="row.completion === 100"
+                        [class.is-empty]="row.completion === 0"
+                        [attr.title]="row.completion + '% complete'"
+                        aria-hidden="true"></span>
+
+                    <i
+                        class="pi bld__row-chevron"
+                        [class.pi-chevron-down]="isOpen(row.id)"
+                        [class.pi-chevron-right]="!isOpen(row.id)"
+                        aria-hidden="true"></i>
+                </button>
+            </h3>
+
+            @if (isOpen(row.id)) {
+                <div class="bld__panel" [id]="'bld-panel-' + row.id">
+                    <p class="bld__hint">{{ row.hint }}</p>
+
+                    @if (row.isList) {
+                        @if (row.records.length) {
+                            <ul class="bld__records">
+                                @for (record of row.records; track record.id; let i = $index; let last = $last) {
+                                    <li class="bld__record" [class.is-active]="openRecordId() === record.id">
+                                        <button
+                                            type="button"
+                                            class="bld__record-btn"
+                                            [attr.aria-current]="openRecordId() === record.id"
+                                            (click)="selectRecord(row.id, record.id)">
+                                            <span class="bld__record-title">{{ record.title }}</span>
+                                            @if (record.subtitle) {
+                                                <span class="bld__record-sub">{{ record.subtitle }}</span>
+                                            }
+                                        </button>
+
+                                        <span class="bld__record-tools">
+                                            <app-elv-button
+                                                size="small"
+                                                corner="sharp"
+                                                variant="ghost"
+                                                [iconOnly]="true"
+                                                icon="pi pi-arrow-up"
+                                                [disabled]="i === 0"
+                                                [ariaLabel]="'Move ' + record.title + ' up'"
+                                                (clicked)="moveRecord(row.id, record.id, -1)" />
+                                            <app-elv-button
+                                                size="small"
+                                                corner="sharp"
+                                                variant="ghost"
+                                                [iconOnly]="true"
+                                                icon="pi pi-arrow-down"
+                                                [disabled]="last"
+                                                [ariaLabel]="'Move ' + record.title + ' down'"
+                                                (clicked)="moveRecord(row.id, record.id, 1)" />
+                                            <app-elv-button
+                                                size="small"
+                                                corner="sharp"
+                                                variant="ghost"
+                                                [iconOnly]="true"
+                                                icon="pi pi-trash"
+                                                [ariaLabel]="'Delete ' + record.title"
+                                                (clicked)="removeRecord(row.id, record.id)" />
+                                        </span>
+                                    </li>
+                                }
+                            </ul>
+                        } @else {
+                            <app-elv-empty-state
+                                size="sm"
+                                skin="dashed"
+                                corner="sharp"
+                                [icon]="row.icon"
+                                [title]="'No ' + row.label.toLowerCase() + ' yet'"
+                                text="Add your first entry and it appears in the CV straight away."
+                                [actionTitle]="row.addLabel"
+                                (action)="addRecord(row.id)" />
+                        }
+
+                        @if (openRecordId(); as recordId) {
+                            <app-cv-record-form [sectionId]="row.id" [recordId]="recordId" />
+                        }
+
+                        @if (row.records.length) {
+                            <app-elv-button
+                                size="small"
+                                corner="sharp"
+                                variant="outline"
+                                icon="pi pi-plus"
+                                [block]="true"
+                                [title]="row.addLabel"
+                                (clicked)="addRecord(row.id)" />
+                        }
+                    } @else {
+                        <app-cv-record-form [sectionId]="row.id" />
+                    }
+                </div>
+            }
+        </section>
+    }
+</div>

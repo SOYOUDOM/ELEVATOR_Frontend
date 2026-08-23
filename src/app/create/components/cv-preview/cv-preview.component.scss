@@ -1,0 +1,344 @@
+/* ════════════════════════════════════════════════════════════
+   THE CV DOCUMENT — the user's half of the app.
+
+   Not one --p-elevator-* token appears below. Everything reads a
+   --cv-* variable written from CvDesign by the component, so the
+   document's look belongs entirely to whoever owns the CV.
+
+   Sizes are in mm and pt because this is a page, not a screen.
+   ════════════════════════════════════════════════════════════ */
+
+:host {
+    display: block;
+}
+
+.cv-doc {
+    /* Fallbacks matter: an export render mounted outside the editor
+       still has to produce a readable page. */
+    --cv-accent: #1f4fd8;
+    --cv-text: #11161f;
+    --cv-page: #ffffff;
+    --cv-font: 'Inter', Arial, sans-serif;
+    --cv-scale: 1;
+    --cv-leading: 1.4;
+    --cv-margin: 16mm;
+    --cv-section-gap: 7mm;
+    --cv-muted: color-mix(in srgb, var(--cv-text) 62%, var(--cv-page));
+    --cv-rule: color-mix(in srgb, var(--cv-text) 16%, var(--cv-page));
+
+    width: 210mm;
+    min-height: 297mm;
+    box-sizing: border-box;
+    padding: var(--cv-margin);
+    background: var(--cv-page);
+    color: var(--cv-text);
+    font-family: var(--cv-font);
+    font-size: calc(10.5pt * var(--cv-scale));
+    line-height: var(--cv-leading);
+    text-align: left;
+}
+
+/* ── masthead ───────────────────────────────────────────────── */
+.cv-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8mm;
+    margin-bottom: var(--cv-section-gap);
+}
+
+.cv-doc[data-align='center'] .cv-head {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.cv-doc[data-align='center'] .cv-contact {
+    justify-content: center;
+}
+
+.cv-head__text {
+    min-width: 0;
+}
+
+.cv-name {
+    margin: 0;
+    font-size: calc(24pt * var(--cv-scale));
+    line-height: 1.1;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.cv-role {
+    margin: 1mm 0 0;
+    font-size: calc(12pt * var(--cv-scale));
+    font-weight: 600;
+    color: var(--cv-accent);
+}
+
+.cv-contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5mm 5mm;
+    margin: 3mm 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: calc(9pt * var(--cv-scale));
+    color: var(--cv-muted);
+}
+
+.cv-contact__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.5mm;
+}
+
+.cv-contact__icon {
+    font-size: calc(8pt * var(--cv-scale));
+    color: var(--cv-accent);
+}
+
+.cv-photo {
+    width: 28mm;
+    height: 28mm;
+    object-fit: cover;
+    border-radius: 50%;
+    flex: none;
+}
+
+/* ── body / columns ─────────────────────────────────────────── */
+.cv-body {
+    display: block;
+}
+
+.cv-doc[data-columns='2'] .cv-body {
+    display: grid;
+    grid-template-columns: 1fr 62mm;
+    gap: 8mm;
+    align-items: start;
+}
+
+.cv-section + .cv-section {
+    margin-top: var(--cv-section-gap);
+}
+
+.cv-side .cv-section:first-child {
+    margin-top: 0;
+}
+
+.cv-section__title {
+    margin: 0 0 2.5mm;
+    font-size: calc(9.5pt * var(--cv-scale));
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cv-accent);
+}
+
+.cv-section--ruled .cv-section__title {
+    padding-bottom: 1.2mm;
+    border-bottom: 0.6pt solid var(--cv-rule);
+}
+
+.cv-summary {
+    margin: 0;
+}
+
+/* ── entries ────────────────────────────────────────────────── */
+.cv-entry + .cv-entry {
+    margin-top: 4mm;
+}
+
+.cv-entry__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4mm;
+}
+
+.cv-entry__title {
+    margin: 0;
+    font-size: calc(11pt * var(--cv-scale));
+    font-weight: 700;
+}
+
+.cv-entry__dates {
+    flex: none;
+    font-size: calc(9pt * var(--cv-scale));
+    color: var(--cv-muted);
+    white-space: nowrap;
+}
+
+.cv-entry__meta {
+    margin: 0.6mm 0 0;
+    font-size: calc(9.5pt * var(--cv-scale));
+    color: var(--cv-muted);
+    font-weight: 600;
+}
+
+.cv-entry__dot {
+    margin: 0 1.5mm;
+}
+
+.cv-entry__note {
+    margin: 1.2mm 0 0;
+}
+
+/* `list-style` is declared explicitly because Tailwind's preflight strips
+   markers from every ul in the app. The document is not an app surface — a
+   bullet list on a CV has to show bullets. */
+.cv-bullets {
+    margin: 1.5mm 0 0;
+    padding-left: 4.5mm;
+    list-style: disc outside;
+}
+
+.cv-bullets li + li {
+    margin-top: 1mm;
+}
+
+.cv-bullets li::marker {
+    color: var(--cv-accent);
+}
+
+/* ── label / value groups (skills, languages, certs, extras) ── */
+.cv-groups {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.cv-group {
+    display: grid;
+    grid-template-columns: 34mm 1fr;
+    gap: 3mm;
+}
+
+.cv-group + .cv-group {
+    margin-top: 1.6mm;
+}
+
+.cv-side .cv-group,
+.cv-doc[data-columns='2'] .cv-side .cv-group {
+    grid-template-columns: 1fr;
+    gap: 0.5mm;
+}
+
+.cv-group__name {
+    font-weight: 700;
+}
+
+.cv-group__values {
+    color: var(--cv-muted);
+}
+
+.cv-foot {
+    margin-top: var(--cv-section-gap);
+    padding-top: 2mm;
+    border-top: 0.6pt solid var(--cv-rule);
+    font-size: calc(8.5pt * var(--cv-scale));
+    color: var(--cv-muted);
+}
+
+/* ── TEMPLATES ───────────────────────────────────────────────
+   A template is a handful of overrides on the variables above,
+   which is why switching one cannot touch a word of content.
+   ─────────────────────────────────────────────────────────── */
+.cv-doc[data-template='classic'] {
+    .cv-name {
+        font-weight: 400;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+    .cv-role {
+        color: var(--cv-muted);
+        font-weight: 400;
+        font-style: italic;
+    }
+    .cv-section__title {
+        letter-spacing: 0.18em;
+        color: var(--cv-text);
+    }
+    .cv-section--ruled .cv-section__title {
+        border-bottom-width: 1pt;
+    }
+}
+
+.cv-doc[data-template='compact'] {
+    .cv-name {
+        font-size: calc(20pt * var(--cv-scale));
+    }
+    .cv-section__title {
+        font-size: calc(8.5pt * var(--cv-scale));
+    }
+    .cv-entry + .cv-entry {
+        margin-top: 3mm;
+    }
+    .cv-side {
+        padding-left: 5mm;
+        border-left: 0.6pt solid var(--cv-rule);
+    }
+}
+
+/* ── EDITOR AFFORDANCES ──────────────────────────────────────
+   Only ever inside .is-interactive, so a clean preview and the
+   print pipeline get plain markup with no chrome to strip.
+   ─────────────────────────────────────────────────────────── */
+.cv-doc.is-interactive {
+    .cv-editable--live {
+        cursor: text;
+        border-radius: 2px;
+        outline: 1px solid transparent;
+        outline-offset: 2px;
+        transition:
+            background-color 0.12s ease,
+            outline-color 0.12s ease;
+    }
+
+    .cv-editable--live:hover {
+        background: color-mix(in srgb, var(--cv-accent) 8%, transparent);
+        outline-color: color-mix(in srgb, var(--cv-accent) 28%, transparent);
+    }
+
+    .cv-editable--live:focus-visible {
+        outline: 2px solid var(--cv-accent);
+        outline-offset: 2px;
+    }
+
+    .cv-editable--live.is-selected {
+        background: color-mix(in srgb, var(--cv-accent) 13%, transparent);
+        outline-color: var(--cv-accent);
+    }
+
+    /* Record wrappers are not focusable; they only echo the selection. */
+    .cv-entry.is-active,
+    .cv-group.is-active {
+        box-shadow: -2.5mm 0 0 -2mm var(--cv-accent);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cv-doc.is-interactive .cv-editable--live {
+        transition: none;
+    }
+}
+
+/* Belt and braces with styles/_print.scss: even if this component is
+   printed from somewhere that sheet does not reach, the editor
+   affordances must not survive into the page. */
+@media print {
+    .cv-doc {
+        box-shadow: none;
+        min-height: 0;
+    }
+
+    .cv-doc.is-interactive .cv-editable--live {
+        background: none !important;
+        outline: none !important;
+    }
+
+    .cv-doc.is-interactive .cv-entry.is-active,
+    .cv-doc.is-interactive .cv-group.is-active {
+        box-shadow: none !important;
+    }
+}

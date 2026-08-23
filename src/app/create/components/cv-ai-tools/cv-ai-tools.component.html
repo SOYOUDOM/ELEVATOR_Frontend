@@ -1,0 +1,77 @@
+<h3 class="ai__title">
+    <i class="pi pi-sparkles" aria-hidden="true"></i>
+    AI Tools
+</h3>
+
+@if (focus(); as focus) {
+    <p class="ai__target">
+        Working on
+        <strong>{{ focus.fieldLabel }}</strong>
+        in {{ focus.sectionLabel }}.
+    </p>
+
+    <div class="ai__tones" role="group" aria-label="Tone">
+        @for (option of tones; track option) {
+            <app-elv-button
+                size="small"
+                corner="sharp"
+                variant="ghost"
+                [selected]="tone() === option"
+                [title]="option"
+                (clicked)="setTone(option)" />
+        }
+    </div>
+
+    <div class="ai__actions">
+        <app-elv-button
+            size="small"
+            corner="sharp"
+            variant="outline"
+            icon="pi pi-pencil"
+            title="AI Write"
+            [loading]="loading()"
+            (clicked)="write()" />
+        <app-elv-button
+            size="small"
+            corner="sharp"
+            variant="outline"
+            icon="pi pi-bolt"
+            title="Improve"
+            [disabled]="!focus.value.trim()"
+            [loading]="loading()"
+            (clicked)="improve()" />
+    </div>
+} @else {
+    <p class="ai__hint">Select any text on the CV — a summary, a job title, a bullet — and the writer works on it.</p>
+}
+
+@if (loading()) {
+    <app-elv-skeleton shape="text" [lines]="3" ariaLabel="Writing" />
+}
+
+@if (error(); as message) {
+    <app-elv-alert tone="danger" skin="soft" corner="sharp" icon="pi-exclamation-triangle" [text]="message" />
+}
+
+@if (variants().length) {
+    <ul class="ai__variants">
+        @for (variant of variants(); track $index) {
+            <li class="ai__variant">
+                <p class="ai__variant-text">{{ variant }}</p>
+                <app-elv-button
+                    size="small"
+                    corner="sharp"
+                    variant="ghost"
+                    title="Use this"
+                    (clicked)="apply(variant)" />
+            </li>
+        }
+    </ul>
+
+    <p class="ai__note">
+        Suggestions from
+        <code>{{ model() }}</code>
+        . Nothing is applied until you choose one.
+        <button type="button" class="ai__dismiss" (click)="dismiss()">Dismiss</button>
+    </p>
+}

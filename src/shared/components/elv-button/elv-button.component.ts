@@ -33,6 +33,7 @@ export class ElvButtonComponent {
   @Input() block = false;             // full-width
   @Input() iconOnly = false;          // square icon button (pass ariaLabel!)
   @Input() brackets = false;          // HUD corner ticks
+  @Input() selected = false;          // pressed state for toolbars / tabs / rails (sets aria-pressed)
   @Input() glow = false;              // neon halo — works on any variant, made for 'neon'
   @Input() customClass = '';
   @Input() url = '';                  // internal route or external href
@@ -64,6 +65,7 @@ export class ElvButtonComponent {
       this.block ? 'elv-btn--block' : '',
       this.iconOnly ? 'elv-btn--icon' : '',
       this.brackets ? 'elv-btn--brackets' : '',
+      this.selected ? 'elv-btn--selected' : '',
       this.loading ? 'elv-btn--loading' : '',
       this.disabled ? 'elv-btn--disabled' : '',
       this.customClass,

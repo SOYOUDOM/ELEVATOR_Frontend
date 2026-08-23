@@ -1,0 +1,59 @@
+<h3 class="ats__title">
+    <i class="pi pi-shield" aria-hidden="true"></i>
+    ATS Score
+</h3>
+
+@if (result(); as result) {
+    <div class="ats__score">
+        <app-elv-progress
+            shape="ring"
+            size="large"
+            tone="accent"
+            [value]="result.score"
+            [showValue]="true"
+            ariaLabel="ATS score" />
+
+        <div class="ats__verdict">
+            <strong>{{ verdict().label }}</strong>
+            <span>{{ verdict().note }}</span>
+            <span class="ats__checks">{{ result.checksPassed }} / {{ result.checksTotal }} checks passed</span>
+        </div>
+    </div>
+
+    @if (result.issues.length) {
+        <ul class="ats__issues">
+            @for (issue of result.issues; track issue.id) {
+                <li class="ats__issue" [attr.data-severity]="issue.severity">
+                    <button type="button" class="ats__issue-btn" (click)="goToIssue(issue)">
+                        <span class="ats__issue-dot" aria-hidden="true"></span>
+                        <span>{{ issue.message }}</span>
+                    </button>
+                </li>
+            }
+        </ul>
+    } @else {
+        <p class="ats__clean">No issues found. Nice.</p>
+    }
+
+    <ul class="ats__tips">
+        @for (suggestion of result.suggestions; track suggestion.id) {
+            <li>{{ suggestion.message }}</li>
+        }
+    </ul>
+} @else {
+    <p class="ats__idle">Run a check to see how a tracking system reads this CV.</p>
+}
+
+@if (error(); as message) {
+    <app-elv-alert tone="danger" skin="soft" corner="sharp" icon="pi-exclamation-triangle" [text]="message" />
+}
+
+<app-elv-button
+    size="small"
+    corner="sharp"
+    variant="outline"
+    icon="pi pi-refresh"
+    [title]="result() ? 'Check again' : 'Run ATS check'"
+    [loading]="loading()"
+    [block]="true"
+    (clicked)="run()" />

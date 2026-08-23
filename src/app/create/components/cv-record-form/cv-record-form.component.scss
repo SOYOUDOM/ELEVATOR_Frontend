@@ -1,0 +1,71 @@
+/* Workspace chrome — ELEVATOR's side of the wall, so --p-elevator-* only. */
+:host {
+    display: block;
+}
+
+.cv-form__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 12px;
+}
+
+.cv-form__cell {
+    grid-column: span 2;
+    min-width: 0;
+}
+
+.cv-form__cell--half {
+    grid-column: span 1;
+}
+
+/* One column once the panel is genuinely narrow — a half-width field at
+   140px is a worse compromise than a stacked one. */
+@container cv-builder (max-width: 380px) {
+    .cv-form__cell--half {
+        grid-column: span 2;
+    }
+}
+
+.cv-form__range,
+.cv-form__list {
+    border: 1px solid var(--p-elevator-line-soft);
+    padding: 12px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cv-form__legend {
+    padding: 0 6px;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--p-elevator-ink3);
+}
+
+.cv-form__hint {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--p-elevator-ink3);
+}
+
+.cv-form__range-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.cv-form__list-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: start;
+}
+
+.cv-form__missing {
+    margin: 0;
+    color: var(--p-elevator-ink3);
+    font-size: 13px;
+}

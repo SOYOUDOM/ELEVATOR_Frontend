@@ -27,46 +27,45 @@
 // ════════════════════════════════════════════════════════════
 
 :host {
-  display: block;
+    display: block;
 }
 
 .gs {
-  // The header reserves its own space (see _header.scss), so the only
-  // top offset needed here is for in-page anchor jumps.
-  --gs-anchor: calc(var(--p-elevator-navbar-height, 88px) + 28px);
+    // The header reserves its own space (see _header.scss), so the only
+    // top offset needed here is for in-page anchor jumps.
+    --gs-anchor: calc(var(--p-elevator-navbar-height, 88px) + 28px);
 }
 
 .gs-section,
 #gs-top {
-  scroll-margin-top: var(--gs-anchor);
+    scroll-margin-top: var(--gs-anchor);
 }
 
 // The sticky HUD floats over the last band — buy back the space.
 .gs-closing {
-  padding-bottom: clamp(96px, 12vw, 160px);
+    padding-bottom: clamp(96px, 12vw, 160px);
 }
-
 
 // ════════════════════════════════════════════════════════════
 //  HERO · ground floor + call panel
 // ════════════════════════════════════════════════════════════
 .gs-hero {
-  .gs-hero__h1 {
-    font-family: 'Chakra Petch', system-ui, sans-serif;
-    font-weight: 700;
-    font-size: clamp(34px, 5.6vw, 72px);
-    line-height: .95;
-    letter-spacing: .01em;
-    text-transform: uppercase;
-    max-width: 18ch;
-    margin: 26px auto 0;
-    text-wrap: balance;
-    color: var(--p-elevator-ink);
-  }
+    .gs-hero__h1 {
+        font-family: 'Chakra Petch', system-ui, sans-serif;
+        font-weight: 700;
+        font-size: clamp(34px, 5.6vw, 72px);
+        line-height: 0.95;
+        letter-spacing: 0.01em;
+        text-transform: uppercase;
+        max-width: 18ch;
+        margin: 26px auto 0;
+        text-wrap: balance;
+        color: var(--p-elevator-ink);
+    }
 }
 
 .gs-hero__stats {
-  margin-top: 46px;
+    margin-top: 46px;
 }
 
 // ── the call panel ────────────────────────────────────────────
@@ -74,257 +73,278 @@
 // to step 1. The rings are the only looping animation above the
 // fold — everything else on this page reacts to the visitor.
 .gs-call {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  margin-top: 52px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin-top: 52px;
 }
 
 .gs-call__indicator {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 7px 16px 7px 13px;
-  font-size: 13px;
-  color: var(--p-elevator-accent);
-  border: 1px solid var(--p-elevator-line);
-  background: rgba(255, 255, 255, .02);
-  box-shadow: inset 0 0 22px -14px var(--p-elevator-accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 16px 7px 13px;
+    font-size: 13px;
+    color: var(--p-elevator-accent);
+    border: 1px solid var(--p-elevator-line);
+    background: rgba(255, 255, 255, 0.02);
+    box-shadow: inset 0 0 22px -14px var(--p-elevator-accent);
 }
 
 .gs-call__arrow {
-  font-size: 12px;
-  animation: gs-arrow-climb 2.4s ease-in-out infinite;
+    font-size: 12px;
+    animation: gs-arrow-climb 2.4s ease-in-out infinite;
 }
 
 .gs-call__digits {
-  letter-spacing: .3em;
-  text-shadow: 0 0 14px var(--p-elevator-accent-glow);
+    letter-spacing: 0.3em;
+    text-shadow: 0 0 14px var(--p-elevator-accent-glow);
 }
 
 .gs-call__btn {
-  position: relative;
-  width: 104px;
-  height: 104px;
-  border: 0;
-  padding: 0;
-  background: none;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-  color: inherit;
+    position: relative;
+    width: 104px;
+    height: 104px;
+    border: 0;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    color: inherit;
 
-  &:focus-visible {
-    outline: 1px solid var(--p-elevator-accent);
-    outline-offset: 6px;
-  }
+    &:focus-visible {
+        outline: 1px solid var(--p-elevator-accent);
+        outline-offset: 6px;
+    }
 }
 
 .gs-call__core {
-  position: relative;
-  z-index: 2;
-  width: 66px;
-  height: 66px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  color: var(--p-elevator-accent);
-  font-size: 24px;
-  border: 1px solid color-mix(in oklch, var(--p-elevator-accent) 55%, transparent);
-  background:
-    radial-gradient(circle at 50% 35%,
-      color-mix(in oklch, var(--p-elevator-accent) 16%, transparent),
-      rgba(255, 255, 255, .02) 70%);
-  box-shadow:
-    inset 0 0 26px -10px var(--p-elevator-accent),
-    0 0 30px -12px var(--p-elevator-accent);
-  transition: transform .3s var(--ease), box-shadow .3s var(--ease);
+    position: relative;
+    z-index: 2;
+    width: 66px;
+    height: 66px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    color: var(--p-elevator-accent);
+    font-size: 24px;
+    border: 1px solid color-mix(in oklch, var(--p-elevator-accent) 55%, transparent);
+    background: radial-gradient(
+        circle at 50% 35%,
+        color-mix(in oklch, var(--p-elevator-accent) 16%, transparent),
+        rgba(255, 255, 255, 0.02) 70%
+    );
+    box-shadow:
+        inset 0 0 26px -10px var(--p-elevator-accent),
+        0 0 30px -12px var(--p-elevator-accent);
+    transition:
+        transform 0.3s var(--ease),
+        box-shadow 0.3s var(--ease);
 }
 
 .gs-call__btn:hover .gs-call__core,
 .gs-call__btn:focus-visible .gs-call__core {
-  transform: translateY(-3px);
-  box-shadow:
-    inset 0 0 30px -6px var(--p-elevator-accent),
-    0 0 48px -10px var(--p-elevator-accent);
+    transform: translateY(-3px);
+    box-shadow:
+        inset 0 0 30px -6px var(--p-elevator-accent),
+        0 0 48px -10px var(--p-elevator-accent);
 }
 
 .gs-call__btn:active .gs-call__core {
-  transform: translateY(1px) scale(.96);
+    transform: translateY(1px) scale(0.96);
 }
 
 // two rings, half a cycle apart — a call button being pressed
 .gs-call__ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 999px;
-  border: 1px solid color-mix(in oklch, var(--p-elevator-accent) 42%, transparent);
-  opacity: 0;
-  animation: gs-ring 2.8s cubic-bezier(.2, .7, .2, 1) infinite;
-  pointer-events: none;
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklch, var(--p-elevator-accent) 42%, transparent);
+    opacity: 0;
+    animation: gs-ring 2.8s cubic-bezier(0.2, 0.7, 0.2, 1) infinite;
+    pointer-events: none;
 }
 
 .gs-call__ring--2 {
-  animation-delay: 1.4s;
+    animation-delay: 1.4s;
 }
 
 .gs-call__label {
-  font-size: 11px;
-  color: var(--p-elevator-ink3);
+    font-size: 11px;
+    color: var(--p-elevator-ink3);
 }
 
 @keyframes gs-ring {
-  0%   { transform: scale(.62); opacity: 0; }
-  18%  { opacity: .85; }
-  100% { transform: scale(1.25); opacity: 0; }
+    0% {
+        transform: scale(0.62);
+        opacity: 0;
+    }
+    18% {
+        opacity: 0.85;
+    }
+    100% {
+        transform: scale(1.25);
+        opacity: 0;
+    }
 }
 
 @keyframes gs-arrow-climb {
-  0%, 100% { transform: translateY(2px); opacity: .55; }
-  50%      { transform: translateY(-2px); opacity: 1; }
+    0%,
+    100% {
+        transform: translateY(2px);
+        opacity: 0.55;
+    }
+    50% {
+        transform: translateY(-2px);
+        opacity: 1;
+    }
 }
-
 
 // ════════════════════════════════════════════════════════════
 //  STEP 01 · the picker
 // ════════════════════════════════════════════════════════════
 .gs-picker {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 22px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
 }
 
 // .gs-pick reaches <app-elv-card> through [customClass]; the card's
 // own internals stay untouched, only its host box is dressed here.
 .gs-pick {
-  cursor: pointer;
-  transition: opacity .35s var(--ease), transform .35s var(--ease);
+    cursor: pointer;
+    transition:
+        opacity 0.35s var(--ease),
+        transform 0.35s var(--ease);
 
-  // Everything below paints INWARD — see the note at the top of the file.
-  &.is-picked {
-    transform: translateY(-4px);
-    box-shadow:
-      inset 0 0 0 1px color-mix(in oklch, var(--p-elevator-accent) 65%, transparent),
-      inset 0 -70px 60px -60px var(--p-elevator-accent);
-  }
+    // Everything below paints INWARD — see the note at the top of the file.
+    &.is-picked {
+        transform: translateY(-4px);
+        box-shadow:
+            inset 0 0 0 1px color-mix(in oklch, var(--p-elevator-accent) 65%, transparent),
+            inset 0 -70px 60px -60px var(--p-elevator-accent);
+    }
 }
 
 // Once a door is chosen the others step back, so the choice reads at a glance.
 .gs-picker:has(.is-picked) .gs-pick:not(.is-picked) {
-  opacity: .42;
+    opacity: 0.42;
 
-  &:hover {
-    opacity: .8;
-  }
+    &:hover {
+        opacity: 0.8;
+    }
 }
 
 // The card projects [card-actions] as ONE flex item, so the row inside it
 // has to declare its own layout — and claim the full basis, or margin-left
 // on the mark has nothing to push against.
 .gs-pick__actions {
-  flex: 1 1 100%;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
+    flex: 1 1 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
 }
 
 .gs-pick__mark {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  margin-left: auto;          // pinned to the far end of the card's action row
-  font-size: 10px;
-  color: var(--p-elevator-ink4);
-  transition: color .3s var(--ease), text-shadow .3s var(--ease);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-left: auto; // pinned to the far end of the card's action row
+    font-size: 10px;
+    color: var(--p-elevator-ink4);
+    transition:
+        color 0.3s var(--ease),
+        text-shadow 0.3s var(--ease);
 
-  .is-picked & {
-    color: var(--p-elevator-accent);
-    text-shadow: 0 0 14px var(--p-elevator-accent-glow);
-  }
+    .is-picked & {
+        color: var(--p-elevator-accent);
+        text-shadow: 0 0 14px var(--p-elevator-accent-glow);
+    }
 }
 
 .gs-pick__best {
-  margin: 10px 0 0;
-  font-size: 13px;
-  line-height: 1.55;
-  color: var(--p-elevator-ink3);
-  border-left: 1px solid var(--p-elevator-line);
-  padding-left: 12px;
+    margin: 10px 0 0;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--p-elevator-ink3);
+    border-left: 1px solid var(--p-elevator-line);
+    padding-left: 12px;
 }
 
 .gs-picker__note {
-  margin-top: 26px;
+    margin-top: 26px;
 }
-
 
 // ════════════════════════════════════════════════════════════
 //  STEP 02 · the prep kit
 // ════════════════════════════════════════════════════════════
 .gs-prep {
-  position: relative;              // required by .elv-seam
-  display: grid;
-  grid-template-columns: 1.2fr .8fr;
-  gap: 0 clamp(28px, 4vw, 56px);
-  align-items: start;
+    position: relative; // required by .elv-seam
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 0 clamp(28px, 4vw, 56px);
+    align-items: start;
 }
 
 // The seam sits in the gap: 1.2fr/0.8fr puts the column break at ~60%.
 .gs-prep__seam {
-  --elv-seam-x: 60%;
+    --elv-seam-x: 60%;
 }
 
 .gs-prep__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .gs-prep__row {
-  position: relative;
-  padding: 4px 0 4px 18px;
-  transition: opacity .3s var(--ease);
+    position: relative;
+    padding: 4px 0 4px 18px;
+    transition: opacity 0.3s var(--ease);
 
-  // A hairline that fills with accent the moment the row is ticked —
-  // the checklist reads as a column of lights coming on.
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 8px;
-    bottom: 8px;
-    width: 2px;
-    background: var(--p-elevator-line);
-    transition: background .35s var(--ease), box-shadow .35s var(--ease);
-  }
+    // A hairline that fills with accent the moment the row is ticked —
+    // the checklist reads as a column of lights coming on.
+    &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 8px;
+        bottom: 8px;
+        width: 2px;
+        background: var(--p-elevator-line);
+        transition:
+            background 0.35s var(--ease),
+            box-shadow 0.35s var(--ease);
+    }
 
-  &.is-done::before {
-    background: var(--p-elevator-accent);
-    box-shadow: 0 0 12px var(--p-elevator-accent-glow);
-  }
+    &.is-done::before {
+        background: var(--p-elevator-accent);
+        box-shadow: 0 0 12px var(--p-elevator-accent-glow);
+    }
 }
 
 .gs-prep__gauge {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
-  text-align: center;
-  padding-top: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    text-align: center;
+    padding-top: 6px;
 }
 
 .gs-prep__note {
-  margin: 0;
-  max-width: 34ch;
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--p-elevator-ink3);
+    margin: 0;
+    max-width: 34ch;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--p-elevator-ink3);
 }
-
 
 // ════════════════════════════════════════════════════════════
 //  STEP 03 · the ascent (the shaft)
@@ -332,366 +352,370 @@
 //  written by the component's IntersectionObserver, never by CD.
 // ════════════════════════════════════════════════════════════
 .gs-ascent {
-  --gs-gap: clamp(20px, 3vw, 36px);
-  --gs-rail-w: 44px;
+    --gs-gap: clamp(20px, 3vw, 36px);
+    --gs-rail-w: 44px;
 
-  display: grid;
-  grid-template-columns: var(--gs-rail-w) minmax(0, 1fr);
-  column-gap: var(--gs-gap);
+    display: grid;
+    grid-template-columns: var(--gs-rail-w) minmax(0, 1fr);
+    column-gap: var(--gs-gap);
 }
 
 .gs-rail {
-  position: relative;              // required by .elv-seam
-  --lit: 0;
+    position: relative; // required by .elv-seam
+    --lit: 0;
 }
 
 // the growing fill — one scaleY driven entirely by --lit
 .gs-rail__fill {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  translate: -50% 0;               // `translate`, not `transform` — scaleY owns transform
-  width: 2px;
-  transform-origin: top center;
-  transform: scaleY(var(--lit));
-  background: linear-gradient(to bottom,
-    color-mix(in oklch, var(--p-elevator-accent) 30%, transparent),
-    var(--p-elevator-accent));
-  box-shadow: 0 0 16px var(--p-elevator-accent-glow);
-  transition: transform .9s cubic-bezier(.2, .7, .2, 1);
-  z-index: 3;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    translate: -50% 0; // `translate`, not `transform` — scaleY owns transform
+    width: 2px;
+    transform-origin: top center;
+    transform: scaleY(var(--lit));
+    background: linear-gradient(
+        to bottom,
+        color-mix(in oklch, var(--p-elevator-accent) 30%, transparent),
+        var(--p-elevator-accent)
+    );
+    box-shadow: 0 0 16px var(--p-elevator-accent-glow);
+    transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+    z-index: 3;
 }
 
 // the car — rides to whichever stop just lit up
 .gs-car {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  translate: -50% -50%;            // centred on its own transform origin
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  z-index: 4;
-  color: var(--p-elevator-accent);
-  font-size: 13px;
-  background: var(--p-elevator-bg0);
-  border: 1px solid color-mix(in oklch, var(--p-elevator-accent) 60%, transparent);
-  box-shadow:
-    inset 0 0 18px -8px var(--p-elevator-accent),
-    0 0 26px -8px var(--p-elevator-accent);
-  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
-  transform: translateY(0);
-  transition: transform 1s cubic-bezier(.3, .8, .2, 1);
+    position: absolute;
+    top: 0;
+    left: 50%;
+    translate: -50% -50%; // centred on its own transform origin
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    z-index: 4;
+    color: var(--p-elevator-accent);
+    font-size: 13px;
+    background: var(--p-elevator-bg0);
+    border: 1px solid color-mix(in oklch, var(--p-elevator-accent) 60%, transparent);
+    box-shadow:
+        inset 0 0 18px -8px var(--p-elevator-accent),
+        0 0 26px -8px var(--p-elevator-accent);
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+    transform: translateY(0);
+    transition: transform 1s cubic-bezier(0.3, 0.8, 0.2, 1);
 }
 
 .gs-stops {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: clamp(18px, 3vw, 34px);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(18px, 3vw, 34px);
 }
 
 .gs-stop {
-  position: relative;
-  opacity: .38;
-  transform: translateX(14px);
-  transition:
-    opacity .7s var(--ease),
-    transform .7s var(--ease);
+    position: relative;
+    opacity: 0.38;
+    transform: translateX(14px);
+    transition:
+        opacity 0.7s var(--ease),
+        transform 0.7s var(--ease);
 
-  &.is-lit {
-    opacity: 1;
-    transform: none;
-  }
+    &.is-lit {
+        opacity: 1;
+        transform: none;
+    }
 }
 
 // the tie between shaft and floor: a hairline reaching back to the
 // rail's centre, with a diamond sitting on the rail itself
 .gs-stop__dot {
-  position: absolute;
-  top: 34px;
-  left: calc(-1 * (var(--gs-gap) + var(--gs-rail-w) / 2));
-  width: calc(var(--gs-gap) + var(--gs-rail-w) / 2);
-  height: 1px;
-  background: var(--p-elevator-line);
-  transition: background .5s var(--ease);
-
-  &::before {
-    content: '';
     position: absolute;
-    left: 0;
-    top: 50%;
-    width: 7px;
-    height: 7px;
-    translate: -50% -50%;
-    rotate: 45deg;
-    background: var(--p-elevator-bg0);
-    border: 1px solid var(--p-elevator-line-strong);
-    transition: background .5s var(--ease), border-color .5s var(--ease), box-shadow .5s var(--ease);
-  }
+    top: 34px;
+    left: calc(-1 * (var(--gs-gap) + var(--gs-rail-w) / 2));
+    width: calc(var(--gs-gap) + var(--gs-rail-w) / 2);
+    height: 1px;
+    background: var(--p-elevator-line);
+    transition: background 0.5s var(--ease);
 
-  .is-lit &,
-  .is-lit &::before {
-    border-color: var(--p-elevator-accent);
-  }
+    &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 7px;
+        height: 7px;
+        translate: -50% -50%;
+        rotate: 45deg;
+        background: var(--p-elevator-bg0);
+        border: 1px solid var(--p-elevator-line-strong);
+        transition:
+            background 0.5s var(--ease),
+            border-color 0.5s var(--ease),
+            box-shadow 0.5s var(--ease);
+    }
 
-  .is-lit & {
-    background: color-mix(in oklch, var(--p-elevator-accent) 55%, transparent);
-  }
+    .is-lit &,
+    .is-lit &::before {
+        border-color: var(--p-elevator-accent);
+    }
 
-  .is-lit &::before {
-    background: var(--p-elevator-accent);
-    box-shadow: 0 0 14px var(--p-elevator-accent-glow);
-  }
+    .is-lit & {
+        background: color-mix(in oklch, var(--p-elevator-accent) 55%, transparent);
+    }
+
+    .is-lit &::before {
+        background: var(--p-elevator-accent);
+        box-shadow: 0 0 14px var(--p-elevator-accent-glow);
+    }
 }
 
 .gs-stop__body {
-  border: 1px solid var(--p-elevator-line);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, .022), rgba(255, 255, 255, 0)),
-    var(--p-elevator-panel);
-  padding: clamp(20px, 2.6vw, 30px);
-  clip-path: polygon(
-    var(--p-elevator-corner) 0, 100% 0,
-    100% calc(100% - var(--p-elevator-corner)), calc(100% - var(--p-elevator-corner)) 100%,
-    0 100%, 0 var(--p-elevator-corner));
-  transition: border-color .5s var(--ease), box-shadow .5s var(--ease);
+    border: 1px solid var(--p-elevator-line);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.022), rgba(255, 255, 255, 0)), var(--p-elevator-panel);
+    padding: clamp(20px, 2.6vw, 30px);
+    clip-path: polygon(
+        var(--p-elevator-corner) 0,
+        100% 0,
+        100% calc(100% - var(--p-elevator-corner)),
+        calc(100% - var(--p-elevator-corner)) 100%,
+        0 100%,
+        0 var(--p-elevator-corner)
+    );
+    transition:
+        border-color 0.5s var(--ease),
+        box-shadow 0.5s var(--ease);
 
-  // srgb, not oklch: mixing the gold accent toward a low-alpha slate in
-  // oklch swings the hue through teal. srgb keeps it gold.
-  .is-lit & {
-    border-color: color-mix(in srgb, var(--p-elevator-accent) 34%, transparent);
-    box-shadow: inset 0 0 60px -46px var(--p-elevator-accent);
-  }
+    // srgb, not oklch: mixing the gold accent toward a low-alpha slate in
+    // oklch swings the hue through teal. srgb keeps it gold.
+    .is-lit & {
+        border-color: color-mix(in srgb, var(--p-elevator-accent) 34%, transparent);
+        box-shadow: inset 0 0 60px -46px var(--p-elevator-accent);
+    }
 }
 
 .gs-stop__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--p-elevator-line-soft);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--p-elevator-line-soft);
 }
 
 .gs-stop__num {
-  font-size: 26px;
-  line-height: 1;
-  color: var(--p-elevator-ink4);
-  transition: color .5s var(--ease), text-shadow .5s var(--ease);
+    font-size: 26px;
+    line-height: 1;
+    color: var(--p-elevator-ink4);
+    transition:
+        color 0.5s var(--ease),
+        text-shadow 0.5s var(--ease);
 
-  .is-lit & {
-    color: var(--p-elevator-accent);
-    text-shadow: 0 0 18px var(--p-elevator-accent-glow);
-  }
+    .is-lit & {
+        color: var(--p-elevator-accent);
+        text-shadow: 0 0 18px var(--p-elevator-accent-glow);
+    }
 }
 
 .gs-stop__icon {
-  font-size: 17px;
-  color: var(--p-elevator-ink3);
-  transition: color .5s var(--ease);
+    font-size: 17px;
+    color: var(--p-elevator-ink3);
+    transition: color 0.5s var(--ease);
 
-  .is-lit & {
-    color: var(--p-elevator-accent);
-  }
+    .is-lit & {
+        color: var(--p-elevator-accent);
+    }
 }
 
 .gs-stop__title {
-  font-family: 'Orbitron', 'Chakra Petch', sans-serif;
-  font-weight: 500;
-  font-size: clamp(17px, 1.7vw, 21px);
-  text-transform: uppercase;
-  letter-spacing: .01em;
-  margin: 16px 0 0;
-  color: var(--p-elevator-ink);
+    font-family: 'Orbitron', 'Chakra Petch', sans-serif;
+    font-weight: 500;
+    font-size: clamp(17px, 1.7vw, 21px);
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    margin: 16px 0 0;
+    color: var(--p-elevator-ink);
 }
 
 .gs-stop__text {
-  margin: 10px 0 0;
-  font-size: 15px;
-  line-height: 1.62;
-  color: var(--p-elevator-ink2);
-  max-width: 62ch;
+    margin: 10px 0 0;
+    font-size: 15px;
+    line-height: 1.62;
+    color: var(--p-elevator-ink2);
+    max-width: 62ch;
 }
 
 .gs-stop__meta {
-  display: inline-block;
-  margin-top: 14px;
-  font-size: 10px;
-  color: var(--p-elevator-ink4);
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 10px;
+    color: var(--p-elevator-ink4);
 }
-
 
 // ════════════════════════════════════════════════════════════
 //  THE BOARDING PASS
 // ════════════════════════════════════════════════════════════
 .gs-pass {
-  display: grid;
-  grid-template-columns: 152px minmax(0, 1fr);
-  border: 1px solid var(--p-elevator-line-strong);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, 0)),
-    var(--p-elevator-panel);
-  // inset, not outset: this element animates with rv-doors, which
-  // leaves a clip-path behind and would crop an outer glow.
-  box-shadow: inset 0 0 90px -60px var(--p-elevator-accent);
+    display: grid;
+    grid-template-columns: 152px minmax(0, 1fr);
+    border: 1px solid var(--p-elevator-line-strong);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0)), var(--p-elevator-panel);
+    // inset, not outset: this element animates with rv-doors, which
+    // leaves a clip-path behind and would crop an outer glow.
+    box-shadow: inset 0 0 90px -60px var(--p-elevator-accent);
 }
 
 .gs-pass__stub {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 28px 16px;
-  text-align: center;
-  background:
-    repeating-linear-gradient(135deg,
-      rgba(255, 255, 255, .022) 0 2px,
-      transparent 2px 9px);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 28px 16px;
+    text-align: center;
+    background: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.022) 0 2px, transparent 2px 9px);
 
-  // the perforation
-  &::after {
-    content: '';
-    position: absolute;
-    top: 12px;
-    bottom: 12px;
-    right: 0;
-    width: 1px;
-    background: repeating-linear-gradient(to bottom,
-      var(--p-elevator-line-strong) 0 5px,
-      transparent 5px 11px);
-  }
+    // the perforation
+    &::after {
+        content: '';
+        position: absolute;
+        top: 12px;
+        bottom: 12px;
+        right: 0;
+        width: 1px;
+        background: repeating-linear-gradient(to bottom, var(--p-elevator-line-strong) 0 5px, transparent 5px 11px);
+    }
 }
 
 .gs-pass__stub-label,
 .gs-pass__stub-foot {
-  font-size: 9px;
-  color: var(--p-elevator-ink4);
+    font-size: 9px;
+    color: var(--p-elevator-ink4);
 }
 
 .gs-pass__stub-mark {
-  font-family: 'Orbitron', sans-serif;
-  font-weight: 700;
-  font-size: 54px;
-  line-height: 1;
-  color: var(--p-elevator-accent);
-  text-shadow: 0 0 24px var(--p-elevator-accent-glow);
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 54px;
+    line-height: 1;
+    color: var(--p-elevator-accent);
+    text-shadow: 0 0 24px var(--p-elevator-accent-glow);
 }
 
 .gs-pass__body {
-  padding: clamp(24px, 3.4vw, 40px);
+    padding: clamp(24px, 3.4vw, 40px);
 }
 
 .gs-pass__grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1px;
-  background: var(--p-elevator-line-soft);
-  border: 1px solid var(--p-elevator-line-soft);
-  margin-bottom: 26px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--p-elevator-line-soft);
+    border: 1px solid var(--p-elevator-line-soft);
+    margin-bottom: 26px;
 }
 
 .gs-pass__cell {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px 18px;
-  background: var(--p-elevator-bg1);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 18px;
+    background: var(--p-elevator-bg1);
 }
 
 .gs-pass__k {
-  font-size: 9px;
-  color: var(--p-elevator-ink4);
+    font-size: 9px;
+    color: var(--p-elevator-ink4);
 }
 
 .gs-pass__v {
-  font-family: 'Chakra Petch', system-ui, sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.3;
-  color: var(--p-elevator-ink);
+    font-family: 'Chakra Petch', system-ui, sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--p-elevator-ink);
 }
 
 .gs-pass__h2 {
-  font-family: 'Orbitron', 'Chakra Petch', sans-serif;
-  font-weight: 400;
-  font-size: clamp(26px, 3.4vw, 44px);
-  line-height: 1.06;
-  text-transform: uppercase;
-  margin: 30px 0 0;
-  color: var(--p-elevator-ink);
+    font-family: 'Orbitron', 'Chakra Petch', sans-serif;
+    font-weight: 400;
+    font-size: clamp(26px, 3.4vw, 44px);
+    line-height: 1.06;
+    text-transform: uppercase;
+    margin: 30px 0 0;
+    color: var(--p-elevator-ink);
 }
 
 .gs-pass__cta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 14px;
-  margin-top: 26px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    margin-top: 26px;
 }
 
 .gs-pass__back {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  margin-top: 20px;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-  font-size: 10px;
-  color: var(--p-elevator-ink3);
-  transition: color .25s var(--ease);
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 20px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    font-size: 10px;
+    color: var(--p-elevator-ink3);
+    transition: color 0.25s var(--ease);
 
-  &:hover {
-    color: var(--p-elevator-accent);
-  }
+    &:hover {
+        color: var(--p-elevator-accent);
+    }
 
-  i {
-    animation: gs-arrow-climb 2.4s ease-in-out infinite;
-  }
+    i {
+        animation: gs-arrow-climb 2.4s ease-in-out infinite;
+    }
 }
-
 
 // ════════════════════════════════════════════════════════════
 //  FAQ + CLOSING
 // ════════════════════════════════════════════════════════════
 .gs-faq__a {
-  margin: 0;
-  font-size: 15px;
-  line-height: 1.68;
-  color: var(--p-elevator-ink2);
-  max-width: 78ch;
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.68;
+    color: var(--p-elevator-ink2);
+    max-width: 78ch;
 }
 
 .gs-closing__inner {
-  border-top: 1px solid var(--p-elevator-line);
-  border-bottom: 1px solid var(--p-elevator-line);
-  padding: clamp(40px, 6vw, 72px) 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
-  background: radial-gradient(ellipse 60% 120% at 50% 100%,
-    color-mix(in oklch, var(--p-elevator-accent) 5%, transparent), transparent 70%);
+    border-top: 1px solid var(--p-elevator-line);
+    border-bottom: 1px solid var(--p-elevator-line);
+    padding: clamp(40px, 6vw, 72px) 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    background: radial-gradient(
+        ellipse 60% 120% at 50% 100%,
+        color-mix(in oklch, var(--p-elevator-accent) 5%, transparent),
+        transparent 70%
+    );
 }
 
 .gs-closing__h2 {
-  font-family: 'Orbitron', 'Chakra Petch', sans-serif;
-  font-weight: 400;
-  font-size: clamp(24px, 3.6vw, 46px);
-  line-height: 1.08;
-  text-transform: uppercase;
-  margin: 0;
-  color: var(--p-elevator-ink);
+    font-family: 'Orbitron', 'Chakra Petch', sans-serif;
+    font-weight: 400;
+    font-size: clamp(24px, 3.6vw, 46px);
+    line-height: 1.08;
+    text-transform: uppercase;
+    margin: 0;
+    color: var(--p-elevator-ink);
 }
-
 
 // ════════════════════════════════════════════════════════════
 //  STICKY HUD — "the one thing left to do"
@@ -700,175 +724,173 @@
 // A zero-height sticky dock, pinned to the bottom of the scrollport for the
 // whole page. See the note in the template for why this cannot be `fixed`.
 .gs-hud-dock {
-  position: sticky;
-  bottom: 0;
-  height: 0;
-  z-index: 45;
+    position: sticky;
+    bottom: 0;
+    height: 0;
+    z-index: 45;
 }
 
 .gs-hud {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: max(14px, 2vw);
-  padding: 0 max(16px, 4vw);
-  opacity: 0;
-  transform: translateY(130%);
-  pointer-events: none;
-  transition: transform .55s var(--ease), opacity .35s ease;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: max(14px, 2vw);
+    padding: 0 max(16px, 4vw);
+    opacity: 0;
+    transform: translateY(130%);
+    pointer-events: none;
+    transition:
+        transform 0.55s var(--ease),
+        opacity 0.35s ease;
 
-  &.is-up {
-    opacity: 1;
-    transform: none;
-    pointer-events: auto;
-  }
+    &.is-up {
+        opacity: 1;
+        transform: none;
+        pointer-events: auto;
+    }
 }
 
 .gs-hud__inner {
-  width: min(var(--p-elevator-maxw), 92vw);
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: clamp(14px, 2vw, 26px);
-  padding: 12px 16px;
-  border: 1px solid var(--p-elevator-line-strong);
-  background: color-mix(in oklch, var(--p-elevator-bg0) 82%, transparent);
-  backdrop-filter: blur(14px);
-  box-shadow:
-    0 -10px 40px -24px #000,
-    inset 0 1px 0 0 rgba(255, 255, 255, .04);
+    width: min(var(--p-elevator-maxw), 92vw);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: clamp(14px, 2vw, 26px);
+    padding: 12px 16px;
+    border: 1px solid var(--p-elevator-line-strong);
+    background: color-mix(in oklch, var(--p-elevator-bg0) 82%, transparent);
+    backdrop-filter: blur(14px);
+    box-shadow:
+        0 -10px 40px -24px #000,
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
 }
 
 .gs-hud__floor {
-  display: grid;
-  place-items: center;
-  min-width: 42px;
-  height: 42px;
-  font-size: 15px;
-  letter-spacing: .18em;
-  color: var(--p-elevator-accent);
-  border: 1px solid color-mix(in oklch, var(--p-elevator-accent) 40%, transparent);
-  text-shadow: 0 0 14px var(--p-elevator-accent-glow);
-  background: rgba(255, 255, 255, .02);
+    display: grid;
+    place-items: center;
+    min-width: 42px;
+    height: 42px;
+    font-size: 15px;
+    letter-spacing: 0.18em;
+    color: var(--p-elevator-accent);
+    border: 1px solid color-mix(in oklch, var(--p-elevator-accent) 40%, transparent);
+    text-shadow: 0 0 14px var(--p-elevator-accent-glow);
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .gs-hud__meter {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
 }
 
 .gs-hud__note {
-  font-family: 'Share Tech Mono', ui-monospace, monospace;
-  font-size: 11px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--p-elevator-ink3);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+    font-family: 'Share Tech Mono', ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--p-elevator-ink3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-
 
 // ════════════════════════════════════════════════════════════
 //  RESPONSIVE
 // ════════════════════════════════════════════════════════════
 @media (max-width: 1120px) {
-  .gs-picker {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+    .gs-picker {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 
-  .gs-pass__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+    .gs-pass__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 900px) {
-  .gs-picker {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .gs-prep {
-    grid-template-columns: minmax(0, 1fr);
-    row-gap: 40px;
-  }
-
-  // the seam divides two columns; with one column there is nothing to divide
-  .gs-prep__seam {
-    display: none;
-  }
-
-  .gs-prep__gauge {
-    border-top: 1px solid var(--p-elevator-line);
-    padding-top: 32px;
-  }
-
-  .gs-ascent {
-    --gs-rail-w: 26px;
-    --gs-gap: 16px;
-  }
-
-  .gs-car {
-    width: 26px;
-    height: 26px;
-    font-size: 11px;
-  }
-
-  .gs-pass {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .gs-pass__stub {
-    flex-direction: row;
-    align-items: center;
-    padding: 16px 20px;
-
-    &::after {
-      top: auto;
-      bottom: 0;
-      left: 12px;
-      right: 12px;
-      width: auto;
-      height: 1px;
-      background: repeating-linear-gradient(to right,
-        var(--p-elevator-line-strong) 0 5px,
-        transparent 5px 11px);
+    .gs-picker {
+        grid-template-columns: minmax(0, 1fr);
     }
-  }
 
-  .gs-pass__stub-mark {
-    font-size: 32px;
-  }
+    .gs-prep {
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: 40px;
+    }
 
-  .gs-hud__inner {
-    width: 100%;
-    grid-template-columns: auto minmax(0, 1fr);
-    row-gap: 10px;
-  }
+    // the seam divides two columns; with one column there is nothing to divide
+    .gs-prep__seam {
+        display: none;
+    }
 
-  .gs-hud__inner > app-elv-button {
-    grid-column: 1 / -1;
-  }
+    .gs-prep__gauge {
+        border-top: 1px solid var(--p-elevator-line);
+        padding-top: 32px;
+    }
 
-  // there is room for two lines down here, and a truncated instruction
-  // is not an instruction
-  .gs-hud__note {
-    white-space: normal;
-  }
+    .gs-ascent {
+        --gs-rail-w: 26px;
+        --gs-gap: 16px;
+    }
 
-  // A grid host blockifies its child, so the button inside stretches to
-  // full width — the one way to reach a child component's box without
-  // ::ng-deep or an input the caller cannot toggle responsively.
-  .gs-pass__cta app-elv-button,
-  .gs-closing .elv-hero-cta app-elv-button {
-    display: grid;
-    width: 100%;
-    min-width: 0;
-  }
+    .gs-car {
+        width: 26px;
+        height: 26px;
+        font-size: 11px;
+    }
+
+    .gs-pass {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .gs-pass__stub {
+        flex-direction: row;
+        align-items: center;
+        padding: 16px 20px;
+
+        &::after {
+            top: auto;
+            bottom: 0;
+            left: 12px;
+            right: 12px;
+            width: auto;
+            height: 1px;
+            background: repeating-linear-gradient(to right, var(--p-elevator-line-strong) 0 5px, transparent 5px 11px);
+        }
+    }
+
+    .gs-pass__stub-mark {
+        font-size: 32px;
+    }
+
+    .gs-hud__inner {
+        width: 100%;
+        grid-template-columns: auto minmax(0, 1fr);
+        row-gap: 10px;
+    }
+
+    .gs-hud__inner > app-elv-button {
+        grid-column: 1 / -1;
+    }
+
+    // there is room for two lines down here, and a truncated instruction
+    // is not an instruction
+    .gs-hud__note {
+        white-space: normal;
+    }
+
+    // A grid host blockifies its child, so the button inside stretches to
+    // full width — the one way to reach a child component's box without
+    // ::ng-deep or an input the caller cannot toggle responsively.
+    .gs-pass__cta app-elv-button,
+    .gs-closing .elv-hero-cta app-elv-button {
+        display: grid;
+        width: 100%;
+        min-width: 0;
+    }
 }
-
 
 // ════════════════════════════════════════════════════════════
 //  REDUCED MOTION
@@ -876,25 +898,54 @@
 //  looping decoration, which never depends on JS.
 // ════════════════════════════════════════════════════════════
 @media (prefers-reduced-motion: reduce) {
-  .gs-call__ring,
-  .gs-call__arrow,
-  .gs-pass__back i {
-    animation: none;
-  }
+    .gs-call__ring,
+    .gs-call__arrow,
+    .gs-pass__back i {
+        animation: none;
+    }
 
-  .gs-call__ring {
-    opacity: .25;
-    transform: scale(1);
-  }
+    .gs-call__ring {
+        opacity: 0.25;
+        transform: scale(1);
+    }
 
-  .gs-stop {
-    opacity: 1;
-    transform: none;
-  }
+    .gs-stop {
+        opacity: 1;
+        transform: none;
+    }
 
-  .gs-rail__fill,
-  .gs-car,
-  .gs-hud {
-    transition: none;
-  }
+    .gs-rail__fill,
+    .gs-car,
+    .gs-hud {
+        transition: none;
+    }
+}
+
+/* ── Real flows ───────────────────────────────────────────────
+   The file input is genuinely hidden rather than styled away —
+   it is still in the tab order's reach via the button that
+   clicks it, and screen readers get the button, not the input.
+   ─────────────────────────────────────────────────────────── */
+.gs-file {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+.gs-import {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.gs-import > app-elv-progress {
+    flex: 1 1 220px;
 }

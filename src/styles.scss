@@ -48,6 +48,7 @@
 
 // ── 6 · page level ─────────────────────────────────────────────
 @use './styles/hero';          // hero, face weave, logo outline, CTA band
+@use './styles/print';         // export/print — strips every trace of the app
 
 @import "tailwindcss";
 

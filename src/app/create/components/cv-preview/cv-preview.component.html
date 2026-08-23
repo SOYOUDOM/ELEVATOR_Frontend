@@ -1,0 +1,433 @@
+<!-- ============================================================
+     THE DOCUMENT.
+
+     Every colour, size and space below comes from a --cv-* variable
+     set on this element from the user's CvDesign. The ELEVATOR theme
+     is not consulted once — that separation is the whole contract.
+
+     `is-interactive` is the ONLY difference between what the editor
+     shows and what the printer gets.
+     ============================================================ -->
+<article
+    class="cv-doc"
+    [class.is-interactive]="interactive()"
+    [attr.data-template]="design().templateId"
+    [attr.data-columns]="design().columns"
+    [attr.data-align]="design().headerAlign"
+    [style.--cv-accent]="design().accentColor"
+    [style.--cv-text]="design().textColor"
+    [style.--cv-page]="design().pageColor"
+    [style.--cv-font]="fontStack()"
+    [style.--cv-scale]="design().fontScale"
+    [style.--cv-leading]="design().lineHeight"
+    [style.--cv-margin]="design().marginMm + 'mm'"
+    [style.--cv-section-gap]="design().sectionGapMm + 'mm'">
+    <!-- ── MASTHEAD ───────────────────────────────────────────── -->
+    <header class="cv-head" cvEditable="personal" [cvEditableInteractive]="false">
+        <div class="cv-head__text">
+            <h1
+                class="cv-name"
+                cvEditable="personal"
+                cvField="fullName"
+                cvEditableLabel="Edit full name"
+                [cvEditableInteractive]="interactive()">
+                {{ content().personal.fullName || 'Your name' }}
+            </h1>
+
+            @if (content().personal.jobTitle) {
+                <p
+                    class="cv-role"
+                    cvEditable="personal"
+                    cvField="jobTitle"
+                    cvEditableLabel="Edit job title"
+                    [cvEditableInteractive]="interactive()">
+                    {{ content().personal.jobTitle }}
+                </p>
+            }
+
+            <ul class="cv-contact">
+                @for (part of contactParts(); track part.fieldId) {
+                    <li
+                        class="cv-contact__item"
+                        cvEditable="personal"
+                        [cvField]="part.fieldId"
+                        [cvEditableLabel]="'Edit ' + part.fieldId"
+                        [cvEditableInteractive]="interactive()">
+                        @if (options().showContactIcons) {
+                            <i class="pi {{ part.icon }} cv-contact__icon" aria-hidden="true"></i>
+                        }
+                        <span>{{ part.value }}</span>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        @if (design().showPhoto && content().personal.photoUrl) {
+            <img class="cv-photo" [src]="content().personal.photoUrl" alt="" />
+        }
+    </header>
+
+    <div class="cv-body">
+        <div class="cv-main">
+            <ng-container *ngTemplateOutlet="sections; context: { $implicit: mainSections() }" />
+        </div>
+
+        @if (sidebarSections().length) {
+            <aside class="cv-side">
+                <ng-container *ngTemplateOutlet="sections; context: { $implicit: sidebarSections() }" />
+            </aside>
+        }
+    </div>
+
+    @if (options().showFooterNote && options().footerNote) {
+        <footer class="cv-foot">{{ options().footerNote }}</footer>
+    }
+</article>
+
+<!-- ── SECTION RENDERER ───────────────────────────────────────
+     One template for both columns: which section goes where is a
+     layout decision, not a rendering one.
+     ────────────────────────────────────────────────────────── -->
+<ng-template #sections let-ids>
+    @for (id of ids; track id) {
+        <section class="cv-section" [class.cv-section--ruled]="options().showSectionRules" [attr.data-section]="id">
+            <h2 class="cv-section__title">{{ sectionLabel(id) }}</h2>
+
+            @switch (id) {
+                @case ('summary') {
+                    <p
+                        class="cv-summary"
+                        cvEditable="summary"
+                        cvField="summary"
+                        cvEditableLabel="Edit summary"
+                        [cvEditableInteractive]="interactive()">
+                        {{ content().summary }}
+                    </p>
+                }
+
+                @case ('experience') {
+                    @for (role of content().experience; track role.id) {
+                        <div
+                            class="cv-entry"
+                            cvEditable="experience"
+                            [cvRecord]="role.id"
+                            [cvEditableInteractive]="false">
+                            <div class="cv-entry__head">
+                                <h3
+                                    class="cv-entry__title"
+                                    cvEditable="experience"
+                                    [cvRecord]="role.id"
+                                    cvField="jobTitle"
+                                    cvEditableLabel="Edit job title"
+                                    [cvEditableInteractive]="interactive()">
+                                    {{ role.jobTitle }}
+                                </h3>
+                                <span
+                                    class="cv-entry__dates"
+                                    cvEditable="experience"
+                                    [cvRecord]="role.id"
+                                    cvField="dates"
+                                    cvEditableLabel="Edit dates"
+                                    [cvEditableInteractive]="interactive()">
+                                    {{ range(role.dates) }}
+                                </span>
+                            </div>
+
+                            <p class="cv-entry__meta">
+                                <span
+                                    cvEditable="experience"
+                                    [cvRecord]="role.id"
+                                    cvField="company"
+                                    cvEditableLabel="Edit company"
+                                    [cvEditableInteractive]="interactive()">
+                                    {{ role.company }}
+                                </span>
+                                @if (role.location) {
+                                    <span class="cv-entry__dot" aria-hidden="true">•</span>
+                                    <span
+                                        cvEditable="experience"
+                                        [cvRecord]="role.id"
+                                        cvField="location"
+                                        cvEditableLabel="Edit location"
+                                        [cvEditableInteractive]="interactive()">
+                                        {{ role.location }}
+                                    </span>
+                                }
+                            </p>
+
+                            @if (filled(role.bullets).length) {
+                                <ul
+                                    class="cv-bullets"
+                                    cvEditable="experience"
+                                    [cvRecord]="role.id"
+                                    cvField="bullets"
+                                    cvEditableLabel="Edit responsibilities"
+                                    [cvEditableInteractive]="interactive()">
+                                    @for (line of filled(role.bullets); track $index) {
+                                        <li>{{ line }}</li>
+                                    }
+                                </ul>
+                            }
+                        </div>
+                    }
+                }
+
+                @case ('education') {
+                    @for (item of content().education; track item.id) {
+                        <div
+                            class="cv-entry"
+                            cvEditable="education"
+                            [cvRecord]="item.id"
+                            [cvEditableInteractive]="false">
+                            <div class="cv-entry__head">
+                                <h3
+                                    class="cv-entry__title"
+                                    cvEditable="education"
+                                    [cvRecord]="item.id"
+                                    cvField="degree"
+                                    cvEditableLabel="Edit qualification"
+                                    [cvEditableInteractive]="interactive()">
+                                    {{ item.degree }}
+                                </h3>
+                                <span
+                                    class="cv-entry__dates"
+                                    cvEditable="education"
+                                    [cvRecord]="item.id"
+                                    cvField="dates"
+                                    cvEditableLabel="Edit dates"
+                                    [cvEditableInteractive]="interactive()">
+                                    {{ range(item.dates) }}
+                                </span>
+                            </div>
+                            <p
+                                class="cv-entry__meta"
+                                cvEditable="education"
+                                [cvRecord]="item.id"
+                                cvField="institution"
+                                cvEditableLabel="Edit institution"
+                                [cvEditableInteractive]="interactive()">
+                                {{ item.institution }}
+                            </p>
+                            @if (item.note) {
+                                <p
+                                    class="cv-entry__note"
+                                    cvEditable="education"
+                                    [cvRecord]="item.id"
+                                    cvField="note"
+                                    cvEditableLabel="Edit note"
+                                    [cvEditableInteractive]="interactive()">
+                                    {{ item.note }}
+                                </p>
+                            }
+                        </div>
+                    }
+                }
+
+                @case ('projects') {
+                    @for (project of content().projects; track project.id) {
+                        <div
+                            class="cv-entry"
+                            cvEditable="projects"
+                            [cvRecord]="project.id"
+                            [cvEditableInteractive]="false">
+                            <div class="cv-entry__head">
+                                <h3
+                                    class="cv-entry__title"
+                                    cvEditable="projects"
+                                    [cvRecord]="project.id"
+                                    cvField="name"
+                                    cvEditableLabel="Edit project name"
+                                    [cvEditableInteractive]="interactive()">
+                                    {{ project.name }}
+                                </h3>
+                                <span
+                                    class="cv-entry__dates"
+                                    cvEditable="projects"
+                                    [cvRecord]="project.id"
+                                    cvField="dates"
+                                    cvEditableLabel="Edit dates"
+                                    [cvEditableInteractive]="interactive()">
+                                    {{ range(project.dates) }}
+                                </span>
+                            </div>
+                            @if (project.role || project.link) {
+                                <p class="cv-entry__meta">
+                                    @if (project.role) {
+                                        <span
+                                            cvEditable="projects"
+                                            [cvRecord]="project.id"
+                                            cvField="role"
+                                            cvEditableLabel="Edit role"
+                                            [cvEditableInteractive]="interactive()">
+                                            {{ project.role }}
+                                        </span>
+                                    }
+                                    @if (project.role && project.link) {
+                                        <span class="cv-entry__dot" aria-hidden="true">•</span>
+                                    }
+                                    @if (project.link) {
+                                        <span
+                                            cvEditable="projects"
+                                            [cvRecord]="project.id"
+                                            cvField="link"
+                                            cvEditableLabel="Edit link"
+                                            [cvEditableInteractive]="interactive()">
+                                            {{ project.link }}
+                                        </span>
+                                    }
+                                </p>
+                            }
+                            @if (project.description) {
+                                <p
+                                    class="cv-entry__note"
+                                    cvEditable="projects"
+                                    [cvRecord]="project.id"
+                                    cvField="description"
+                                    cvEditableLabel="Edit description"
+                                    [cvEditableInteractive]="interactive()">
+                                    {{ project.description }}
+                                </p>
+                            }
+                        </div>
+                    }
+                }
+
+                @case ('skills') {
+                    <ul class="cv-groups">
+                        @for (group of content().skills; track group.id) {
+                            <li
+                                class="cv-group"
+                                cvEditable="skills"
+                                [cvRecord]="group.id"
+                                [cvEditableInteractive]="false">
+                                <span
+                                    class="cv-group__name"
+                                    cvEditable="skills"
+                                    [cvRecord]="group.id"
+                                    cvField="name"
+                                    cvEditableLabel="Edit skill group"
+                                    [cvEditableInteractive]="interactive()">
+                                    {{ group.name }}
+                                </span>
+                                <span
+                                    class="cv-group__values"
+                                    cvEditable="skills"
+                                    [cvRecord]="group.id"
+                                    cvField="skills"
+                                    cvEditableLabel="Edit skills"
+                                    [cvEditableInteractive]="interactive()">
+                                    {{ filled(group.skills).join(' · ') }}
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                }
+
+                @case ('certifications') {
+                    <ul class="cv-groups">
+                        @for (cert of content().certifications; track cert.id) {
+                            <li
+                                class="cv-group"
+                                cvEditable="certifications"
+                                [cvRecord]="cert.id"
+                                [cvEditableInteractive]="false">
+                                <span
+                                    class="cv-group__name"
+                                    cvEditable="certifications"
+                                    [cvRecord]="cert.id"
+                                    cvField="name"
+                                    cvEditableLabel="Edit certification"
+                                    [cvEditableInteractive]="interactive()">
+                                    {{ cert.name }}
+                                </span>
+                                <span class="cv-group__values">
+                                    <span
+                                        cvEditable="certifications"
+                                        [cvRecord]="cert.id"
+                                        cvField="issuer"
+                                        cvEditableLabel="Edit issuer"
+                                        [cvEditableInteractive]="interactive()">
+                                        {{ cert.issuer }}
+                                    </span>
+                                    @if (cert.dates.start) {
+                                        <span class="cv-entry__dot" aria-hidden="true">•</span>
+                                        <span
+                                            cvEditable="certifications"
+                                            [cvRecord]="cert.id"
+                                            cvField="dates"
+                                            cvEditableLabel="Edit issue date"
+                                            [cvEditableInteractive]="interactive()">
+                                            {{ point(cert.dates) }}
+                                        </span>
+                                    }
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                }
+
+                @case ('languages') {
+                    <ul class="cv-groups">
+                        @for (language of content().languages; track language.id) {
+                            <li
+                                class="cv-group"
+                                cvEditable="languages"
+                                [cvRecord]="language.id"
+                                [cvEditableInteractive]="false">
+                                <span
+                                    class="cv-group__name"
+                                    cvEditable="languages"
+                                    [cvRecord]="language.id"
+                                    cvField="name"
+                                    cvEditableLabel="Edit language"
+                                    [cvEditableInteractive]="interactive()">
+                                    {{ language.name }}
+                                </span>
+                                <span
+                                    class="cv-group__values"
+                                    cvEditable="languages"
+                                    [cvRecord]="language.id"
+                                    cvField="level"
+                                    cvEditableLabel="Edit level"
+                                    [cvEditableInteractive]="interactive()">
+                                    {{ language.level }}
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                }
+
+                @case ('additional') {
+                    <ul class="cv-groups">
+                        @for (entry of content().additional; track entry.id) {
+                            <li
+                                class="cv-group"
+                                cvEditable="additional"
+                                [cvRecord]="entry.id"
+                                [cvEditableInteractive]="false">
+                                <span
+                                    class="cv-group__name"
+                                    cvEditable="additional"
+                                    [cvRecord]="entry.id"
+                                    cvField="label"
+                                    cvEditableLabel="Edit label"
+                                    [cvEditableInteractive]="interactive()">
+                                    {{ entry.label }}
+                                </span>
+                                <span
+                                    class="cv-group__values"
+                                    cvEditable="additional"
+                                    [cvRecord]="entry.id"
+                                    cvField="value"
+                                    cvEditableLabel="Edit detail"
+                                    [cvEditableInteractive]="interactive()">
+                                    {{ entry.value }}
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                }
+            }
+        </section>
+    }
+</ng-template>

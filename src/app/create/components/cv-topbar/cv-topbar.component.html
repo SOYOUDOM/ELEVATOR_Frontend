@@ -1,0 +1,77 @@
+<div class="tb__left">
+    <elv-field
+        density="compact"
+        labelMode="hidden"
+        label="CV name"
+        icon="pi-file"
+        width="280px"
+        [value]="document()?.name ?? ''"
+        (valueChange)="setName($event)" />
+
+    <p class="tb__save" [attr.data-tone]="save().tone" role="status" aria-live="polite">
+        <i class="pi {{ save().icon }}" aria-hidden="true"></i>
+        <span>{{ save().label }}</span>
+    </p>
+
+    @if (saveErrorMessage()) {
+        <span class="tb__save-detail">{{ saveErrorMessage() }}</span>
+        <app-elv-button
+            size="small"
+            corner="sharp"
+            variant="ghost"
+            title="Retry"
+            icon="pi pi-refresh"
+            (clicked)="retry()" />
+    }
+</div>
+
+<div class="tb__right">
+    <div class="tb__zoom" role="group" aria-label="Preview zoom">
+        <app-elv-button
+            size="small"
+            corner="sharp"
+            variant="ghost"
+            [iconOnly]="true"
+            icon="pi pi-search-minus"
+            ariaLabel="Zoom out"
+            [disabled]="ui.previewZoom() <= zoomLimits.min"
+            (clicked)="ui.zoomPreview(-zoomLimits.step)" />
+        <span class="tb__zoom-value">{{ ui.previewZoom() }}%</span>
+        <app-elv-button
+            size="small"
+            corner="sharp"
+            variant="ghost"
+            [iconOnly]="true"
+            icon="pi pi-search-plus"
+            ariaLabel="Zoom in"
+            [disabled]="ui.previewZoom() >= zoomLimits.max"
+            (clicked)="ui.zoomPreview(zoomLimits.step)" />
+    </div>
+
+    <app-elv-button
+        size="small"
+        corner="sharp"
+        variant="ghost"
+        icon="pi pi-database"
+        [title]="profileSaveState() === 'saved' ? 'Saved to profile' : 'Save my information'"
+        [loading]="profileSaveState() === 'saving'"
+        ariaLabel="Save this information to my reusable profile"
+        (clicked)="saveToProfile.emit()" />
+
+    <app-elv-button
+        size="small"
+        corner="sharp"
+        variant="ghost"
+        icon="pi pi-eye"
+        title="Preview"
+        [selected]="cleanPreview()"
+        (clicked)="toggleClean.emit()" />
+
+    <app-elv-button
+        size="small"
+        corner="sharp"
+        variant="primary"
+        icon="pi pi-download"
+        title="Export CV"
+        (clicked)="exportCv.emit()" />
+</div>

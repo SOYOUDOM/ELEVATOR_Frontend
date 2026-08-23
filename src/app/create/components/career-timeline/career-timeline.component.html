@@ -1,0 +1,107 @@
+<header class="tl__head">
+    <div class="tl__title-group">
+        <h2 class="tl__title">
+            <i class="pi pi-calendar" aria-hidden="true"></i>
+            Career Timeline
+        </h2>
+        <p class="tl__sub">Plan and visualise your work, study and projects over time.</p>
+    </div>
+
+    <div class="tl__tools">
+        <span class="tl__zoom-label">Zoom</span>
+        <app-elv-button
+            size="small"
+            corner="sharp"
+            variant="ghost"
+            [iconOnly]="true"
+            icon="pi pi-search-minus"
+            ariaLabel="Zoom out"
+            [disabled]="ui.timelineZoom() <= zoomLimits.min"
+            (clicked)="ui.zoomTimeline(-zoomLimits.step)" />
+        <span class="tl__zoom-value">{{ ui.timelineZoom() }}%</span>
+        <app-elv-button
+            size="small"
+            corner="sharp"
+            variant="ghost"
+            [iconOnly]="true"
+            icon="pi pi-search-plus"
+            ariaLabel="Zoom in"
+            [disabled]="ui.timelineZoom() >= zoomLimits.max"
+            (clicked)="ui.zoomTimeline(zoomLimits.step)" />
+        <app-elv-button
+            size="small"
+            corner="sharp"
+            variant="ghost"
+            title="Fit"
+            icon="pi pi-arrows-h"
+            (clicked)="ui.fitTimeline()" />
+    </div>
+</header>
+
+@if (layout(); as layout) {
+    <div class="tl__scroller">
+        <div class="tl__track" [style.width]="trackWidth()">
+            <!-- ruler -->
+            <div class="tl__ruler" aria-hidden="true">
+                @for (tick of layout.ticks; track tick.label + tick.leftPct) {
+                    <span class="tl__tick" [class.is-major]="tick.major" [style.left.%]="tick.leftPct">
+                        <span class="tl__tick-label">{{ tick.label }}</span>
+                    </span>
+                }
+            </div>
+
+            @if (layout.todayPct !== null) {
+                <span class="tl__today" [style.left.%]="layout.todayPct" aria-hidden="true">
+                    <span class="tl__today-flag">{{ layout.today.year }}</span>
+                </span>
+            }
+
+            <!-- rows -->
+            @for (row of layout.rows; track row.category.id) {
+                <div class="tl__row">
+                    <div class="tl__row-head">
+                        <i class="pi {{ row.category.icon }}" aria-hidden="true"></i>
+                        <span>{{ row.category.label }}</span>
+                    </div>
+
+                    <div class="tl__lane" [attr.data-category]="row.category.id">
+                        @for (bar of row.bars; track bar.entry.id) {
+                            <button
+                                type="button"
+                                class="tl__bar"
+                                [class.is-selected]="isSelected(bar.entry)"
+                                [class.is-undated]="bar.undated"
+                                [style.left.%]="bar.leftPct"
+                                [style.width.%]="bar.widthPct"
+                                [attr.aria-label]="barLabel(bar.entry)"
+                                [attr.aria-pressed]="isSelected(bar.entry)"
+                                (click)="select(bar.entry)"
+                                (dblclick)="editDates(bar.entry)">
+                                <span class="tl__bar-label">{{ bar.entry.label }}</span>
+                                <span class="tl__bar-dates">
+                                    {{ bar.undated ? 'Add dates' : rangeText(bar.entry) }}
+                                </span>
+                            </button>
+                        }
+
+                        <span class="tl__add">
+                            <app-elv-button
+                                size="small"
+                                corner="sharp"
+                                variant="ghost"
+                                icon="pi pi-plus"
+                                [title]="addLabelFor(row.category.sectionId)"
+                                (clicked)="add(row.category.sectionId)" />
+                        </span>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (isEmpty()) {
+        <p class="tl__empty">
+            Nothing dated yet. Add a role, a course or a project and it takes its place on the timeline.
+        </p>
+    }
+}
