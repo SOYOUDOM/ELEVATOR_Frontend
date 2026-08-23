@@ -39,6 +39,21 @@
 }
 
 /* ── masthead ───────────────────────────────────────────────── */
+/* RE-RESOLVE the typography variables here.
+   Declaring --cv-font on a <section> changes the variable but not the text:
+   font-family was already computed on .cv-doc and inherits as a finished value,
+   so a descendant only follows the override if something re-reads var() at that
+   level. These four declarations are identical to the document's when a section
+   has no override, and are what makes a per-section font, size or colour work. */
+.cv-head,
+.cv-section {
+    --cv-muted: color-mix(in srgb, var(--cv-text) 62%, var(--cv-page));
+    font-family: var(--cv-font);
+    font-size: calc(10.5pt * var(--cv-scale));
+    line-height: var(--cv-leading);
+    color: var(--cv-text);
+}
+
 .cv-head {
     display: flex;
     align-items: flex-start;

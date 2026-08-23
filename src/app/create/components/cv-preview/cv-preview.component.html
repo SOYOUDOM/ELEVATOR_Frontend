@@ -23,7 +23,15 @@
     [style.--cv-margin]="design().marginMm + 'mm'"
     [style.--cv-section-gap]="design().sectionGapMm + 'mm'">
     <!-- ── MASTHEAD ───────────────────────────────────────────── -->
-    <header class="cv-head" cvEditable="personal" [cvEditableInteractive]="false">
+    <header
+        class="cv-head"
+        [style]="sectionText('personal')"
+        [style.--cv-font]="sectionFont('personal')"
+        [style.--cv-scale]="sectionScale('personal')"
+        [style.--cv-leading]="sectionLeading('personal')"
+        [style.--cv-text]="sectionColor('personal')"
+        cvEditable="personal"
+        [cvEditableInteractive]="false">
         <div class="cv-head__text">
             <h1
                 class="cv-name"
@@ -97,7 +105,15 @@
      ────────────────────────────────────────────────────────── -->
 <ng-template #sections let-ids>
     @for (id of ids; track id) {
-        <section class="cv-section" [class.cv-section--ruled]="options().showSectionRules" [attr.data-section]="id">
+        <section
+            class="cv-section"
+            [class.cv-section--ruled]="options().showSectionRules"
+            [style]="sectionText(id)"
+            [style.--cv-font]="sectionFont(id)"
+            [style.--cv-scale]="sectionScale(id)"
+            [style.--cv-leading]="sectionLeading(id)"
+            [style.--cv-text]="sectionColor(id)"
+            [attr.data-section]="id">
             <h2 class="cv-section__title">{{ sectionLabel(id) }}</h2>
 
             @switch (id) {

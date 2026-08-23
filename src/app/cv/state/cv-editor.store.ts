@@ -8,7 +8,7 @@ import { ProfessionalProfileApiService } from '../api/professional-profile-api.s
 import { type ApiErrorDto, type UpdateCvRequest } from '../api/cv-api.contracts';
 import { toApiError } from '../api/api-error';
 import type { CvContent, CvRecord, CvSectionId } from '../models/cv-content.model';
-import type { CvDesign, CvOptions } from '../models/cv-design.model';
+import type { CvDesign, CvOptions, CvSectionStyle } from '../models/cv-design.model';
 import type { CvDocument } from '../models/cv-document.model';
 import {
     CV_SECTIONS,
@@ -276,6 +276,46 @@ export class CvEditorStore {
         const design = applyTemplate(current.design, templateId);
         this._document.set({ ...current, design });
         this.queue({ design: { ...(this.queued.design ?? {}), ...design } });
+    }
+
+    /**
+     * Typography for one section. Undefined values in `patch` CLEAR the
+     * override rather than being ignored, which is what "reset to document"
+     * needs; a style left with no keys is dropped entirely so the saved
+     * document does not accumulate empty objects.
+     */
+    updateSectionStyle(sectionId: CvSectionId, patch: CvSectionStyle): void {
+        const current = this._document();
+        if (!current) {
+            return;
+        }
+
+        const merged: CvSectionStyle = { ...(current.design.sectionStyles[sectionId] ?? {}), ...patch };
+        for (const key of Object.keys(merged) as (keyof CvSectionStyle)[]) {
+            if (merged[key] === undefined) {
+                delete merged[key];
+            }
+        }
+
+        const sectionStyles = { ...current.design.sectionStyles };
+        if (Object.keys(merged).length === 0) {
+            delete sectionStyles[sectionId];
+        } else {
+            sectionStyles[sectionId] = merged;
+        }
+
+        this.updateDesign({ sectionStyles });
+    }
+
+    /** Drops every override for a section, sending it back to the document's typography. */
+    resetSectionStyle(sectionId: CvSectionId): void {
+        const current = this._document();
+        if (!current || !current.design.sectionStyles[sectionId]) {
+            return;
+        }
+        const sectionStyles = { ...current.design.sectionStyles };
+        delete sectionStyles[sectionId];
+        this.updateDesign({ sectionStyles });
     }
 
     updateOptions(patch: Partial<CvOptions>): void {

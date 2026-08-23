@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 
-import type { CvDesign, CvOptions } from '@app/cv/models/cv-design.model';
+import type { CvDesign, CvOptions, CvSectionStyle } from '@app/cv/models/cv-design.model';
 import { resolveFontStack } from '@app/cv/models/cv-fonts';
 import type { CvContent, CvSectionId } from '@app/cv/models/cv-content.model';
 import { type CvDateRange, formatCvDate, formatCvRange } from '@app/cv/models/cv-date';
@@ -79,6 +79,59 @@ export class CvPreviewComponent {
 
     sectionLabel(id: CvSectionId): string {
         return sectionSpec(id).label;
+    }
+
+    /**
+     * Per-section typography.
+     *
+     * The custom properties are bound ONE AT A TIME with [style.--x] rather than
+     * as an object. Angular's object-form [style] binding silently drops custom
+     * properties — the plain declarations in the same object apply and the
+     * `--cv-*` ones vanish, which looks exactly like the feature half-working.
+     *
+     * They are the same variables the document root sets, so redeclaring them on
+     * a <section> makes its whole subtree follow: every size rule is
+     * `calc(<pt> * var(--cv-scale))` and the family is `var(--cv-font)`. A
+     * section with no override returns null for all of them and declares nothing.
+     */
+    sectionFont(id: CvSectionId): string | null {
+        const family = this.styleFor(id).fontFamily;
+        return family ? resolveFontStack(family) : null;
+    }
+
+    /** Multiplies the document's scale, so a pinned section keeps its relative size. */
+    sectionScale(id: CvSectionId): string | null {
+        const scale = this.styleFor(id).fontScale;
+        return scale === undefined ? null : String(this.design().fontScale * scale);
+    }
+
+    sectionLeading(id: CvSectionId): string | null {
+        const lineHeight = this.styleFor(id).lineHeight;
+        return lineHeight === undefined ? null : String(lineHeight);
+    }
+
+    sectionColor(id: CvSectionId): string | null {
+        return this.styleFor(id).color ?? null;
+    }
+
+    /** Weight, slant and casing are ordinary properties; an object binding is fine for these. */
+    sectionText(id: CvSectionId): Record<string, string> {
+        const style = this.styleFor(id);
+        const css: Record<string, string> = {};
+        if (style.weight) {
+            css['font-weight'] = style.weight === 'medium' ? '500' : style.weight;
+        }
+        if (style.italic) {
+            css['font-style'] = 'italic';
+        }
+        if (style.transform && style.transform !== 'none') {
+            css['text-transform'] = style.transform;
+        }
+        return css;
+    }
+
+    private styleFor(id: CvSectionId): CvSectionStyle {
+        return this.design().sectionStyles?.[id] ?? {};
     }
 
     range(range: CvDateRange): string {

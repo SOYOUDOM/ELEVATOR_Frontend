@@ -233,11 +233,24 @@ and none is mocked. Revisit only if templates become user- or admin-authored; th
 `CvTemplate` interface is already shaped like what such an endpoint would return.
 
 **Fonts.** `CvDesign.fontFamily` is a CSS family NAME (`"Georgia"`), not an enum,
-because the picker can offer fonts installed on the reader's own machine via the
-Local Font Access API. The backend stores and returns the string unchanged — it
-never needs to know the list. Documents written before this was widened hold
+because the picker offers fonts installed on the reader's own machine. The
+backend stores and returns the string unchanged — it never needs to know the
+list. Documents written before this was widened hold
 `'sans' | 'serif' | 'mono' | 'grotesk'`; the frontend maps those in
 `models/cv-fonts.ts`, so **no data migration is required**.
+
+Detection is by measurement, not the Local Font Access API: `queryLocalFonts()`
+is Chromium-only, permission-gated, and was measured resolving with an empty
+array without prompting (Brave blocks it outright). Nothing about that reaches
+the backend.
+
+**Per-section typography.** `CvDesign.sectionStyles` is a sparse map keyed by
+section id — `{ summary: { fontFamily, fontScale, lineHeight, weight, italic,
+transform, color } }`. Every field is optional and an absent key means the
+section follows the document, so the object is usually small or empty. `fontScale`
+is a MULTIPLIER on the document's, not an absolute size. Store it as opaque JSON
+alongside the rest of `design`; documents saved before it existed have no key,
+which reads as "no overrides" — again **no migration**.
 
 **Export.** Export is the browser's own print-to-PDF against `src/styles/_print.scss`.
 The document already renders at real page dimensions in millimetres and the print

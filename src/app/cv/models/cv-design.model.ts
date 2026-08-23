@@ -16,6 +16,31 @@ import { DEFAULT_CV_FONT } from './cv-fonts';
  */
 
 export type CvHeaderAlign = 'left' | 'center';
+export type CvFontWeight = 'normal' | 'medium' | 'bold';
+export type CvTextTransform = 'none' | 'uppercase' | 'capitalize';
+
+/**
+ * Typography for ONE section, layered over the document's own.
+ *
+ * Every field is optional and every absent field means "inherit the document".
+ * That is deliberate: the common case is a CV set in one face, and only a
+ * section or two pulled out — a name in a display font, a summary a point
+ * larger. Storing overrides rather than a full style per section keeps changing
+ * the document-wide font working on everything the user has not deliberately
+ * pinned.
+ *
+ * `fontScale` here MULTIPLIES the document's, so 1.1 means "10% bigger than
+ * whatever the document is set to", not an absolute size.
+ */
+export interface CvSectionStyle {
+    fontFamily?: string;
+    fontScale?: number;
+    lineHeight?: number;
+    weight?: CvFontWeight;
+    italic?: boolean;
+    transform?: CvTextTransform;
+    color?: string;
+}
 export type CvDateStylePref = 'short' | 'long' | 'numeric';
 
 export interface CvDesign {
@@ -45,6 +70,12 @@ export interface CvDesign {
     sectionOrder: CvSectionId[];
     /** Sections the user switched off. They keep their content. */
     hiddenSections: CvSectionId[];
+    /**
+     * Per-section typography overrides, keyed by section id. Absent key = the
+     * section simply follows the document. Documents saved before this existed
+     * have no key at all, which reads as "no overrides" — no migration needed.
+     */
+    sectionStyles: Partial<Record<CvSectionId, CvSectionStyle>>;
 }
 
 export interface CvOptions {
@@ -59,6 +90,8 @@ export interface CvOptions {
 
 export const CV_DESIGN_LIMITS = {
     fontScale: { min: 0.85, max: 1.25, step: 0.05 },
+    /** Relative to the document, so a section can go noticeably bigger or smaller. */
+    sectionScale: { min: 0.7, max: 1.8, step: 0.05 },
     lineHeight: { min: 1.15, max: 1.75, step: 0.05 },
     marginMm: { min: 8, max: 28, step: 1 },
     sectionGapMm: { min: 3, max: 14, step: 1 },
@@ -90,6 +123,7 @@ export function defaultCvDesign(templateId = 'modern'): CvDesign {
             'additional',
         ],
         hiddenSections: [],
+        sectionStyles: {},
     };
 }
 

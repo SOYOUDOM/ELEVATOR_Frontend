@@ -155,6 +155,62 @@ describe('CvEditorStore autosave', () => {
         expect(store.profileSaveState()).toBe('saved');
     });
 
+    it('keeps a section override separate from the document typography', fakeAsync(() => {
+        store.updateDesign({ fontFamily: 'Inter' });
+        store.updateSectionStyle('summary', { fontFamily: 'Georgia', fontScale: 1.2 });
+
+        expect(store.design()?.fontFamily).toBe('Inter');
+        expect(store.design()?.sectionStyles['summary']).toEqual({ fontFamily: 'Georgia', fontScale: 1.2 });
+        expect(store.design()?.sectionStyles['experience']).toBeUndefined();
+
+        tick(AUTOSAVE_DEBOUNCE_MS);
+        const request = http.expectOne('/api/cvs/cv_1');
+        expect(request.request.body.design.sectionStyles['summary'].fontFamily).toBe('Georgia');
+        expect(request.request.body.content).toBeUndefined();
+        request.flush(seed());
+    }));
+
+    it('clearing one property leaves the rest of the override in place', fakeAsync(() => {
+        store.updateSectionStyle('summary', { fontFamily: 'Georgia', italic: true });
+        store.updateSectionStyle('summary', { italic: undefined });
+
+        expect(store.design()?.sectionStyles['summary']).toEqual({ fontFamily: 'Georgia' });
+
+        tick(AUTOSAVE_DEBOUNCE_MS);
+        http.expectOne('/api/cvs/cv_1').flush(seed());
+    }));
+
+    it('drops the override entirely once its last property is cleared', fakeAsync(() => {
+        store.updateSectionStyle('summary', { italic: true });
+        store.updateSectionStyle('summary', { italic: undefined });
+
+        // Not an empty object left behind to be saved forever.
+        expect('summary' in (store.design()?.sectionStyles ?? {})).toBeFalse();
+
+        tick(AUTOSAVE_DEBOUNCE_MS);
+        http.expectOne('/api/cvs/cv_1').flush(seed());
+    }));
+
+    it('resets a section back to the document in one action', fakeAsync(() => {
+        store.updateSectionStyle('experience', { fontFamily: 'Courier New', weight: 'bold', fontScale: 1.4 });
+        store.resetSectionStyle('experience');
+
+        expect(store.design()?.sectionStyles['experience']).toBeUndefined();
+
+        tick(AUTOSAVE_DEBOUNCE_MS);
+        http.expectOne('/api/cvs/cv_1').flush(seed());
+    }));
+
+    it('never lets a section override reach the content branch', fakeAsync(() => {
+        store.updateSectionStyle('skills', { fontScale: 0.9 });
+        tick(AUTOSAVE_DEBOUNCE_MS);
+
+        const request = http.expectOne('/api/cvs/cv_1');
+        expect(request.request.body.content).toBeUndefined();
+        expect(request.request.body.design).toBeDefined();
+        request.flush(seed());
+    }));
+
     it('keeps every word when the template changes', fakeAsync(() => {
         store.editContent((content) => ({
             ...content,

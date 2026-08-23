@@ -89,12 +89,24 @@
             <section class="insp__card">
                 <h3 class="insp__card-title">Typography</h3>
 
+                <!-- One set of controls, switched between the document and a
+                     single section — better than nesting a font/size/style trio
+                     under every row of the section list. -->
+                <label class="insp__row insp__row--stack">
+                    <span>Apply to</span>
+                    <select class="insp__select" [value]="scope()" (change)="setScope($event)">
+                        @for (option of scopeOptions(); track option.id) {
+                            <option [value]="option.id">{{ option.label }}</option>
+                        }
+                    </select>
+                </label>
+
                 <label class="insp__row insp__row--stack">
                     <span>Font</span>
                     <select
                         class="insp__select"
-                        [style.font-family]="fontStackFor(currentFont())"
-                        [value]="currentFont()"
+                        [style.font-family]="fontStackFor(shownFont())"
+                        [value]="shownFont()"
                         (change)="setFont($event)">
                         @for (group of fontGroups(); track group.label) {
                             <optgroup [label]="group.label">
@@ -108,70 +120,114 @@
                     </select>
                 </label>
 
-                <!-- Local Font Access: gesture-gated and Chromium-only, so it is
-                     a button the user presses, never something we do on load. -->
-                @switch (localFonts.state()) {
-                    @case ('idle') {
-                        <app-elv-button
-                            size="small"
-                            corner="sharp"
-                            variant="outline"
-                            icon="pi pi-desktop"
-                            title="Use fonts from this computer"
-                            [block]="true"
-                            (clicked)="loadLocalFonts()" />
-                    }
-                    @case ('loading') {
-                        <p class="insp__card-note">Asking your browser for the font list…</p>
-                    }
-                    @case ('granted') {
-                        <p class="insp__card-note">
-                            {{ localFonts.families().length }} fonts found on this computer. They are listed above.
-                        </p>
-                    }
-                    @case ('denied') {
-                        <p class="insp__card-note">
-                            Your browser did not share the font list. The fonts above still work everywhere.
-                        </p>
-                    }
-                    @case ('error') {
-                        <p class="insp__card-note">We could not read the fonts on this computer.</p>
-                    }
-                    @default {
-                        <p class="insp__card-note">
-                            This browser cannot list your installed fonts. Chrome and Edge can — the fonts above work in
-                            every browser.
-                        </p>
-                    }
+                <label class="insp__row insp__row--stack">
+                    <span>Or type any font name</span>
+                    <input
+                        #customFont
+                        class="insp__text"
+                        type="text"
+                        placeholder="e.g. Baskerville"
+                        (change)="setCustomFont(customFont.value)" />
+                </label>
+
+                <!-- Fonts on this machine are found by measurement, which needs no
+                     permission and runs when the panel opens. The button is only
+                     for the fuller list, where that API exists AND works. -->
+                @if (localFonts.families().length) {
+                    <p class="insp__card-note">
+                        {{ localFonts.families().length }} fonts found on this computer, listed above under “From this
+                        computer”.
+                    </p>
+                }
+                @if (localFonts.canRequestFullList()) {
+                    <app-elv-button
+                        size="small"
+                        corner="sharp"
+                        variant="outline"
+                        icon="pi pi-desktop"
+                        title="Show every installed font"
+                        [block]="true"
+                        (clicked)="loadLocalFonts()" />
+                } @else if (localFonts.apiTried()) {
+                    <p class="insp__card-note">
+                        Your browser would not share the full list. The fonts above are the ones we could confirm are
+                        installed — or type any name in the box.
+                    </p>
                 }
 
                 <label class="insp__row insp__row--range">
                     <span>
-                        Font size
-                        <em>{{ design.fontScale.toFixed(2) }}×</em>
+                        {{ editingSection() ? 'Size vs document' : 'Font size' }}
+                        <em>{{ shownScale().toFixed(2) }}×</em>
                     </span>
                     <input
                         type="range"
-                        [min]="limits.fontScale.min"
-                        [max]="limits.fontScale.max"
-                        [step]="limits.fontScale.step"
-                        [value]="design.fontScale"
-                        (input)="setNumber('fontScale', $event)" />
+                        [min]="scaleLimits().min"
+                        [max]="scaleLimits().max"
+                        [step]="scaleLimits().step"
+                        [value]="shownScale()"
+                        (input)="setScale($event)" />
                 </label>
 
                 <label class="insp__row insp__row--range">
                     <span>
                         Line height
-                        <em>{{ design.lineHeight.toFixed(2) }}</em>
+                        <em>{{ shownLineHeight().toFixed(2) }}</em>
                     </span>
                     <input
                         type="range"
                         [min]="limits.lineHeight.min"
                         [max]="limits.lineHeight.max"
                         [step]="limits.lineHeight.step"
-                        [value]="design.lineHeight"
-                        (input)="setNumber('lineHeight', $event)" />
+                        [value]="shownLineHeight()"
+                        (input)="setLineHeight($event)" />
                 </label>
+
+                @if (editingSection()) {
+                    <div class="insp__chips" role="group" aria-label="Text style">
+                        <app-elv-button
+                            size="small"
+                            corner="sharp"
+                            variant="ghost"
+                            title="Bold"
+                            [selected]="sectionStyle().weight === 'bold'"
+                            (clicked)="toggleWeight()" />
+                        <app-elv-button
+                            size="small"
+                            corner="sharp"
+                            variant="ghost"
+                            title="Italic"
+                            [selected]="!!sectionStyle().italic"
+                            (clicked)="toggleItalic()" />
+                        <app-elv-button
+                            size="small"
+                            corner="sharp"
+                            variant="ghost"
+                            title="UPPER"
+                            [selected]="sectionStyle().transform === 'uppercase'"
+                            (clicked)="setTransform('uppercase')" />
+                        <app-elv-button
+                            size="small"
+                            corner="sharp"
+                            variant="ghost"
+                            title="Title"
+                            [selected]="sectionStyle().transform === 'capitalize'"
+                            (clicked)="setTransform('capitalize')" />
+                    </div>
+
+                    @if (hasSectionOverrides()) {
+                        <app-elv-button
+                            size="small"
+                            corner="sharp"
+                            variant="ghost"
+                            icon="pi pi-undo"
+                            [block]="true"
+                            title="Reset this section"
+                            (clicked)="resetSection()" />
+                    } @else {
+                        <p class="insp__card-note">This section follows the document.</p>
+                    }
+                }
             </section>
 
             <section class="insp__card">

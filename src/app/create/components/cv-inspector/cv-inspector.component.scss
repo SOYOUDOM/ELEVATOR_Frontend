@@ -244,6 +244,17 @@
     cursor: pointer;
 }
 
+.insp__text {
+    width: 100%;
+    padding: 7px 8px;
+    background: var(--p-elevator-panel-hi);
+    border: 1px solid var(--p-elevator-line);
+    color: var(--p-elevator-ink);
+    font: inherit;
+    font-size: 12px;
+}
+
+.insp__text:focus-visible,
 .insp__select:focus-visible {
     outline: 1px solid var(--p-elevator-accent);
     outline-offset: -1px;

@@ -1,11 +1,18 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 
 import { ElvButtonComponent } from '@shared/components/elv-button/elv-button.component';
 import { ElvFieldComponent } from '@shared/components/elv-field';
 import { ElvToggleComponent } from '@shared/components/elv-toggle/elv-toggle.component';
 
 import type { CvSectionId } from '@app/cv/models/cv-content.model';
-import { CV_DESIGN_LIMITS, type CvDateStylePref, type CvHeaderAlign } from '@app/cv/models/cv-design.model';
+import {
+    CV_DESIGN_LIMITS,
+    type CvDateStylePref,
+    type CvFontWeight,
+    type CvHeaderAlign,
+    type CvSectionStyle,
+    type CvTextTransform,
+} from '@app/cv/models/cv-design.model';
 import { CV_FONT_PRESETS, type CvFontOption, normalizeFontFamily, resolveFontStack } from '@app/cv/models/cv-fonts';
 import { LocalFontsService } from '@app/cv/state/local-fonts.service';
 import { CV_SECTIONS, sectionSpec } from '@app/cv/schema/cv-section-schema';
@@ -56,6 +63,47 @@ export class CvInspectorComponent {
     readonly localFonts = inject(LocalFontsService);
 
     /**
+     * Which typography the controls below are editing: the document, or one
+     * section's override. One set of controls with a scope switch, rather than
+     * a second copy of every control nested under each section.
+     */
+    readonly scope = signal<'document' | CvSectionId>('document');
+
+    readonly scopeOptions = computed(() => [
+        { id: 'document' as const, label: 'Whole document' },
+        ...CV_SECTIONS.map((spec) => ({ id: spec.id, label: spec.label })),
+    ]);
+
+    readonly editingSection = computed<CvSectionId | null>(() => {
+        const scope = this.scope();
+        return scope === 'document' ? null : scope;
+    });
+
+    /** The override actually stored for the section in scope, if any. */
+    readonly sectionStyle = computed<CvSectionStyle>(() => {
+        const section = this.editingSection();
+        return (section && this.design()?.sectionStyles?.[section]) || {};
+    });
+
+    readonly hasSectionOverrides = computed(() => Object.keys(this.sectionStyle()).length > 0);
+
+    /**
+     * What the controls show. In section scope an unset value displays the
+     * document's, so the panel always reflects what is on the page rather than
+     * a blank.
+     */
+    readonly shownFont = computed(() =>
+        normalizeFontFamily(this.sectionStyle().fontFamily ?? this.design()?.fontFamily)
+    );
+    readonly shownScale = computed(() =>
+        this.editingSection() ? (this.sectionStyle().fontScale ?? 1) : (this.design()?.fontScale ?? 1)
+    );
+    readonly shownLineHeight = computed(() => this.sectionStyle().lineHeight ?? this.design()?.lineHeight ?? 1.4);
+    readonly scaleLimits = computed(() =>
+        this.editingSection() ? CV_DESIGN_LIMITS.sectionScale : CV_DESIGN_LIMITS.fontScale
+    );
+
+    /**
      * Curated presets plus whatever the machine reported, in one list the
      * <select> renders as three <optgroup>s. The user's current font is added
      * even when it is neither — a CV written on another computer must not
@@ -63,7 +111,7 @@ export class CvInspectorComponent {
      * for its font list.
      */
     readonly fontGroups = computed<{ label: string; options: CvFontOption[] }[]>(() => {
-        const current = normalizeFontFamily(this.design()?.fontFamily);
+        const current = this.shownFont();
         const presets = [...CV_FONT_PRESETS];
         const local = this.localFonts.families().map<CvFontOption>((family) => ({
             id: family,
@@ -91,8 +139,6 @@ export class CvInspectorComponent {
         ].filter((group) => group.options.length > 0);
     });
 
-    readonly currentFont = computed(() => normalizeFontFamily(this.design()?.fontFamily));
-
     readonly dateStyles: { id: CvDateStylePref; label: string }[] = [
         { id: 'short', label: 'Mar 2023' },
         { id: 'long', label: 'March 2023' },
@@ -100,6 +146,12 @@ export class CvInspectorComponent {
     ];
 
     readonly activeTemplate = computed(() => findTemplate(this.design()?.templateId ?? ''));
+
+    constructor() {
+        // Measurement scan: no prompt, no permission, ~1ms. Doing it here means
+        // the picker already lists the machine's fonts the first time it opens.
+        this.localFonts.scan();
+    }
 
     /** Section order and visibility, in the user's current order. */
     readonly sectionRows = computed(() => {
@@ -138,13 +190,74 @@ export class CvInspectorComponent {
         this.editor.updateDesign({ [key]: Number((event.target as HTMLInputElement).value) });
     }
 
+    setScope(event: Event): void {
+        this.scope.set((event.target as HTMLSelectElement).value as 'document' | CvSectionId);
+    }
+
     setFont(event: Event): void {
-        this.editor.updateDesign({ fontFamily: (event.target as HTMLSelectElement).value });
+        this.applyTypography({ fontFamily: (event.target as HTMLSelectElement).value });
+    }
+
+    /** Any family name at all — the detector only knows the names it probes for. */
+    setCustomFont(value: string): void {
+        const family = value.trim();
+        if (family) {
+            this.applyTypography({ fontFamily: family });
+        }
+    }
+
+    setScale(event: Event): void {
+        this.applyTypography({ fontScale: Number((event.target as HTMLInputElement).value) });
+    }
+
+    setLineHeight(event: Event): void {
+        this.applyTypography({ lineHeight: Number((event.target as HTMLInputElement).value) });
+    }
+
+    /** Weight, slant and casing exist per section only — a document-wide bold CV is not a thing. */
+    toggleWeight(): void {
+        const section = this.editingSection();
+        if (section) {
+            const next: CvFontWeight | undefined = this.sectionStyle().weight === 'bold' ? undefined : 'bold';
+            this.editor.updateSectionStyle(section, { weight: next });
+        }
+    }
+
+    toggleItalic(): void {
+        const section = this.editingSection();
+        if (section) {
+            this.editor.updateSectionStyle(section, { italic: this.sectionStyle().italic ? undefined : true });
+        }
+    }
+
+    setTransform(transform: CvTextTransform): void {
+        const section = this.editingSection();
+        if (section) {
+            const current = this.sectionStyle().transform ?? 'none';
+            this.editor.updateSectionStyle(section, { transform: current === transform ? undefined : transform });
+        }
+    }
+
+    resetSection(): void {
+        const section = this.editingSection();
+        if (section) {
+            this.editor.resetSectionStyle(section);
+        }
+    }
+
+    /** Routes one change to the document or to the section in scope. */
+    private applyTypography(patch: { fontFamily?: string; fontScale?: number; lineHeight?: number }): void {
+        const section = this.editingSection();
+        if (section) {
+            this.editor.updateSectionStyle(section, patch);
+        } else {
+            this.editor.updateDesign(patch);
+        }
     }
 
     /** Must run from the click — the Local Font Access prompt is gesture-gated. */
     loadLocalFonts(): void {
-        void this.localFonts.load();
+        void this.localFonts.requestFullList();
     }
 
     fontStackFor(family: string): string {
