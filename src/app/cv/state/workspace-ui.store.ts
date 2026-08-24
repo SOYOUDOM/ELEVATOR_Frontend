@@ -1,4 +1,4 @@
-import { DestroyRef, Injectable, inject, signal } from '@angular/core';
+import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 
 import type { CvSectionId } from '../models/cv-content.model';
 
@@ -16,6 +16,13 @@ import type { CvSectionId } from '../models/cv-content.model';
  */
 export type RailItemId = 'build' | 'template' | 'design' | 'ai' | 'ats' | 'settings';
 export type InspectorTab = 'template' | 'design' | 'options';
+/**
+ * 'fit' keeps the whole page in view as the stage resizes; 'manual' holds
+ * whatever the user dialled in. Fit is the default because a 210mm page at 100%
+ * does not fit the stage on a 1440px laptop — it was being clipped on both
+ * edges, which read as a broken layout rather than as a zoom level.
+ */
+export type PreviewZoomMode = 'fit' | 'manual';
 
 const STORAGE_KEY = 'elv-cv-workspace';
 
@@ -24,6 +31,7 @@ interface PersistedWorkspace {
     rightWidth: number;
     timelineHeight: number;
     previewZoom: number;
+    previewZoomMode: PreviewZoomMode;
     timelineZoom: number;
     timelineOpen: boolean;
 }
@@ -31,7 +39,7 @@ interface PersistedWorkspace {
 export const WORKSPACE_LIMITS = {
     leftWidth: { min: 280, max: 560, initial: 400 },
     rightWidth: { min: 260, max: 520, initial: 340 },
-    timelineHeight: { min: 150, max: 460, initial: 250 },
+    timelineHeight: { min: 150, max: 460, initial: 292 },
     previewZoom: { min: 50, max: 175, initial: 100, step: 10 },
     timelineZoom: { min: 60, max: 400, initial: 100, step: 20 },
 } as const;
@@ -49,6 +57,9 @@ export class WorkspaceUiStore {
 
     /** Display scale only. Never reaches the document, the PDF or the print box. */
     readonly previewZoom = signal<number>(WORKSPACE_LIMITS.previewZoom.initial);
+    readonly previewZoomMode = signal<PreviewZoomMode>('fit');
+    /** Measured by the workspace from the stage's width; 0 until first measure. */
+    readonly fitZoom = signal(0);
     readonly timelineZoom = signal<number>(WORKSPACE_LIMITS.timelineZoom.initial);
 
     /** Mobile/tablet: which of the three panes is on screen. */
@@ -93,15 +104,30 @@ export class WorkspaceUiStore {
         this.persist();
     }
 
+    /** Nudging the zoom is an explicit choice, so it leaves fit mode. */
     zoomPreview(delta: number): void {
-        this.previewZoom.update((zoom) => clamp(zoom + delta, WORKSPACE_LIMITS.previewZoom));
+        const from = this.effectivePreviewZoom();
+        this.previewZoomMode.set('manual');
+        this.previewZoom.set(clamp(from + delta, WORKSPACE_LIMITS.previewZoom));
         this.persist();
     }
 
     setPreviewZoom(value: number): void {
+        this.previewZoomMode.set('manual');
         this.previewZoom.set(clamp(value, WORKSPACE_LIMITS.previewZoom));
         this.persist();
     }
+
+    fitPreview(): void {
+        this.previewZoomMode.set('fit');
+        this.persist();
+    }
+
+    /** What the stage should actually render at, fit included. */
+    readonly effectivePreviewZoom = computed(() => {
+        const fit = this.fitZoom();
+        return this.previewZoomMode() === 'fit' && fit > 0 ? fit : this.previewZoom();
+    });
 
     zoomTimeline(delta: number): void {
         this.timelineZoom.update((zoom) => clamp(zoom + delta, WORKSPACE_LIMITS.timelineZoom));
@@ -133,6 +159,7 @@ export class WorkspaceUiStore {
             rightWidth: this.rightWidth(),
             timelineHeight: this.timelineHeight(),
             previewZoom: this.previewZoom(),
+            previewZoomMode: this.previewZoomMode(),
             timelineZoom: this.timelineZoom(),
             timelineOpen: this.timelineOpen(),
         };
@@ -166,6 +193,9 @@ export class WorkspaceUiStore {
             }
             if (typeof saved.previewZoom === 'number') {
                 this.previewZoom.set(clamp(saved.previewZoom, WORKSPACE_LIMITS.previewZoom));
+            }
+            if (saved.previewZoomMode === 'fit' || saved.previewZoomMode === 'manual') {
+                this.previewZoomMode.set(saved.previewZoomMode);
             }
             if (typeof saved.timelineZoom === 'number') {
                 this.timelineZoom.set(clamp(saved.timelineZoom, WORKSPACE_LIMITS.timelineZoom));

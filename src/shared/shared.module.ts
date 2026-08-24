@@ -22,10 +22,14 @@ import { ModalModule } from 'ngx-bootstrap/modal';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { TabsModule } from 'ngx-bootstrap/tabs';
-import { TableModule } from 'primeng/table';
-import { AutoCompleteModule } from 'primeng/autocomplete';
-import { PaginatorModule } from 'primeng/paginator';
-import { ProgressBarModule } from 'primeng/progressbar';
+/* PrimeNG's TableModule / PaginatorModule used to be imported and re-exported
+   here. SharedModule.forRoot() is in the root injector (main.ts), so anything
+   it imports lands in the INITIAL bundle — and p-table alone is most of an
+   825 kB eager chunk that the marketing pages, the login screen and the CV
+   builder never touch. The only three templates using them (users, roles,
+   tenants) are lazy modules, so they import the two modules themselves.
+   AutoCompleteModule and ProgressBarModule were imported here and used by
+   nothing at all. */
 
 @NgModule({
     imports: [
@@ -37,10 +41,6 @@ import { ProgressBarModule } from 'primeng/progressbar';
         BsDropdownModule,
         CollapseModule,
         TabsModule,
-        TableModule,
-        PaginatorModule,
-        ProgressBarModule,
-        AutoCompleteModule,
         AbpPaginationControlsComponent,
         AbpValidationSummaryComponent,
         AbpModalHeaderComponent,
@@ -63,8 +63,6 @@ import { ProgressBarModule } from 'primeng/progressbar';
         BsDropdownModule,
         CollapseModule,
         TabsModule,
-        TableModule,
-        PaginatorModule,
     ],
 })
 export class SharedModule {

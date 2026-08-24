@@ -15,19 +15,28 @@
         [value]="document()?.name ?? ''"
         (valueChange)="setName($event)" />
 
-    <p class="tb__save" [attr.data-tone]="save().tone" role="status" aria-live="polite">
+    <!-- The failure reason lives on the chip's tooltip, not as a sentence in
+         the toolbar: spelled out inline it added ~230px to this group, pushed
+         the actions leftwards and left the zoom button sitting on top of the
+         Retry button. The chip already says what happened. -->
+    <p
+        class="tb__save"
+        [attr.data-tone]="save().tone"
+        [attr.title]="saveErrorMessage() || null"
+        role="status"
+        aria-live="polite">
         <i class="pi {{ save().icon }}" aria-hidden="true"></i>
         <span>{{ save().label }}</span>
     </p>
 
     @if (saveErrorMessage()) {
-        <span class="tb__save-detail">{{ saveErrorMessage() }}</span>
         <app-elv-button
             size="small"
             corner="sharp"
             variant="ghost"
             title="Retry"
             icon="pi pi-refresh"
+            [ariaLabel]="'Retry saving. ' + saveErrorMessage()"
             (clicked)="retry()" />
     }
 </div>
@@ -41,9 +50,20 @@
             [iconOnly]="true"
             icon="pi pi-search-minus"
             ariaLabel="Zoom out"
-            [disabled]="ui.previewZoom() <= zoomLimits.min"
+            [disabled]="ui.effectivePreviewZoom() <= zoomLimits.min"
             (clicked)="ui.zoomPreview(-zoomLimits.step)" />
-        <span class="tb__zoom-value">{{ ui.previewZoom() }}%</span>
+        <button
+            type="button"
+            class="tb__zoom-value"
+            [attr.aria-label]="
+                ui.previewZoomMode() === 'fit' ? 'Zoom: fit to window. Reset to 100%' : 'Zoom. Fit to window'
+            "
+            (click)="ui.previewZoomMode() === 'fit' ? ui.setPreviewZoom(100) : ui.fitPreview()">
+            {{ ui.effectivePreviewZoom() }}%
+            @if (ui.previewZoomMode() === 'fit') {
+                <span class="tb__zoom-tag">FIT</span>
+            }
+        </button>
         <app-elv-button
             size="small"
             corner="sharp"
@@ -51,7 +71,7 @@
             [iconOnly]="true"
             icon="pi pi-search-plus"
             ariaLabel="Zoom in"
-            [disabled]="ui.previewZoom() >= zoomLimits.max"
+            [disabled]="ui.effectivePreviewZoom() >= zoomLimits.max"
             (clicked)="ui.zoomPreview(zoomLimits.step)" />
     </div>
 
@@ -60,7 +80,8 @@
         corner="sharp"
         variant="ghost"
         icon="pi pi-database"
-        [title]="profileSaveState() === 'saved' ? 'Saved to profile' : 'Save my information'"
+        [iconOnly]="compact()"
+        [title]="compact() ? '' : profileSaveState() === 'saved' ? 'Saved to profile' : 'Save my information'"
         [loading]="profileSaveState() === 'saving'"
         ariaLabel="Save this information to my reusable profile"
         (clicked)="saveToProfile.emit()" />
@@ -70,7 +91,9 @@
         corner="sharp"
         variant="ghost"
         icon="pi pi-eye"
-        title="Preview"
+        [iconOnly]="compact()"
+        [title]="compact() ? '' : 'Preview'"
+        ariaLabel="Clean preview"
         [selected]="cleanPreview()"
         (clicked)="toggleClean.emit()" />
 
@@ -80,5 +103,6 @@
         variant="primary"
         icon="pi pi-download"
         title="Export CV"
+        ariaLabel="Export CV"
         (clicked)="exportCv.emit()" />
 </div>

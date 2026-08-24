@@ -1,4 +1,4 @@
-<div class="insp__tabs" role="tablist" aria-label="Document settings">
+<div class="insp__tabs" role="tablist" aria-label="Document settings" [style.--insp-tab]="tabIndex()">
     @for (tab of tabs; track tab.id) {
         <button
             type="button"

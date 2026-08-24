@@ -1,4 +1,15 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    DestroyRef,
+    ElementRef,
+    afterNextRender,
+    computed,
+    inject,
+    input,
+    output,
+    signal,
+} from '@angular/core';
 
 import { ElvButtonComponent } from '@shared/components/elv-button/elv-button.component';
 import { ElvFieldComponent } from '@shared/components/elv-field';
@@ -30,6 +41,8 @@ import { WORKSPACE_LIMITS, WorkspaceUiStore } from '@app/cv/state/workspace-ui.s
 })
 export class CvTopbarComponent {
     private readonly editor = inject(CvEditorStore);
+    private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+    private readonly destroyRef = inject(DestroyRef);
     readonly ui = inject(WorkspaceUiStore);
 
     readonly cleanPreview = input(false);
@@ -39,6 +52,14 @@ export class CvTopbarComponent {
     readonly saveToProfile = output<void>();
 
     readonly zoomLimits = WORKSPACE_LIMITS.previewZoom;
+
+    /**
+     * Below this the secondary actions lose their labels and become icons.
+     * Measured on the toolbar itself rather than the viewport, because the
+     * toolbar is what actually runs out of room.
+     */
+    private static readonly COMPACT_BELOW_PX = 1560;
+    readonly compact = signal(false);
     readonly document = this.editor.document;
     readonly profileSaveState = this.editor.profileSaveState;
 
@@ -59,6 +80,22 @@ export class CvTopbarComponent {
     });
 
     readonly saveErrorMessage = computed(() => this.editor.saveError()?.message ?? '');
+
+    constructor() {
+        afterNextRender(() => this.watchWidth());
+    }
+
+    private watchWidth(): void {
+        const host = this.host.nativeElement;
+        if (!host || typeof ResizeObserver === 'undefined') {
+            return;
+        }
+        const measure = (width: number) => this.compact.set(width < CvTopbarComponent.COMPACT_BELOW_PX);
+        measure(host.getBoundingClientRect().width);
+        const observer = new ResizeObserver((entries) => measure(entries[0].contentRect.width));
+        observer.observe(host);
+        this.destroyRef.onDestroy(() => observer.disconnect());
+    }
 
     setName(value: string | number | null): void {
         this.editor.setName(String(value ?? ''));

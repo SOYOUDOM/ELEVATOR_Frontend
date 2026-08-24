@@ -1,4 +1,5 @@
-import { NgModule } from '@angular/core';
+import { NgModule, inject } from '@angular/core';
+import { LegacyThemeService } from '@shared/services/legacy-theme.service';
 import { SharedModule } from '@shared/shared.module';
 import { CreateUserDialogComponent } from './create-user/create-user-dialog.component';
 import { EditUserDialogComponent } from './edit-user/edit-user-dialog.component';
@@ -20,4 +21,13 @@ import { CommonModule } from '@angular/common';
         ChangePasswordComponent,
     ],
 })
-export class UsersModule {}
+export class UsersModule {
+    /**
+     * These screens are still Bootstrap/AdminLTE markup, so they pull that
+     * stylesheet in as the lazy chunk loads. Every other route never pays for
+     * it — see LegacyThemeService.
+     */
+    constructor() {
+        void inject(LegacyThemeService).ensureAdminLte();
+    }
+}

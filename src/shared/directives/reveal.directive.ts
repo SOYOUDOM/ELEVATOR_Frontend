@@ -20,6 +20,12 @@ import { isPlatformBrowser } from '@angular/common';
  *
  * Hidden states live behind prefers-reduced-motion in the SCSS,
  * so reduced-motion users always see content — no JS branch needed.
+ *
+ * PERFORMANCE: every instance used to build its own IntersectionObserver — 50+
+ * of them across the marketing pages, each a separate Blink observer holding
+ * its target. They all used identical options, so they are now ONE shared
+ * observer with a registry, and a `revealOnce` element unobserves itself the
+ * moment it fires instead of being watched for the life of the page.
  */
 export type RevealFx =
     | 'rise'
@@ -52,10 +58,15 @@ export class RevealDirective implements OnInit, OnDestroy {
     /** Fire once and stay visible (default: replay on re-entry). */
     @Input() revealOnce = true;
 
-    /** How much of the element must be visible before firing. */
-    @Input() revealThreshold = 0.18;
+    /**
+     * How much of the element must be visible before firing.
+     *
+     * Kept at 0 by default: the previous implementation declared 0.18 but built
+     * its observer with `{ threshold: 0 }`, so 0 is what every page in the app
+     * has actually been tuned against. Set it per-instance to opt in.
+     */
+    @Input() revealThreshold = 0;
 
-    private io?: IntersectionObserver;
     private readonly platformId = inject(PLATFORM_ID);
 
     constructor(
@@ -78,23 +89,61 @@ export class RevealDirective implements OnInit, OnDestroy {
             return;
         }
 
-        this.io = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        node.classList.add('seen');
-                    } else if (!this.revealOnce) {
-                        node.classList.remove('seen');
-                    }
-                });
-            },
-            { threshold: 0 }
-        );
-
-        this.io.observe(node);
+        watch(node, this);
     }
 
     ngOnDestroy(): void {
-        this.io?.disconnect();
+        unwatch(this.el.nativeElement);
     }
+}
+
+/* ── shared observers ──────────────────────────────────────────
+   One observer per distinct threshold, not one per element. The
+   registry maps a node to the directive watching it, so the
+   callback can read `revealOnce` without closing over anything.
+   ─────────────────────────────────────────────────────────── */
+
+const observers = new Map<number, IntersectionObserver>();
+const watched = new WeakMap<Element, RevealDirective>();
+
+function observerFor(threshold: number): IntersectionObserver {
+    let observer = observers.get(threshold);
+    if (!observer) {
+        observer = new IntersectionObserver(
+            (entries) => {
+                for (const entry of entries) {
+                    const directive = watched.get(entry.target);
+                    if (!directive) {
+                        continue;
+                    }
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('seen');
+                        // Nothing left to watch for — stop paying for it.
+                        if (directive.revealOnce) {
+                            unwatch(entry.target);
+                        }
+                    } else if (!directive.revealOnce) {
+                        entry.target.classList.remove('seen');
+                    }
+                }
+            },
+            { threshold }
+        );
+        observers.set(threshold, observer);
+    }
+    return observer;
+}
+
+function watch(node: Element, directive: RevealDirective): void {
+    watched.set(node, directive);
+    observerFor(directive.revealThreshold).observe(node);
+}
+
+function unwatch(node: Element): void {
+    const directive = watched.get(node);
+    if (!directive) {
+        return;
+    }
+    watched.delete(node);
+    observers.get(directive.revealThreshold)?.unobserve(node);
 }

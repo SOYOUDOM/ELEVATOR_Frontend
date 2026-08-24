@@ -147,6 +147,9 @@ export class CvInspectorComponent {
 
     readonly activeTemplate = computed(() => findTemplate(this.design()?.templateId ?? ''));
 
+    /** Drives the sliding underline; the tabs themselves stay plain buttons. */
+    readonly tabIndex = computed(() => this.tabs.findIndex((tab) => tab.id === this.ui.inspectorTab()));
+
     constructor() {
         // Measurement scan: no prompt, no permission, ~1ms. Doing it here means
         // the picker already lists the machine's fonts the first time it opens.

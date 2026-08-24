@@ -26,21 +26,31 @@
     }
 }
 
+/* Grouped controls read as one field, not three loose inputs, so they get
+   a real box with a legend rather than a bare stack. */
 .cv-form__range,
 .cv-form__list,
 .cv-form__photo {
     border: 1px solid var(--p-elevator-line-soft);
+    background: color-mix(in oklch, var(--p-elevator-bg0) 35%, transparent);
     padding: 12px;
     margin: 0;
     display: flex;
     flex-direction: column;
     gap: 10px;
+    transition: border-color 0.16s ease;
+}
+
+.cv-form__range:focus-within,
+.cv-form__list:focus-within,
+.cv-form__photo:focus-within {
+    border-color: color-mix(in oklch, var(--p-elevator-accent) 40%, transparent);
 }
 
 .cv-form__legend {
     padding: 0 6px;
-    font-size: 11px;
-    letter-spacing: 0.14em;
+    font-size: 10px;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--p-elevator-ink3);
 }
@@ -65,6 +75,23 @@
     align-items: start;
 }
 
+/* The remove button stays quiet until the row is in play. */
+.cv-form__list-row app-elv-button {
+    opacity: 0.45;
+    transition: opacity 0.16s ease;
+}
+
+.cv-form__list-row:hover app-elv-button,
+.cv-form__list-row:focus-within app-elv-button {
+    opacity: 1;
+}
+
+@media (hover: none) {
+    .cv-form__list-row app-elv-button {
+        opacity: 1;
+    }
+}
+
 .cv-form__missing {
     margin: 0;
     color: var(--p-elevator-ink3);
@@ -79,8 +106,8 @@
 }
 
 .cv-form__photo-frame {
-    width: 56px;
-    height: 56px;
+    width: 58px;
+    height: 58px;
     flex: none;
     display: grid;
     place-items: center;
@@ -121,4 +148,13 @@
     font-size: 12px;
     line-height: 1.5;
     color: #e5484d;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cv-form__range,
+    .cv-form__list,
+    .cv-form__photo,
+    .cv-form__list-row app-elv-button {
+        transition: none;
+    }
 }

@@ -8,6 +8,10 @@
    Heights are explicit and nothing is position:fixed — .route-shell
    in the app shell keeps a transform, which would capture a fixed
    child as its containing block.
+
+   MOTION BUDGET: transform and opacity only, nothing on a scroll
+   path, and every animation ends. Anything that would repaint a
+   full-viewport layer on scroll belongs nowhere near an editor.
    ════════════════════════════════════════════════════════════ */
 
 :host {
@@ -16,6 +20,13 @@
        viewport. 100dvh rather than a % chain: it holds even if a shell
        ancestor loses its definite height. */
     height: 100dvh;
+
+    /* One rhythm for the whole workspace. */
+    --ws-gap: 12px;
+    --ws-radius: 2px;
+    --ws-hairline: var(--p-elevator-line-soft);
+    --ws-panel: color-mix(in oklch, var(--p-elevator-panel) 92%, #000);
+    --ws-panel-lift: color-mix(in oklch, var(--p-elevator-panel-hi) 70%, transparent);
 }
 
 .ws {
@@ -23,7 +34,9 @@
     flex-direction: column;
     height: 100%;
     min-height: 0;
-    background: var(--p-elevator-bg1);
+    background:
+        linear-gradient(180deg, color-mix(in oklch, var(--p-elevator-accent) 3%, transparent), transparent 220px),
+        var(--p-elevator-bg1);
     /* Nothing may spill out of the workspace box. A pane that reports a
        taller-than-viewport height gets clipped here and scrolls inside
        itself, instead of handing the document a second scrollbar and a
@@ -47,7 +60,180 @@
     flex: 1;
     min-height: 0;
     display: grid;
-    grid-template-columns: 64px var(--ws-left) 6px minmax(0, 1fr) 6px var(--ws-right);
+    grid-template-columns: 72px var(--ws-left) 5px minmax(0, 1fr) 5px var(--ws-right);
+}
+
+/* ── mount choreography ─────────────────────────────────────
+   The four regions arrive in reading order: rail, builder,
+   document, inspector, timeline. One short transform+opacity
+   animation each, then done — nothing loops.
+   ─────────────────────────────────────────────────────────── */
+@keyframes ws-in-left {
+    from {
+        opacity: 0;
+        transform: translate3d(-10px, 0, 0);
+    }
+}
+
+@keyframes ws-in-right {
+    from {
+        opacity: 0;
+        transform: translate3d(10px, 0, 0);
+    }
+}
+
+@keyframes ws-in-up {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 12px, 0);
+    }
+}
+
+@keyframes ws-in-doc {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 14px, 0) scale(0.985);
+    }
+}
+
+.ws__rail {
+    animation: ws-in-left 0.42s cubic-bezier(0.22, 0.68, 0.24, 1) both;
+}
+
+.ws__panel--left {
+    animation: ws-in-left 0.46s 0.05s cubic-bezier(0.22, 0.68, 0.24, 1) both;
+}
+
+.ws__stage {
+    animation: ws-in-doc 0.55s 0.1s cubic-bezier(0.22, 0.68, 0.24, 1) both;
+}
+
+.ws__panel--right {
+    animation: ws-in-right 0.46s 0.14s cubic-bezier(0.22, 0.68, 0.24, 1) both;
+}
+
+.ws__timeline {
+    animation: ws-in-up 0.46s 0.18s cubic-bezier(0.22, 0.68, 0.24, 1) both;
+}
+
+/* ── opening state ──────────────────────────────────────────
+   The shape of the workspace, drawn before it exists: a toolbar,
+   a rail, two panels and a sheet of paper with lines on it. One
+   sheen crosses the sheet. Transform and opacity only.
+   ─────────────────────────────────────────────────────────── */
+.ws__boot {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.ws__boot-bar {
+    flex: none;
+    height: 45px;
+    background: var(--ws-panel);
+    border-bottom: 1px solid var(--p-elevator-line);
+}
+
+.ws__boot-body {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    /* Fallbacks matter here: --ws-left / --ws-right are bound on .ws__body in
+       the ready branch, which does not exist yet while this is on screen. */
+    grid-template-columns: 72px var(--ws-left, 400px) minmax(0, 1fr) var(--ws-right, 340px);
+    gap: 1px;
+    background: var(--p-elevator-line-soft);
+}
+
+.ws__boot-rail,
+.ws__boot-panel {
+    background: var(--ws-panel);
+}
+
+.ws__boot-stage {
+    display: grid;
+    place-items: center;
+    padding: 28px;
+    overflow: hidden;
+    background: var(--p-elevator-bg0);
+}
+
+/* A real sheet: light, shadowed, A4. The point of a skeleton is to
+   promise the shape of what is coming. */
+.ws__boot-sheet {
+    position: relative;
+    overflow: hidden;
+    /* Sized from the HEIGHT so the sheet always fits the stage; sizing from
+       the width made it 1123px tall and it ran off the bottom. */
+    height: 100%;
+    max-height: 100%;
+    width: auto;
+    max-width: 100%;
+    aspect-ratio: 210 / 297;
+    padding: 9% 8%;
+    display: flex;
+    flex-direction: column;
+    gap: 3.2%;
+    background: #e9edf3;
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.5),
+        0 18px 50px rgba(0, 0, 0, 0.5);
+}
+
+.ws__boot-line {
+    height: 2.1%;
+    border-radius: 1px;
+    background: #c6cedb;
+}
+
+.ws__boot-line--title {
+    height: 5.2%;
+    width: 52%;
+    background: #aab5c6;
+}
+
+.ws__boot-line--sub {
+    height: 2.6%;
+    width: 38%;
+    background: #b8c2d2;
+}
+
+.ws__boot-line--short {
+    width: 64%;
+}
+
+.ws__boot-rule {
+    height: 1px;
+    margin: 1.6% 0;
+    background: #cfd6e1;
+}
+
+/* Confined to the sheet, and gentle: a skeleton should read as "loading",
+   not as a light show. */
+.ws__boot-sheet::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 42%, rgba(255, 255, 255, 0.55) 50%, transparent 58%);
+    transform: translate3d(-100%, 0, 0);
+    animation: ws-sheen 1.6s ease-in-out infinite;
+}
+
+@keyframes ws-sheen {
+    to {
+        transform: translate3d(100%, 0, 0);
+    }
+}
+
+@media (max-width: 1279px) {
+    .ws__boot-body {
+        grid-template-columns: 72px var(--ws-left, 400px) minmax(0, 1fr);
+    }
+
+    .ws__boot-panel--right {
+        display: none;
+    }
 }
 
 /* ── rail ───────────────────────────────────────────────────── */
@@ -55,54 +241,92 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    padding: 8px 4px;
-    background: var(--p-elevator-panel);
+    padding: 10px 6px;
+    background: var(--ws-panel);
     border-right: 1px solid var(--p-elevator-line);
     overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.ws__rail::-webkit-scrollbar {
+    width: 0;
 }
 
 .ws__rail-btn {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding: 10px 2px;
+    gap: 5px;
+    padding: 11px 2px 9px;
     background: none;
-    border: 1px solid transparent;
+    border: 0;
     color: var(--p-elevator-ink3);
     font: inherit;
     font-size: 9px;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     text-align: center;
+    /* One line per item: a wrapped label made one rail button taller than
+       the rest and broke the column's rhythm. */
+    white-space: nowrap;
     cursor: pointer;
+    transition:
+        color 0.18s ease,
+        background-color 0.18s ease;
 }
 
 .ws__rail-btn i {
-    font-size: 15px;
+    font-size: 16px;
+    transition: transform 0.18s cubic-bezier(0.22, 0.68, 0.24, 1);
+}
+
+/* The active marker is a pseudo-element that scales in, so switching
+   rail items costs a transform rather than a layout change. */
+.ws__rail-btn::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: var(--p-elevator-accent);
+    box-shadow: 0 0 10px var(--p-elevator-accent-glow);
+    transform: scaleY(0);
+    transform-origin: center;
+    transition: transform 0.24s cubic-bezier(0.22, 0.68, 0.24, 1);
 }
 
 .ws__rail-btn:hover {
     color: var(--p-elevator-ink);
-    background: var(--p-elevator-panel-hi);
+    background: var(--ws-panel-lift);
+}
+
+.ws__rail-btn:hover i {
+    transform: translateY(-1px);
 }
 
 .ws__rail-btn:focus-visible {
-    outline: none;
-    border-color: var(--p-elevator-accent);
+    outline: 1px solid var(--p-elevator-accent);
+    outline-offset: -2px;
 }
 
 .ws__rail-btn.is-active {
     color: var(--p-elevator-accent);
-    background: color-mix(in oklch, var(--p-elevator-accent) 12%, transparent);
-    border-color: color-mix(in oklch, var(--p-elevator-accent) 34%, transparent);
+    background: color-mix(in oklch, var(--p-elevator-accent) 10%, transparent);
+}
+
+.ws__rail-btn.is-active::before {
+    transform: scaleY(1);
 }
 
 /* ── panels ─────────────────────────────────────────────────── */
 .ws__panel {
+    position: relative;
     min-width: 0;
     min-height: 0;
     overflow: hidden;
-    background: var(--p-elevator-panel);
+    background: var(--ws-panel);
 }
 
 .ws__panel--left {
@@ -115,21 +339,55 @@
 
 /* ── the stage ──────────────────────────────────────────────── */
 .ws__stage {
+    position: relative;
     min-width: 0;
     min-height: 0;
     background:
         radial-gradient(
-            ellipse 60% 40% at 50% 0%,
-            color-mix(in oklch, var(--p-elevator-accent) 4%, transparent),
+            ellipse 70% 50% at 50% -10%,
+            color-mix(in oklch, var(--p-elevator-accent) 5%, transparent),
             transparent 70%
         ),
         var(--p-elevator-bg0);
 }
 
+/* HUD ticks in the stage corners — the same language as elv-card's
+   [ticks], drawn on a pseudo-element so they cost nothing. */
+.ws__stage::before,
+.ws__stage::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-color: var(--p-elevator-line-strong);
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.ws__stage::before {
+    top: 10px;
+    left: 10px;
+    border-top: 1px solid;
+    border-left: 1px solid;
+}
+
+.ws__stage::after {
+    bottom: 10px;
+    right: 10px;
+    border-bottom: 1px solid;
+    border-right: 1px solid;
+}
+
+/* The seam utility positions itself against the nearest positioned
+   ancestor, which is .ws__stage. */
+.ws__seam {
+    z-index: 2;
+}
+
 .ws__stage-scroll {
     height: 100%;
     overflow: auto;
-    padding: 24px;
+    padding: 28px;
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -143,28 +401,56 @@
     width: calc(210mm * var(--ws-zoom));
     height: calc(297mm * var(--ws-zoom));
     flex: none;
+    /* Zoom changes are a transform on the child, so the box resize is the
+       only thing that needs easing. */
+    transition:
+        width 0.22s ease,
+        height 0.22s ease;
 }
 
 .ws__zoom > * {
     display: block;
     transform: scale(var(--ws-zoom));
     transform-origin: top left;
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+    transition: transform 0.22s ease;
+    /* Layered shadow: a tight contact edge plus a wide ambient one reads
+       as a sheet of paper rather than a div with a drop shadow. */
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.5),
+        0 10px 24px rgba(0, 0, 0, 0.45),
+        0 34px 80px rgba(0, 0, 0, 0.55);
 }
 
 /* ── resize grips ───────────────────────────────────────────── */
 .ws__grip {
-    background: var(--p-elevator-line-soft);
     position: relative;
+    background: var(--p-elevator-line-soft);
+    transition: background-color 0.18s ease;
+}
+
+/* The hit area is wider than the hairline, so the grip is easy to grab
+   without drawing a 5px bar down the middle of the workspace. */
+.ws__grip::after {
+    content: '';
+    position: absolute;
+    inset: 0;
 }
 
 .ws__grip--v {
     cursor: col-resize;
 }
 
+.ws__grip--v::after {
+    inset: 0 -3px;
+}
+
 .ws__grip--h {
-    height: 6px;
+    height: 5px;
     cursor: row-resize;
+}
+
+.ws__grip--h::after {
+    inset: -3px 0;
 }
 
 .ws__grip:hover,
@@ -174,13 +460,17 @@
     outline: none;
 }
 
+.ws__grip.is-dragging {
+    box-shadow: 0 0 12px var(--p-elevator-accent-glow);
+}
+
 /* ── timeline ───────────────────────────────────────────────── */
 .ws__timeline {
     flex: none;
     display: flex;
     flex-direction: column;
     min-height: 0;
-    background: var(--p-elevator-panel);
+    background: var(--ws-panel);
 }
 
 .ws__timeline > app-career-timeline {
@@ -193,21 +483,35 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 6px;
+    gap: 8px;
+    padding: 7px;
     background: var(--p-elevator-bg1);
     border: 0;
-    border-top: 1px solid var(--p-elevator-line-soft);
+    border-top: 1px solid var(--ws-hairline);
     color: var(--p-elevator-ink3);
     font: inherit;
-    font-size: 11px;
-    letter-spacing: 0.1em;
+    font-size: 10px;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     cursor: pointer;
+    transition: color 0.18s ease;
+}
+
+.ws__timeline-toggle i {
+    transition: transform 0.24s cubic-bezier(0.22, 0.68, 0.24, 1);
 }
 
 .ws__timeline-toggle:hover {
     color: var(--p-elevator-accent);
+}
+
+.ws__timeline-toggle:hover i {
+    transform: translateY(1px);
+}
+
+.ws__timeline-toggle:focus-visible {
+    outline: 1px solid var(--p-elevator-accent);
+    outline-offset: -2px;
 }
 
 /* ── clean preview ──────────────────────────────────────────
@@ -226,6 +530,10 @@
     grid-template-columns: minmax(0, 1fr);
 }
 
+.ws.is-clean .ws__stage-scroll {
+    padding: 40px;
+}
+
 /* ── RESPONSIVE ─────────────────────────────────────────────
    Below 1280px the inspector folds away; below 1024px the whole
    thing stacks and the panels become full-width sections rather
@@ -233,7 +541,7 @@
    ───────────────────────────────────────────────────────────── */
 @media (max-width: 1279px) {
     .ws__body {
-        grid-template-columns: 64px var(--ws-left) 6px minmax(0, 1fr);
+        grid-template-columns: 72px var(--ws-left) 5px minmax(0, 1fr);
     }
 
     .ws__panel--right,
@@ -268,7 +576,21 @@
 
     .ws__rail-btn {
         flex: 1 0 auto;
-        min-width: 72px;
+        min-width: 76px;
+    }
+
+    .ws__rail-btn::before {
+        left: 8px;
+        right: 8px;
+        top: auto;
+        bottom: 0;
+        width: auto;
+        height: 2px;
+        transform: scaleX(0);
+    }
+
+    .ws__rail-btn.is-active::before {
+        transform: scaleX(1);
     }
 
     .ws__panel,
@@ -290,5 +612,30 @@
 
     .ws__timeline {
         height: auto !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ws__boot-sheet::after {
+        animation: none;
+    }
+
+    .ws__rail,
+    .ws__panel--left,
+    .ws__stage,
+    .ws__panel--right,
+    .ws__timeline {
+        animation: none;
+    }
+
+    .ws__rail-btn,
+    .ws__rail-btn i,
+    .ws__rail-btn::before,
+    .ws__grip,
+    .ws__zoom,
+    .ws__zoom > *,
+    .ws__timeline-toggle,
+    .ws__timeline-toggle i {
+        transition: none;
     }
 }

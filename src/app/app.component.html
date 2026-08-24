@@ -1,58 +1,6 @@
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Orbitron:wght@400..900&family=Share+Tech+Mono&family=Sora:wght@100..800&display=swap">
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/rizmyabdulla/fontawesome-pro@main/releases/v7.2.0/css/fontawesome.css" />
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/rizmyabdulla/fontawesome-pro@main/releases/v7.2.0/css/sharp-solid.css" />
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/rizmyabdulla/fontawesome-pro@main/releases/v7.2.0/css/sharp-regular.css" />
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/rizmyabdulla/fontawesome-pro@main/releases/v7.2.0/css/sharp-light.css" />
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/rizmyabdulla/fontawesome-pro@main/releases/v7.2.0/css/duotone.css" />
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/rizmyabdulla/fontawesome-pro@main/releases/v7.2.0/css/solid.css" />
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/rizmyabdulla/fontawesome-pro@main/releases/v7.2.0/css/regular.css" />
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/rizmyabdulla/fontawesome-pro@main/releases/v7.2.0/css/light.css" />
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/rizmyabdulla/fontawesome-pro@main/releases/v7.2.0/css/brands.css" />
-
-    <!-- Additional Fontawesome Pro+ Icons for v7.2.0 -->
-
-    <!-- Sharp Duotone -->
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/rizmyabdulla/fontawesome-pro@main/releases/v7.2.0/css/sharp-duotone-solid.css" />
-    <!-- Chisel -->
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/rizmyabdulla/fontawesome-pro@main/releases/v7.2.0/css/chisel-regular.css" />
-    <!-- Etch -->
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/rizmyabdulla/fontawesome-pro@main/releases/v7.2.0/css/etch-solid.css" />
-    <!-- Graphite -->
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/rizmyabdulla/fontawesome-pro@main/releases/v7.2.0/css/graphite-thin.css" />
-    <!-- Jelly -->
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/rizmyabdulla/fontawesome-pro@main/releases/v7.2.0/css/jelly-regular.css" />
-    <!-- Notdog -->
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/rizmyabdulla/fontawesome-pro@main/releases/v7.2.0/css/notdog-solid.css" />
-    <!-- Slab -->
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/rizmyabdulla/fontawesome-pro@main/releases/v7.2.0/css/slab-regular.css" />
-    <!-- Thumb Print -->
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/rizmyabdulla/fontawesome-pro@main/releases/v7.2.0/css/thumbprint-light.css" />
-    <!-- Utility -->
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/rizmyabdulla/fontawesome-pro@main/releases/v7.2.0/css/utility-semibold.css" />
-    <!-- Whiteboard -->
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/rizmyabdulla/fontawesome-pro@main/releases/v7.2.0/css/whiteboard-semibold.css" />
+<!-- FontAwesome Pro is loaded once, from index.html. The identical 19
+     <link> tags used to be repeated here as well: same URLs, so no second
+     download, but 19 redundant nodes for the parser on every boot. -->
 
 <!-- FX: film grain (canvas) + mouse glow -->
 <!-- <app-fx-grain></app-fx-grain> -->
@@ -63,14 +11,14 @@
      covers everything. Removed from the DOM after boot completes
      (see app.component.ts), so it costs nothing afterwards.
      ============================================================ -->
-  <!-- <div class="boot" *ngIf="booting" aria-hidden="true">
+<!-- <div class="boot" *ngIf="booting" aria-hidden="true">
     <div class="boot-door l"></div>
     <div class="boot-door r"></div>
     <div class="boot-flash"></div>
     <div class="boot-seam"></div>
     <div class="boot-label">…</div>
   </div> -->
- 
+
 <!-- <div class="wrapper !max-w-none !mx-0 w-full">
 
   <app-header></app-header>
@@ -85,49 +33,40 @@
     <sidebar></sidebar>
   </aside> -->
 
-  <!-- Backdrop -->
-  <!-- <div
+<!-- Backdrop -->
+<!-- <div
     *ngIf="sidebarExpanded"
     (click)="toggleSidebar()"
     class="fixed inset-0 bg-black/45 z-30 lg:hidden">
   </div> -->
 
-  <!-- route-shell gets the rise+deblur on boot and on every route
+<!-- route-shell gets the rise+deblur on boot and on every route
        change (the key re-creates the div so the CSS animation replays) -->
-  <!-- <div class="route-shell" *ngIf="routeKey"> -->
-    
+<!-- <div class="route-shell" *ngIf="routeKey"> -->
 
-    <!-- <div class="content-wrapper">
+<!-- <div class="content-wrapper">
       <router-outlet></router-outlet>
     </div> -->
-    <!-- <app-footer></app-footer>
+<!-- <app-footer></app-footer>
   </div>
 </div> -->
 
-
-
 <div class="wrapper !max-w-none !mx-0 !px-0 w-full elv-shell elv-page">
-  <app-header></app-header>
+    <app-header></app-header>
 
-  <aside
-    id="app-sidebar"
-    class="fixed top-0 left-0 h-screen w-64 z-40
-           transform transition-transform duration-300 ease-in-out
-           lg:hidden"
-    [class.-translate-x-full]="!sidebarExpanded"
-    [class.translate-x-0]="sidebarExpanded">
-    <sidebar></sidebar>
-  </aside>
+    <aside
+        id="app-sidebar"
+        class="fixed top-0 left-0 h-screen w-64 z-40 transform transition-transform duration-300 ease-in-out lg:hidden"
+        [class.-translate-x-full]="!sidebarExpanded"
+        [class.translate-x-0]="sidebarExpanded">
+        <sidebar></sidebar>
+    </aside>
 
-  <div
-    *ngIf="sidebarExpanded"
-    (click)="toggleSidebar()"
-    class="fixed inset-0 bg-black/45 z-30 lg:hidden">
-  </div>
+    <div *ngIf="sidebarExpanded" (click)="toggleSidebar()" class="fixed inset-0 bg-black/45 z-30 lg:hidden"></div>
 
-  <div class="route-shell" [attr.data-route-key]="routeKey">
-    <div class="elv-content">
-      <router-outlet></router-outlet>
+    <div class="route-shell" [attr.data-route-key]="routeKey">
+        <div class="elv-content">
+            <router-outlet></router-outlet>
+        </div>
     </div>
-  </div>
 </div>

@@ -1,12 +1,25 @@
-/* Three tracks rather than space-between: the centre group stays put
-   when the save label changes length, instead of sliding the actions. */
+/* ════════════════════════════════════════════════════════════
+   WORKSPACE TOOLBAR
+
+   Three tracks rather than space-between: the centre group holds
+   its position when the save label changes length, instead of
+   sliding the actions sideways under the pointer.
+
+   At 1440px the old fixed layout collided — the zoom control ran
+   into the document-name field. The tracks now collapse in order:
+   the wordmark loses its lettering, then the button labels go,
+   before anything is allowed to overlap.
+   ════════════════════════════════════════════════════════════ */
+
 :host {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
-    gap: 16px;
+    gap: 14px;
     padding: 8px 14px;
-    background: var(--p-elevator-panel);
+    background:
+        linear-gradient(180deg, color-mix(in oklch, var(--p-elevator-panel-hi) 55%, transparent), transparent),
+        var(--p-elevator-panel);
     border-bottom: 1px solid var(--p-elevator-line);
 }
 
@@ -14,6 +27,7 @@
     display: flex;
     align-items: center;
     min-width: 0;
+    overflow: hidden;
 }
 
 .tb__center,
@@ -24,63 +38,165 @@
     min-width: 0;
 }
 
+.tb__center {
+    justify-content: center;
+}
+
 .tb__right {
     justify-content: flex-end;
 }
 
-@media (max-width: 1100px) {
-    :host {
-        grid-template-columns: auto minmax(0, 1fr) auto;
-    }
-
-    .tb__brand .brand-name span:last-child {
-        display: none;
-    }
-}
-
+/* ── save state ─────────────────────────────────────────────
+   A status chip, not a floating label: it keeps one footprint
+   across every state so the row never reflows mid-save.
+   ─────────────────────────────────────────────────────────── */
 .tb__save {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
     margin: 0;
-    font-size: 12px;
+    padding: 5px 10px;
+    min-width: 132px;
+    border: 1px solid var(--p-elevator-line-soft);
+    background: color-mix(in oklch, var(--p-elevator-bg0) 60%, transparent);
+    font-size: 11px;
+    letter-spacing: 0.04em;
     color: var(--p-elevator-ink3);
     white-space: nowrap;
+    transition:
+        border-color 0.25s ease,
+        color 0.25s ease;
+}
+
+.tb__save i {
+    font-size: 11px;
+    transition: color 0.25s ease;
+}
+
+.tb__save[data-tone='ok'] {
+    border-color: color-mix(in oklch, #3f9d6b 45%, transparent);
 }
 
 .tb__save[data-tone='ok'] i {
     color: #3f9d6b;
 }
 
+.tb__save[data-tone='busy'] {
+    border-color: color-mix(in oklch, var(--p-elevator-accent) 45%, transparent);
+}
+
 .tb__save[data-tone='busy'] i {
     color: var(--p-elevator-accent);
 }
 
+/* The only looping animation in the toolbar, and it only runs while a
+   request is genuinely in flight. */
+.tb__save[data-tone='busy'] i.pi-cloud-upload {
+    animation: tb-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes tb-pulse {
+    50% {
+        opacity: 0.45;
+    }
+}
+
 .tb__save[data-tone='bad'] {
+    border-color: color-mix(in oklch, #e5484d 55%, transparent);
     color: #e5484d;
 }
 
-.tb__save-detail {
-    font-size: 11px;
-    color: var(--p-elevator-ink3);
-    max-width: 260px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.tb__save[data-tone='bad'] i {
+    color: #e5484d;
 }
 
+/* The centre can never be allowed to push the side groups: those cannot
+   shrink below their buttons, so anything they lose they take back by
+   overflowing on top of the centre. */
+.tb__center {
+    max-width: 100%;
+}
+
+/* ── zoom ───────────────────────────────────────────────────── */
 .tb__zoom {
     display: flex;
     align-items: center;
     gap: 2px;
-    padding-right: 6px;
+    padding-right: 8px;
+    margin-right: 2px;
     border-right: 1px solid var(--p-elevator-line-soft);
 }
 
 .tb__zoom-value {
-    min-width: 42px;
-    text-align: center;
-    font-size: 12px;
-    font-variant-numeric: tabular-nums;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 62px;
+    justify-content: center;
+    padding: 4px 6px;
+    background: none;
+    border: 1px solid transparent;
     color: var(--p-elevator-ink2);
+    font: inherit;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition:
+        border-color 0.18s ease,
+        color 0.18s ease;
+}
+
+.tb__zoom-value:hover {
+    color: var(--p-elevator-ink);
+    border-color: var(--p-elevator-line);
+}
+
+.tb__zoom-value:focus-visible {
+    outline: 1px solid var(--p-elevator-accent);
+    outline-offset: -1px;
+}
+
+.tb__zoom-tag {
+    padding: 1px 4px;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--p-elevator-accent);
+    border: 1px solid color-mix(in oklch, var(--p-elevator-accent) 40%, transparent);
+}
+
+/* ── narrow toolbars ────────────────────────────────────────
+   Drop the wordmark's lettering first (the mark still reads),
+   then the save detail. Nothing is allowed to overlap.
+   ─────────────────────────────────────────────────────────── */
+@media (max-width: 1240px) {
+    :host {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 10px;
+    }
+
+    .tb__brand .brand-name > span:last-child {
+        display: none;
+    }
+
+    .tb__save {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 1080px) {
+    .tb__zoom {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tb__save,
+    .tb__save i,
+    .tb__zoom-value {
+        transition: none;
+    }
+
+    .tb__save[data-tone='busy'] i.pi-cloud-upload {
+        animation: none;
+    }
 }

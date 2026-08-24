@@ -3,8 +3,13 @@
     flex-direction: column;
     min-height: 0;
     height: 100%;
-    background: var(--p-elevator-panel);
+    background:
+        linear-gradient(180deg, color-mix(in oklch, var(--p-elevator-panel-hi) 35%, transparent), transparent 90px),
+        var(--p-elevator-panel);
     border-top: 1px solid var(--p-elevator-line);
+    /* Width of the row-label gutter. The ruler and the TODAY marker both
+       offset by it, so it lives in one place. */
+    --tl-head: 158px;
 }
 
 .tl__head {
@@ -125,9 +130,32 @@
     padding: 1px 6px;
     font-size: 10px;
     font-variant-numeric: tabular-nums;
+    letter-spacing: 0.06em;
     color: #04060a;
     background: var(--p-elevator-accent);
     white-space: nowrap;
+}
+
+/* A slow breath on the marker head — the one thing on the timeline that
+   is genuinely live. Opacity only, and it stops for reduced motion. */
+.tl__today::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    width: 7px;
+    height: 7px;
+    margin-left: -3.5px;
+    border-radius: 50%;
+    background: var(--p-elevator-accent);
+    box-shadow: 0 0 10px var(--p-elevator-accent);
+    animation: tl-breathe 2.8s ease-in-out infinite;
+}
+
+@keyframes tl-breathe {
+    50% {
+        opacity: 0.35;
+    }
 }
 
 /* ── rows ───────────────────────────────────────────────────── */
@@ -141,9 +169,10 @@
 .tl__row-head {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 12px 12px 0;
-    font-size: 12px;
+    gap: 9px;
+    padding: 12px 12px 12px 2px;
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
     color: var(--p-elevator-ink2);
 }
 
@@ -154,31 +183,39 @@
 
 .tl__lane {
     position: relative;
-    min-height: 52px;
-    padding: 8px 0;
+    min-height: 50px;
+    padding: 6px 0;
 }
 
+/* A bar is a solid object: a tone-tinted gradient, a lit top edge, and a
+   thick left cap that reads as the start of the range. */
 .tl__bar {
     position: absolute;
     top: 8px;
-    min-height: 36px;
+    min-height: 38px;
     min-width: 26px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     gap: 1px;
-    padding: 4px 8px;
+    padding: 5px 9px;
     overflow: hidden;
     text-align: left;
     cursor: pointer;
     font: inherit;
     color: var(--p-elevator-ink);
-    background: color-mix(in oklch, var(--tl-tone) 26%, var(--p-elevator-panel-hi));
-    border: 1px solid color-mix(in oklch, var(--tl-tone) 55%, transparent);
+    background: linear-gradient(
+        180deg,
+        color-mix(in oklch, var(--tl-tone) 38%, var(--p-elevator-panel-hi)),
+        color-mix(in oklch, var(--tl-tone) 20%, var(--p-elevator-panel-hi))
+    );
+    border: 1px solid color-mix(in oklch, var(--tl-tone) 60%, transparent);
     border-left: 3px solid var(--tl-tone);
+    box-shadow: inset 0 1px 0 color-mix(in oklch, #fff 12%, transparent);
     transition:
-        background-color 0.15s ease,
-        border-color 0.15s ease;
+        transform 0.16s cubic-bezier(0.22, 0.68, 0.24, 1),
+        filter 0.16s ease,
+        box-shadow 0.16s ease;
 }
 
 /* Category tones are workspace chrome, not CV colours — they say
@@ -194,7 +231,11 @@
 }
 
 .tl__bar:hover {
-    background: color-mix(in oklch, var(--tl-tone) 40%, var(--p-elevator-panel-hi));
+    transform: translateY(-1px);
+    filter: brightness(1.18);
+    box-shadow:
+        inset 0 1px 0 color-mix(in oklch, #fff 16%, transparent),
+        0 4px 12px rgba(0, 0, 0, 0.45);
 }
 
 .tl__bar:focus-visible {
@@ -204,7 +245,9 @@
 
 .tl__bar.is-selected {
     border-color: var(--p-elevator-accent);
-    box-shadow: 0 0 0 1px var(--p-elevator-accent);
+    box-shadow:
+        0 0 0 1px var(--p-elevator-accent),
+        0 0 16px var(--p-elevator-accent-glow);
 }
 
 .tl__bar.is-undated {
@@ -253,5 +296,9 @@
     .tl__bar,
     .tl__add {
         transition: none;
+    }
+
+    .tl__today::after {
+        animation: none;
     }
 }

@@ -20,8 +20,29 @@
                 routerLink="/app/get-started" />
         </div>
     } @else if (status() === 'loading') {
-        <div class="ws__center" role="status" aria-live="polite">
-            <app-elv-skeleton shape="block" width="210mm" height="60vh" ariaLabel="Loading your CV" />
+        <!-- Shaped like the workspace it is about to become: a page in the
+             middle, panels either side. A single grey rectangle tells the user
+             nothing about what is arriving. -->
+        <div class="ws__boot" role="status" aria-live="polite" aria-label="Opening your CV">
+            <div class="ws__boot-bar"></div>
+            <div class="ws__boot-body">
+                <div class="ws__boot-rail"></div>
+                <div class="ws__boot-panel"></div>
+                <div class="ws__boot-stage">
+                    <div class="ws__boot-sheet">
+                        <span class="ws__boot-line ws__boot-line--title"></span>
+                        <span class="ws__boot-line ws__boot-line--sub"></span>
+                        <span class="ws__boot-rule"></span>
+                        <span class="ws__boot-line"></span>
+                        <span class="ws__boot-line"></span>
+                        <span class="ws__boot-line ws__boot-line--short"></span>
+                        <span class="ws__boot-rule"></span>
+                        <span class="ws__boot-line"></span>
+                        <span class="ws__boot-line ws__boot-line--short"></span>
+                    </div>
+                </div>
+                <div class="ws__boot-panel ws__boot-panel--right"></div>
+            </div>
         </div>
     } @else if (status() === 'error') {
         <div class="ws__center">
@@ -89,7 +110,19 @@
                     (resized)="ui.setLeftWidth(ui.leftWidth() + $event)"></span>
 
                 <!-- ── document ─────────────────────────────────────── -->
-                <section class="ws__stage" aria-label="CV preview">
+                <section class="ws__stage" aria-label="CV preview" #stage>
+                    <!-- The house seam, fired once on mount. Absolute and
+                         pointer-events:none, so it costs no layout and nothing
+                         at all after its single run. -->
+                    <span
+                        class="elv-seam elv-seam--scan ws__seam"
+                        style="--elv-seam-x: 0%; --elv-seam-dur: 2.4s; --elv-seam-delay: 0.35s"
+                        aria-hidden="true"></span>
+                    <span
+                        class="elv-seam elv-seam--scan ws__seam"
+                        style="--elv-seam-x: 100%; --elv-seam-dur: 2.4s; --elv-seam-delay: 0.45s"
+                        aria-hidden="true"></span>
+
                     <div class="ws__stage-scroll">
                         <!-- The zoom wrapper scales for the screen only; the article
                          inside keeps its real millimetre dimensions, which is

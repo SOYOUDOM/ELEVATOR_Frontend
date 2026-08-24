@@ -1,15 +1,18 @@
 // ════════════════════════════════════════════════════════════
-// FONTS · remote stylesheets
+// FONTS
 // ------------------------------------------------------------
-// @use'd FIRST in styles.scss on purpose — a CSS @import is only
-// honoured by the browser when it appears before every other rule.
+// Nothing is imported here any more, on purpose.
 //
-// The three LOCAL @font-face blocks (Varino / Designer / Moon)
-// stay in styles.scss because their url() paths are relative to
-// that file.
+// index.html already carries a single <link> for the whole family
+// set, with preconnect to fonts.googleapis.com and fonts.gstatic.com.
+// This file used to ALSO pull three of them in with `@import url(...)`,
+// which is the worse of the two mechanisms twice over: a CSS @import
+// is render-blocking, and the browser cannot even discover it until
+// styles.css has downloaded and parsed — a serialized request chain
+// in front of first paint, for fonts that were already on their way.
+//
+// Add a family to the <link> in index.html, not here.
+//
+// The three LOCAL @font-face blocks (Varino / Designer / Moon) stay in
+// styles.scss because their url() paths are relative to that file.
 // ════════════════════════════════════════════════════════════
-
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@100..800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
-

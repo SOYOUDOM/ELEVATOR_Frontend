@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    DestroyRef,
+    ElementRef,
+    computed,
+    effect,
+    inject,
+    signal,
+    viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
@@ -7,7 +17,6 @@ import { map } from 'rxjs/operators';
 import { ElvAlertComponent } from '@shared/components/elv-alert/elv-alert.component';
 import { ElvButtonComponent } from '@shared/components/elv-button/elv-button.component';
 import { ElvEmptyStateComponent } from '@shared/components/elv-empty-state/elv-empty-state.component';
-import { ElvSkeletonComponent } from '@shared/components/elv-skeleton/elv-skeleton.component';
 
 import { PanelResizeDirective } from '@app/cv/directives/panel-resize.directive';
 import { CvEditorStore } from '@app/cv/state/cv-editor.store';
@@ -50,7 +59,6 @@ import { CvTopbarComponent } from './components/cv-topbar/cv-topbar.component';
         ElvAlertComponent,
         ElvButtonComponent,
         ElvEmptyStateComponent,
-        ElvSkeletonComponent,
         PanelResizeDirective,
         CvTopbarComponent,
         CvBuilderComponent,
@@ -76,7 +84,7 @@ export class CreateComponent {
         { id: 'template', label: 'Template', icon: 'pi-clone' },
         { id: 'design', label: 'Design', icon: 'pi-palette' },
         { id: 'ai', label: 'AI Tools', icon: 'pi-sparkles' },
-        { id: 'ats', label: 'ATS Score', icon: 'pi-shield' },
+        { id: 'ats', label: 'ATS', icon: 'pi-shield' },
         { id: 'settings', label: 'Settings', icon: 'pi-cog' },
     ];
 
@@ -85,7 +93,16 @@ export class CreateComponent {
     readonly loadError = this.editor.loadError;
 
     /** Zoom is a display transform. It never reaches the document's own sizes. */
-    readonly zoomScale = computed(() => this.ui.previewZoom() / 100);
+    readonly zoomScale = computed(() => this.ui.effectivePreviewZoom() / 100);
+
+    private readonly stage = viewChild<ElementRef<HTMLElement>>('stage');
+
+    /**
+     * A4 at 96dpi. The document is laid out in millimetres because it is a
+     * page; the stage has to reason about it in pixels to fit it.
+     */
+    private static readonly PAGE_WIDTH_PX = (210 * 96) / 25.4;
+    private static readonly STAGE_PADDING_PX = 56;
 
     constructor() {
         // WORKSPACE MODE. Set before the first render, cleared on the way out.
@@ -98,6 +115,11 @@ export class CreateComponent {
         root.setAttribute('data-workspace', 'on');
         this.destroyRef.onDestroy(() => root.removeAttribute('data-workspace'));
 
+        // Fit-to-stage. The stage only exists once the CV has loaded, which is
+        // after the first render — so this watches for the element rather than
+        // reaching for it once and finding nothing.
+        effect(() => this.watchStage(this.stage()?.nativeElement));
+
         this.route.paramMap
             .pipe(
                 map((params) => params.get('cvId')),
@@ -109,6 +131,39 @@ export class CreateComponent {
                     this.editor.load(cvId);
                 }
             });
+    }
+
+    private stageObserver?: ResizeObserver;
+    private observedStage?: HTMLElement;
+
+    /**
+     * Keeps `fitZoom` in step with the stage's real width. Measured from the
+     * element, not the viewport, so it stays right while the side panels are
+     * being dragged — which is exactly when a viewport-based number goes wrong.
+     */
+    private watchStage(host: HTMLElement | undefined): void {
+        if (host === this.observedStage || typeof ResizeObserver === 'undefined') {
+            return;
+        }
+
+        this.stageObserver?.disconnect();
+        this.observedStage = host;
+        if (!host) {
+            return;
+        }
+
+        const measure = (width: number) => {
+            const usable = Math.max(0, width - CreateComponent.STAGE_PADDING_PX);
+            const percent = (usable / CreateComponent.PAGE_WIDTH_PX) * 100;
+            // Never blow the page up past 100% just because the stage is wide —
+            // "fit" means "all of it visible", not "as big as possible".
+            this.ui.fitZoom.set(Math.max(25, Math.min(100, Math.round(percent))));
+        };
+
+        measure(host.getBoundingClientRect().width);
+        this.stageObserver = new ResizeObserver((entries) => measure(entries[0].contentRect.width));
+        this.stageObserver.observe(host);
+        this.destroyRef.onDestroy(() => this.stageObserver?.disconnect());
     }
 
     selectRail(id: RailItemId): void {

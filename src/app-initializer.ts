@@ -1,7 +1,14 @@
 import { Injectable, Injector } from '@angular/core';
 import { PlatformLocation, registerLocaleData } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import * as moment from 'moment-timezone';
+import * as moment from 'moment';
+// Types only — `moment-timezone`'s .d.ts is a `declare module 'moment'`
+// augmentation, so this is what makes `moment.tz` typecheck. The runtime
+// half is the trimmed 1970–2030 data build, imported once in main.ts; it
+// attaches `.tz` to this very same moment singleton. Importing the value
+// from 'moment-timezone' here instead would pull the full 726 kB dataset
+// back into the initial bundle.
+import type {} from 'moment-timezone';
 import { filter as _filter, merge as _merge } from 'lodash-es';
 import { AppConsts } from '@shared/AppConsts';
 import { AppSessionService } from '@shared/session/app-session.service';
