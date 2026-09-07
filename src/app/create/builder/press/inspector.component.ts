@@ -9,8 +9,12 @@
  *   CHECK   — every finding, plus the document as a parser sees it.
  */
 
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+
+import { ElvButtonComponent } from '@shared/components/elv-button/elv-button.component';
+import { ThemeService } from '../../../theme/theme.service';
+import { FontEntry, localFonts, ourFonts } from '../font-catalogue';
 
 import { CvBuilderStore } from '../cv-builder.store';
 import {
@@ -25,12 +29,13 @@ import { contentBox } from '../cv-builder.paginate';
 @Component({
   selector: 'elv-cv-inspector',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, ElvButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './inspector.component.html',
 })
 export class InspectorComponent {
   private readonly store = inject(CvBuilderStore);
+  private readonly theme = inject(ThemeService);
 
   readonly fill = input.required<Fill>();
   readonly autoFit = output<void>();
@@ -72,6 +77,39 @@ export class InspectorComponent {
     if (m > 85) return `Measure is about ${m} characters — 45 to 85 is comfortable. This line is long; a wider margin would help.`;
     return `Measure is about ${m} characters, which is inside the comfortable 45–85.`;
   });
+
+  /* ── typefaces ─────────────────────────────────────────────────────────
+     Ours come from the theme, so a theme that changes the document's voice
+     changes this list with it. The machine's own faces are read only when
+     asked for: the Local Font Access API prompts, and a prompt nobody
+     invited is a prompt everybody denies. */
+  readonly ourFonts = computed<FontEntry[]>(() => {
+    this.theme.id();
+    return ourFonts((t) => this.theme.read(t));
+  });
+
+  readonly localFonts = signal<FontEntry[]>([]);
+  readonly localState = signal<'idle' | 'loading' | 'done'>('idle');
+  readonly fontFilter = signal('');
+
+  readonly visibleLocalFonts = computed(() => {
+    const q = this.fontFilter().trim().toLowerCase();
+    const list = this.localFonts();
+    return q ? list.filter((f) => f.label.toLowerCase().includes(q)) : list;
+  });
+
+  async loadLocalFonts(): Promise<void> {
+    this.localState.set('loading');
+    this.localFonts.set(await localFonts());
+    this.localState.set('done');
+  }
+
+  pickFont(f: FontEntry): void {
+    this.store.edit('design', (d) => {
+      d.design.font = f.stack;
+      d.design.fontIsLocal = f.source === 'local';
+    });
+  }
 
   readonly layouts: Array<[LayoutName, string]> = [
     ['classic', 'Classic'], ['rule', 'Ruled'], ['quiet', 'Quiet'],

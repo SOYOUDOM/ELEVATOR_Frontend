@@ -24,6 +24,8 @@ import { ThemeService } from '../../theme/theme.service';
 import { CvBuilderStore } from './cv-builder.store';
 import { countWords, gaps } from './cv-builder.analysis';
 import { PAGE, margin, pagesHtml } from './cv-builder.paginate';
+import { ElvButtonComponent } from '@shared/components/elv-button/elv-button.component';
+import { ElvResizableDirective } from '@shared/directives/elv-resizable.directive';
 import { ElvSegComponent, ElvSegOption } from '@shared/components/elv-seg/elv-seg.component';
 import { ElvToastService } from '@shared/components/elv-toast/elv-toast.service';
 import { ElvToastsComponent } from '@shared/components/elv-toast/elv-toast.component';
@@ -36,7 +38,7 @@ import { TimelineComponent } from './press/timeline.component';
   selector: 'elv-cv-builder',
   standalone: true,
   imports: [
-    RouterLink, ElvSegComponent, ElvToastsComponent,
+    RouterLink, ElvButtonComponent, ElvResizableDirective, ElvSegComponent, ElvToastsComponent,
     CounterComponent, RailComponent, InspectorComponent, TimelineComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -111,6 +113,17 @@ export class CvBuilderComponent implements AfterViewInit, OnDestroy {
        user typed through `esc()` in the paginator. Nothing else may be passed
        through this call. */
     return this.sanitizer.bypassSecurityTrustHtml(html);
+  });
+
+  /** The typeface's name for the status strip — the stack minus its
+      fallbacks, and minus the `var()` wrapper when it is one of ours. */
+  readonly fontLabel = computed(() => {
+    const f = this.doc().design.font;
+    const token = /var\(--p-elevator-font-([a-z]+)\)/.exec(f);
+    if (token) {
+      return { serif: 'Source Serif', sans: 'Public Sans', ui: 'Sora', mono: 'IBM Plex Mono' }[token[1]] ?? token[1];
+    }
+    return (f.split(',')[0] ?? f).replace(/["']/g, '').trim();
   });
 
   readonly words = computed(() => countWords(this.doc()));

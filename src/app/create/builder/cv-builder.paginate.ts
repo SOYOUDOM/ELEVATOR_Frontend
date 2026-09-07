@@ -216,7 +216,8 @@ export function docClasses(doc: CvDoc): string {
   const layout: Record<string, string> = {
     classic: '', rule: 'doc--rule', quiet: 'doc--quiet', centred: 'doc--centred', split: 'doc--split',
   };
-  return ['doc', d.font === 'sans' ? 'doc--sans' : '', layout[d.layout] ?? ''].filter(Boolean).join(' ');
+  /* `doc--sans` only turns off oldstyle figures, which belong to a serif. */
+  return ['doc', /serif/i.test(d.font) ? '' : 'doc--sans', layout[d.layout] ?? ''].filter(Boolean).join(' ');
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -247,8 +248,7 @@ export class Ruler {
     el.style.setProperty('--doc-size', `${cv.design.size}px`);
     el.style.setProperty('--doc-leading', String(cv.design.leading));
     el.style.setProperty('--doc-gap', String(cv.design.gap));
-    el.style.setProperty('--doc-font', cv.design.font === 'serif'
-      ? 'var(--p-elevator-font-serif)' : 'var(--p-elevator-font-sans)');
+    el.style.setProperty('--doc-font', cv.design.font);
     el.style.setProperty('--doc-accent', cv.design.accent);
     el.innerHTML = html;
     return el.getBoundingClientRect().height;

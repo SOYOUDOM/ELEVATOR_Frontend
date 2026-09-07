@@ -64,6 +64,7 @@ export const THEME_TOKENS = [
   'accentSoft',
   'accentWash',
   'accentWash2',
+  'accentFaint',    // the barest tint — a selection fill you read through
   'accentGlow',
   'accentGlowExtreme',
   'accentDim',
@@ -79,6 +80,7 @@ export const THEME_TOKENS = [
   'cautionInk',
   'warn',           // wrong, missing, over the limit
   'warnWash',
+  'warnSoft',       // a warn hairline: strong enough to see, not to shout
   'warnInk',
 
   /* ── the paper ────────────────────────────────────────────────────────
@@ -91,6 +93,7 @@ export const THEME_TOKENS = [
   'paperInk2',
   'paperInk3',
   'paperRule',
+  'paperRuleSoft',  // the faintest rule the paper takes
   'paperMark',      // crop marks and registration
   'paperShadow',
 

@@ -44,7 +44,15 @@ export type MarginName = 'tight' | 'normal' | 'roomy';
 
 export interface Design {
   layout: LayoutName;
-  font: 'serif' | 'sans';
+  /**
+   * The document's typeface, as a CSS family stack — not an enum. A CV set
+   * in Garamond because that is what the writer has is a legitimate CV, and
+   * "serif | sans" could not express it. Stored as the stack so the page,
+   * the ruler and the print path all read the same string.
+   */
+  font: string;
+  /** True when `font` names a face only this machine has. Drives the warning. */
+  fontIsLocal?: boolean;
   /**
    * The document's accent. Deliberately NOT a theme token: this one is the
    * candidate's choice about their own CV, and it has to survive the reader
@@ -106,7 +114,7 @@ export function blankDoc(): CvDoc {
     ],
     design: {
       layout: 'classic',
-      font: 'serif',
+      font: 'var(--p-elevator-font-serif)',
       accent: '#0089b8',
       size: 10.2,
       leading: 1.42,

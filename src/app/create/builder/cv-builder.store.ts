@@ -115,7 +115,13 @@ export class CvBuilderStore {
       if (!parsed?.doc?.sections) return false;
 
       const base = blankDoc();
-      this._doc.set({ ...base, ...parsed.doc, design: { ...base.design, ...parsed.doc.design } });
+      const doc = { ...base, ...parsed.doc, design: { ...base.design, ...parsed.doc.design } };
+      /* `font` used to be an enum. A document saved before the font picker
+         would otherwise set `font-family: serif` literally, which is a
+         different face from the one it was composed in. */
+      if (doc.design.font === 'serif') doc.design.font = 'var(--p-elevator-font-serif)';
+      if (doc.design.font === 'sans') doc.design.font = 'var(--p-elevator-font-sans)';
+      this._doc.set(doc);
       if (parsed.ui) this._ui.update((u) => ({ ...u, ...parsed.ui }));
       this.touch();
       return true;

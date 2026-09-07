@@ -7,6 +7,7 @@
     <span class="elv-cv-timeline__key elv-cv-timeline__key--proj"><i></i>Projects</span>
     <span class="elv-cv-timeline__key elv-cv-timeline__key--gap"><i></i>Gaps</span>
   </div>
+  @if (drag()) { <span class="timeline__live num">{{ liveLabel() }}</span> }
   <button class="elv-cv-btn elv-cv-btn--sm" (click)="hide()">Hide</button>
 </div>
 
@@ -21,7 +22,7 @@
       <span class="axis__now" [style.left.%]="nowLeft()"></span>
     </div>
 
-    <div class="lanes">
+    <div class="lanes" #lanesEl>
       <!-- Gaps are drawn UNDER the spans and across every lane: a hole in the
            record is a fact about the whole career, not about one row. -->
       @for (g of holes(); track g.from) {
@@ -33,13 +34,28 @@
       @for (lane of lanes(); track $index) {
         <div class="lane">
           @for (s of lane; track s.secId + ':' + s.item) {
-            <button class="span"
-                    [class.span--study]="s.kind === 'study'"
-                    [class.span--proj]="s.kind === 'proj'"
-                    [class.span--open]="s.open"
-                    [class.is-sel]="isSel(s)"
-                    [style.left.%]="s.left" [style.width.%]="s.width"
-                    [title]="s.label" (click)="pick(s)">{{ s.label }}</button>
+            <!-- The span is draggable: the body moves the role in time, each
+                 end moves just that end. It snaps to whole months, because
+                 that is all the document can store. -->
+            <div class="span"
+                 [class.span--study]="s.kind === 'study'"
+                 [class.span--proj]="s.kind === 'proj'"
+                 [class.span--open]="s.open"
+                 [class.is-sel]="isSel(s)"
+                 [class.is-dragging]="drag()?.secId === s.secId && drag()?.item === s.item"
+                 [style.left.%]="(liveBox(s) ?? s).left"
+                 [style.width.%]="(liveBox(s) ?? s).width"
+                 [title]="s.label + ' — drag to move, drag an edge to change one date'"
+                 (click)="pick(s)"
+                 (pointerdown)="startDrag($event, s, 'move')">
+              <span class="span__grip span__grip--from"
+                    (pointerdown)="startDrag($event, s, 'from')"
+                    aria-label="Move the start date"></span>
+              <span class="span__label">{{ s.label }}</span>
+              <span class="span__grip span__grip--to"
+                    (pointerdown)="startDrag($event, s, 'to')"
+                    aria-label="Move the end date"></span>
+            </div>
           }
         </div>
       }

@@ -149,3 +149,378 @@ body[data-chrome='none'] {
 
   .elv-cv .app { height: 100dvh; }
 }
+
+// ════════════════════════════════════════════════════════════
+// COMPONENT HOSTS
+// ------------------------------------------------------------
+// `.pane__body { flex: 1 }` needs a flex PARENT, and its parent
+// is the Angular host element, which has no display of its own.
+// Without this the body sizes to its content and the inspector
+// silently clips everything past the fold — visible only as
+// "I have to zoom out to read the checks".
+// ════════════════════════════════════════════════════════════
+
+elv-cv-rail,
+elv-cv-inspector,
+elv-cv-counter,
+elv-cv-timeline {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  height: 100%;
+}
+
+// The counter is the intake panel itself: it owns the two-column
+// docket + step layout the generated sheet declares on `.intake`.
+elv-cv-counter {
+  display: grid;
+  grid-template-columns: var(--p-elevator-docket-w) minmax(0, 1fr);
+}
+
+@media (max-width: 720px) {
+  elv-cv-counter { grid-template-columns: minmax(0, 1fr); }
+}
+
+// ── the docket thread ───────────────────────────────────────
+// It ran BEHIND the dots but the dots are transparent until a
+// step is filled, so the line showed straight through the ring.
+// Segmenting it — each row draws only the piece above its own
+// dot — is the honest fix: the thread now connects the dots
+// instead of passing through them.
+.elv-cv {
+  .docket__list::before { display: none; }
+
+  .dstep { position: relative; }
+  .dstep::after {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: -8px;
+    height: 8px;
+    width: 1px;
+    background: var(--p-elevator-line-strong);
+    z-index: 0;
+  }
+  .docket__list li:first-child .dstep::after { display: none; }
+
+  .dstep__dot {
+    position: relative;
+    z-index: 1;
+    background: var(--p-elevator-panel2);   // opaque, so nothing shows through
+  }
+  .dstep--filled .dstep__dot { background: var(--p-elevator-accent-wash); }
+  .dstep--done   .dstep__dot { background: var(--p-elevator-accent); }
+}
+
+// ════════════════════════════════════════════════════════════
+// PRINT — the sheet is the page, edge to edge
+// ------------------------------------------------------------
+// The stack's 40px padding and the table's centring were still
+// in the box, so every export came out inset inside its A4
+// rather than filling it. The margins that matter are the
+// document's own, drawn by .sheet__body.
+// ════════════════════════════════════════════════════════════
+
+@page { size: A4; margin: 0; }
+
+@media print {
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 210mm;
+    background: var(--p-elevator-paper) !important;
+  }
+
+  .elv-cv {
+    display: block;
+    background: var(--p-elevator-paper) !important;
+  }
+  .elv-cv::before { display: none !important; }
+
+  .elv-cv .stack,
+  .elv-cv .pages {
+    width: 210mm !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    transform: none !important;
+    display: block !important;
+    place-items: initial !important;
+  }
+
+  .elv-cv .sheet {
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    overflow: hidden;
+  }
+
+  // The A4 the browser prints is 210mm wide; the type area was
+  // measured against 794 CSS px. Same page, two unit systems —
+  // so the margins are restated as a share of the sheet rather
+  // than as pixels, or the text block lands 4mm out.
+  .elv-cv .sheet__body {
+    inset: calc(var(--m-top) / 794 * 210mm)
+           calc(var(--m-side) / 794 * 210mm)
+           calc(var(--m-bottom) / 794 * 210mm) !important;
+  }
+}
+
+// ── the resize handle ───────────────────────────────────────
+// Four pixels wide and invisible until you go near it: a
+// divider that advertises itself permanently is a divider
+// competing with the content on both sides of it.
+.elv-resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 9px;
+  z-index: 30;
+  cursor: col-resize;
+  background: transparent;
+  transition: background var(--p-elevator-t-fast) var(--p-elevator-ease);
+}
+.elv-resize-handle--right { right: -4px; }
+.elv-resize-handle--left  { left: -4px; }
+
+.elv-resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 4px;
+  width: 1px;
+  background: transparent;
+  transition: background var(--p-elevator-t-fast) var(--p-elevator-ease);
+}
+.elv-resize-handle:hover::after,
+.elv-resize-handle:focus-visible::after,
+.elv-resize-handle.is-dragging::after { background: var(--p-elevator-accent); }
+.elv-resize-handle:focus-visible { outline: none; }
+
+// While dragging, nothing else may take the pointer or select text.
+body.elv-resizing { cursor: col-resize; user-select: none; }
+body.elv-resizing * { pointer-events: none; }
+body.elv-resizing .elv-resize-handle { pointer-events: auto; }
+
+// The handle is absolutely positioned against its panel.
+.elv-cv .rail,
+.elv-cv .inspector { position: relative; }
+
+// ── the font list ───────────────────────────────────────────
+// Each row is set IN the face it offers. A list of font names
+// in one font is a list of words; this is the only way to
+// choose a typeface by looking at it.
+.elv-cv {
+  .fontlist { display: flex; flex-direction: column; gap: 4px; }
+
+  .fontlist__scroll {
+    max-height: 260px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding-right: 4px;
+  }
+
+  .fontrow {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    padding: 7px 10px;
+    border-radius: 4px;
+    text-align: left;
+    color: var(--p-elevator-ink2);
+    box-shadow: inset 0 0 0 1px transparent;
+    transition:
+      background var(--p-elevator-t-fast) var(--p-elevator-ease),
+      box-shadow var(--p-elevator-t-fast) var(--p-elevator-ease);
+  }
+  .fontrow:hover { background: var(--p-elevator-panel2); color: var(--p-elevator-ink); }
+  .fontrow.is-on {
+    background: var(--p-elevator-accent-wash);
+    color: var(--p-elevator-ink);
+    box-shadow: inset 0 0 0 1px var(--p-elevator-accent);
+  }
+  .fontrow__name { font-size: var(--p-elevator-tmd); }
+  .fontrow__sample { font-size: var(--p-elevator-tsm); color: var(--p-elevator-ink4); white-space: nowrap; }
+  .fontrow__note {
+    font-family: var(--p-elevator-font-mono);
+    font-size: var(--p-elevator-t2xs);
+    color: var(--p-elevator-ink4);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+}
+
+// ── draggable spans ─────────────────────────────────────────
+// The axis was already the honest picture of the dates; this
+// makes it the place they are written too. The grips are 7px
+// and invisible until you approach — an edge that advertises
+// itself is an edge you hit by accident.
+.elv-cv {
+  .span { cursor: grab; overflow: visible; }
+  .span.is-dragging { cursor: grabbing; z-index: 4; box-shadow: var(--p-elevator-lift2); }
+
+  .span__label {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .span__grip {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 7px;
+    cursor: ew-resize;
+    background: transparent;
+    transition: background var(--p-elevator-t-fast) var(--p-elevator-ease);
+  }
+  .span__grip--from { left: -3px; border-radius: 3px 0 0 3px; }
+  .span__grip--to   { right: -3px; border-radius: 0 3px 3px 0; }
+  .span:hover .span__grip { background: var(--p-elevator-accent-ink); opacity: .45; }
+  .span__grip:hover { opacity: .9 !important; }
+
+  // An open-ended role has no end to drag until you give it one, so its
+  // right grip reads as the place to close it rather than as a handle.
+  .span--open .span__grip--to { cursor: e-resize; }
+
+  .timeline__live {
+    font-family: var(--p-elevator-font-mono);
+    font-size: var(--p-elevator-t2xs);
+    color: var(--p-elevator-accent);
+    white-space: nowrap;
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// THE ELEVATOR SIGNATURE
+// ------------------------------------------------------------
+// The rest of the site speaks in Share Tech Mono eyebrows at
+// .34em, an accent rule that leads them, notched corners and
+// an accent glow. The builder was speaking a light-table
+// dialect instead. Same voice now — the signature is applied
+// on top of the generated sheet rather than woven through it,
+// so a regeneration cannot lose it.
+// ════════════════════════════════════════════════════════════
+
+.elv-cv {
+  // Every eyebrow in the flow, matched to .elv-eyebrow.
+  .label {
+    font-family: 'Share Tech Mono', var(--p-elevator-font-mono), monospace;
+    letter-spacing: .28em;
+    text-transform: uppercase;
+    color: var(--p-elevator-ink2);
+  }
+
+  // The leading accent rule, on the panel headers only — on every label it
+  // would be wallpaper rather than a signature.
+  .pane__head .label,
+  .timeline__head > .label,
+  .docket__head .label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    &::before {
+      content: '';
+      width: 20px;
+      height: 2px;
+      flex: none;
+      background: linear-gradient(90deg, transparent, var(--p-elevator-accent));
+      box-shadow: 0 0 10px var(--p-elevator-accent-glow);
+    }
+  }
+
+  // Notched corners — the shape the shell cuts on every card and button.
+  .entry,
+  .route,
+  .skillgroup,
+  .manifest,
+  .report__grid,
+  .thememenu {
+    border-radius: 0;
+    clip-path: polygon(
+      var(--p-elevator-corner) 0, 100% 0,
+      100% calc(100% - var(--p-elevator-corner)), calc(100% - var(--p-elevator-corner)) 100%,
+      0 100%, 0 var(--p-elevator-corner)
+    );
+  }
+
+  // The bar carries the accent seam the shell's header does.
+  .bar {
+    position: relative;
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; bottom: -1px;
+      height: 1px;
+      background: linear-gradient(90deg,
+        transparent, var(--p-elevator-accent-glow) 22%, var(--p-elevator-accent-glow) 78%, transparent);
+      opacity: .5;
+    }
+  }
+
+  .wordmark__logo {
+    height: 20px;
+    width: auto;
+    object-fit: contain;
+    flex: none;
+  }
+  .wordmark {
+    gap: 10px;
+    text-decoration: none !important;
+    b {
+      font-family: 'Share Tech Mono', var(--p-elevator-font-mono), monospace;
+      letter-spacing: .14em;
+      font-weight: 400;
+    }
+  }
+
+  // The primary action glows, as it does everywhere else on the site.
+  app-elv-button[variant='primary'] { filter: drop-shadow(0 0 12px var(--p-elevator-accent-glow)); }
+}
+
+// ── the timeline's tab ──────────────────────────────────────
+.elv-cv .timeline-tab {
+  position: absolute;
+  left: 50%;
+  bottom: var(--p-elevator-status-h);
+  translate: -50% 0;
+  z-index: 25;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  height: 22px;
+  padding: 0 14px;
+  background: var(--p-elevator-panel);
+  box-shadow: inset 0 0 0 1px var(--p-elevator-line), var(--p-elevator-lift2);
+  clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 100%, 0 100%);
+  transition: color var(--p-elevator-t-fast) var(--p-elevator-ease);
+}
+.elv-cv .timeline-tab:hover { color: var(--p-elevator-ink); }
+.elv-cv .timeline-tab .label { font-size: var(--p-elevator-t2xs); }
+.elv-cv .timeline-tab__chev { color: var(--p-elevator-ink4); font-size: 9px; }
+.elv-cv .timeline-tab__flag {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--p-elevator-warn);
+}
+
+// The rail's foot is 268px wide and the shell's buttons set their labels in
+// uppercase Share Tech Mono, which is wider than it looks. Let the host and
+// the button inside it both shrink, or the second label is cut in half.
+.elv-cv .pane__foot app-elv-button {
+  min-width: 0;
+  flex: 1 1 0;
+
+  > a, > button { width: 100%; min-width: 0; }
+  .elv-btn__label { overflow: hidden; text-overflow: ellipsis; }
+}

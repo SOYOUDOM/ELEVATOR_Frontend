@@ -208,11 +208,57 @@
 
     <div class="group">
       <div class="group__head"><span class="label">Type</span></div>
-      <div class="chips">
-        <button class="chip" [class.chip--on]="doc().design.font === 'serif'"
-                (click)="setDesign('font', 'serif')">Source Serif</button>
-        <button class="chip" [class.chip--on]="doc().design.font === 'sans'"
-                (click)="setDesign('font', 'sans')">Public Sans</button>
+      <!-- ── the typeface ────────────────────────────────────────────────
+           Ours first, because they render identically on the machine that
+           opens the file. The ones installed here follow, each marked: a CV
+           set in a face only you have still prints correctly from this
+           browser, but it substitutes and reflows anywhere else, and the
+           writer is told that rather than finding out later. -->
+      <div class="fontlist">
+        <p class="label">ELEVATOR</p>
+        @for (f of ourFonts(); track f.stack) {
+          <button class="fontrow" [class.is-on]="doc().design.font === f.stack"
+                  [style.font-family]="f.stack" (click)="pickFont(f)">
+            <span class="fontrow__name">{{ f.label }}</span>
+            <span class="fontrow__sample">Aa Ee Rr 0123</span>
+          </button>
+        }
+
+        <p class="label" style="margin-top:12px">
+          On this computer
+          @if (localState() === 'loading') { <span class="fontrow__note">reading…</span> }
+        </p>
+
+        @if (localState() === 'idle') {
+          <app-elv-button variant="outline" size="small" title="List my fonts"
+                          icon="pi-search" (clicked)="loadLocalFonts()"></app-elv-button>
+          <span class="fld__hint">Reads the font names installed here. Nothing is uploaded.</span>
+        } @else if (localFonts().length) {
+          <span class="fld__box" style="margin-bottom:8px">
+            <input [value]="fontFilter()" placeholder="Filter…"
+                   (input)="fontFilter.set($any($event.target).value)">
+          </span>
+          <div class="fontlist__scroll">
+            @for (f of visibleLocalFonts(); track f.stack) {
+              <button class="fontrow" [class.is-on]="doc().design.font === f.stack"
+                      [style.font-family]="f.stack" (click)="pickFont(f)">
+                <span class="fontrow__name">{{ f.label }}</span>
+                <span class="fontrow__sample">Aa Ee Rr 0123</span>
+              </button>
+            }
+          </div>
+        } @else if (localState() === 'done') {
+          <span class="fld__hint">No extra faces found beyond the ones above.</span>
+        }
+
+        @if (doc().design.fontIsLocal) {
+          <p class="note note--amber" style="margin-top:10px">
+            <span class="note__dot"></span>
+            <span><b>This face is on your computer, not in the file.</b> It prints
+              correctly from here. Anywhere else — a DOCX opened by someone
+              else, another browser — it substitutes and the page reflows.</span>
+          </p>
+        }
       </div>
 
       <div class="fld" style="margin-top:14px">

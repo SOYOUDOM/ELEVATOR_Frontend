@@ -797,7 +797,7 @@
     position: absolute;
     inset: var(--m-top) var(--m-side) var(--m-bottom);
     pointer-events: none;
-    outline: 1px dashed color-mix(in srgb, var(--p-elevator-accent) 42%, transparent);
+    outline: 1px dashed var(--p-elevator-accent-glow);
     opacity: 0;
     transition: opacity var(--p-elevator-t-base) var(--p-elevator-ease);
   }
@@ -813,7 +813,7 @@
     transition: opacity var(--p-elevator-t-fast) var(--p-elevator-ease);
     background-image: repeating-linear-gradient(
       to bottom,
-      color-mix(in srgb, var(--p-elevator-accent) 26%, transparent) 0 1px,
+      var(--p-elevator-accent-wash2) 0 1px,
       transparent 1px var(--baseline)
     );
   }
@@ -828,7 +828,7 @@
     left: 0; right: 0;
     z-index: 5;
     pointer-events: none;
-    border-top: 1px dashed color-mix(in srgb, var(--p-elevator-warn) 60%, transparent);
+    border-top: 1px dashed var(--p-elevator-warn-soft);
   }
   .fold::after {
     content: attr(data-label);
@@ -865,7 +865,7 @@
   &[data-mode='edit'] .blk:hover::after { box-shadow: inset 0 0 0 1px var(--p-elevator-accent-wash2); }
   &[data-mode='edit'] .blk.is-sel::after {
     box-shadow: inset 0 0 0 1.5px var(--p-elevator-accent);
-    background: color-mix(in srgb, var(--p-elevator-accent) 5%, transparent);
+    background: var(--p-elevator-accent-faint);
   }
 
   /* A margin tab naming what is selected, set in the GUTTER like a proofing
@@ -897,12 +897,12 @@
   .blk-tag--flagged { background: var(--p-elevator-warn); color: var(--p-elevator-warn-ink); }
 
   /* an item flagged by the writing check */
-  .blk.is-flagged::after { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--p-elevator-warn) 50%, transparent); }
+  .blk.is-flagged::after { box-shadow: inset 0 0 0 1px var(--p-elevator-warn-soft); }
   .blk.is-flagged.is-sel::after { box-shadow: inset 0 0 0 1.5px var(--p-elevator-warn); }
 
   /* live editing */
   [contenteditable] { outline: none; }
-  [contenteditable]:focus { background: color-mix(in srgb, var(--p-elevator-accent) 7%, transparent); border-radius: 2px; }
+  [contenteditable]:focus { background: var(--p-elevator-accent-faint); border-radius: 2px; }
   [contenteditable][data-empty]::before {
     content: attr(data-empty);
     color: var(--p-elevator-paper-ink3);
@@ -984,7 +984,7 @@
     aspect-ratio: 4 / 5;
     object-fit: cover;
     flex: none;
-    background: color-mix(in srgb, var(--p-elevator-paper-ink) 12%, transparent);
+    background: var(--p-elevator-paper-rule-soft);
   }
 
   /* sections */
@@ -1023,7 +1023,7 @@
   .doc__skills span {
     padding: .12em .55em;
     font-size: calc(var(--doc-size) * .84);
-    background: color-mix(in srgb, var(--p-elevator-paper-ink) 7%, transparent);
+    background: var(--p-elevator-paper-rule-soft);
   }
   .doc__skillrow { display: flex; gap: .8em; margin-bottom: .3em; font-size: calc(var(--doc-size) * .88); }
   .doc__skillrow b { flex: none; min-width: 7.2em; font-weight: 700; }
@@ -1193,7 +1193,7 @@
     top: 0;
     bottom: -100px;
     width: 1px;
-    background: color-mix(in srgb, var(--p-elevator-accent) 55%, transparent);
+    background: var(--p-elevator-accent-glow);
     z-index: 3;
     pointer-events: none;
   }
@@ -1244,7 +1244,7 @@
     position: absolute;
     right: 0; top: 0; bottom: 0;
     width: 14px;
-    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--p-elevator-panel) 82%, transparent));
+    background: linear-gradient(90deg, transparent, var(--p-elevator-panel));
   }
 
   /* ── the gaps ─────────────────────────────────────────────────────────── */
@@ -1257,8 +1257,8 @@
       var(--p-elevator-warn-wash) 0 5px,
       transparent 5px 10px
     );
-    border-left: 1px dashed color-mix(in srgb, var(--p-elevator-warn) 45%, transparent);
-    border-right: 1px dashed color-mix(in srgb, var(--p-elevator-warn) 45%, transparent);
+    border-left: 1px dashed var(--p-elevator-warn-soft);
+    border-right: 1px dashed var(--p-elevator-warn-soft);
     cursor: help;
     z-index: 1;
   }
@@ -2529,7 +2529,7 @@
 }
 
 @keyframes inkland {
-  from { background: color-mix(in srgb, var(--p-elevator-accent) 26%, transparent); }
+  from { background: var(--p-elevator-accent-wash2); }
   to   { background: transparent; }
 }
 
